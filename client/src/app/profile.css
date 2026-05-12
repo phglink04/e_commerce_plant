@@ -1,0 +1,246 @@
+/* ── Shell Layout ── */
+.pf-shell {
+  display: grid;
+  grid-template-columns: 1fr;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #f0f7f1 0%, #e8f0e9 100%);
+}
+@media (min-width: 900px) {
+  .pf-shell {
+    grid-template-columns: 300px minmax(0, 1fr);
+  }
+}
+
+/* ── Sidebar ── */
+.pf-sidebar {
+  background: linear-gradient(180deg, #0f2418 0%, #14532d 100%);
+  color: #fff;
+  padding: 1.5rem;
+  display: none;
+  flex-direction: column;
+  gap: 1.2rem;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+@media (min-width: 900px) {
+  .pf-sidebar { display: flex; }
+}
+.pf-sidebar__user {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 1rem;
+  background: rgba(255,255,255,0.06);
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.pf-sidebar__avatar {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #059669, #10b981);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 1.1rem;
+  flex-shrink: 0; overflow: hidden;
+}
+.pf-sidebar__avatar img {
+  width: 100%; height: 100%; object-fit: cover;
+}
+.pf-sidebar__name {
+  font-weight: 600; font-size: 0.95rem; margin: 0;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pf-sidebar__email {
+  font-size: 0.78rem; color: rgba(255,255,255,0.55); margin: 0;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pf-sidebar__nav {
+  flex: 1;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.pf-sidebar__link {
+  display: flex; align-items: center; gap: 0.7rem;
+  padding: 0.7rem 0.8rem;
+  border-radius: 12px;
+  text-decoration: none; color: rgba(255,255,255,0.7);
+  transition: all 0.2s;
+}
+.pf-sidebar__link:hover {
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+}
+.pf-sidebar__link--active {
+  background: linear-gradient(135deg, #059669, #047857);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(5, 150, 105, 0.3);
+}
+.pf-sidebar__link-icon {
+  width: 34px; height: 34px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.08);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.pf-sidebar__link--active .pf-sidebar__link-icon {
+  background: rgba(255,255,255,0.15);
+}
+.pf-sidebar__link-label {
+  font-size: 0.88rem; font-weight: 600; display: block;
+}
+.pf-sidebar__link-desc {
+  font-size: 0.72rem; opacity: 0.6; display: none;
+}
+@media (min-width: 1100px) {
+  .pf-sidebar__link-desc { display: block; }
+}
+.pf-sidebar__chevron {
+  margin-left: auto; opacity: 0.3;
+}
+.pf-sidebar__footer {
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding-top: 0.8rem;
+}
+.pf-sidebar__logout {
+  display: flex; align-items: center; gap: 0.6rem;
+  width: 100%; padding: 0.7rem 0.8rem;
+  border-radius: 12px; border: none;
+  background: rgba(220,38,38,0.08);
+  color: #fca5a5; cursor: pointer;
+  font-size: 0.88rem; font-weight: 600;
+  transition: all 0.2s;
+}
+.pf-sidebar__logout:hover {
+  background: rgba(220,38,38,0.15);
+  color: #fecaca;
+}
+
+/* ── Main Content ── */
+.pf-main {
+  padding: 1.5rem;
+  min-width: 0;
+}
+@media (min-width: 900px) {
+  .pf-main { padding: 2rem 2.5rem; }
+}
+.pf-main__header {
+  margin-bottom: 1.5rem;
+}
+.pf-main__title {
+  font-size: clamp(1.4rem, 2.5vw, 1.8rem);
+  font-weight: 800; color: #14532d; margin: 0 0 0.3rem;
+  letter-spacing: -0.3px;
+}
+.pf-main__subtitle {
+  color: #6b7280; font-size: 0.92rem; margin: 0;
+}
+.pf-main__content {
+  max-width: 800px;
+}
+
+/* ── Overview Cards ── */
+.pf-overview-grid {
+  display: grid; gap: 1rem;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 600px) {
+  .pf-overview-grid { grid-template-columns: repeat(2, 1fr); }
+}
+.pf-overview-card {
+  display: flex; align-items: center; gap: 1rem;
+  padding: 1.2rem;
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  text-decoration: none; color: inherit;
+  transition: all 0.25s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.pf-overview-card:hover {
+  border-color: #86efac;
+  box-shadow: 0 8px 24px rgba(5,150,105,0.1);
+  transform: translateY(-2px);
+}
+.pf-overview-card__icon {
+  width: 48px; height: 48px;
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.pf-overview-card__text h3 {
+  margin: 0 0 0.2rem; font-size: 0.95rem; font-weight: 700; color: #1f2937;
+}
+.pf-overview-card__text p {
+  margin: 0; font-size: 0.8rem; color: #6b7280;
+}
+.pf-overview-card__arrow {
+  margin-left: auto; color: #d1d5db; transition: color 0.2s;
+}
+.pf-overview-card:hover .pf-overview-card__arrow { color: #059669; }
+
+/* ── Mobile Header ── */
+.pf-mobile-header {
+  display: block;
+  padding: 0.8rem 1rem;
+  background: linear-gradient(135deg, #0f2418 0%, #14532d 100%);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+@media (min-width: 900px) {
+  .pf-mobile-header { display: none; }
+}
+.pf-mobile-header__toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 12px;
+  color: #fff;
+  padding: 0.55rem 1rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+  justify-content: center;
+}
+.pf-mobile-header__toggle:hover {
+  background: rgba(255,255,255,0.14);
+}
+
+/* ── Sidebar Mobile ── */
+.pf-sidebar--mobile-open {
+  display: flex !important;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 300px;
+  max-width: 85vw;
+  z-index: 50;
+  animation: pf-slide-in 0.3s ease;
+}
+@keyframes pf-slide-in {
+  from { transform: translateX(-100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* ── Backdrop ── */
+.pf-sidebar-backdrop {
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(4px);
+  animation: pf-fade-in 0.25s ease;
+}
+@keyframes pf-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@media (min-width: 900px) {
+  .pf-sidebar-backdrop { display: none; }
+}
+

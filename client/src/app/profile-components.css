@@ -1,0 +1,261 @@
+/* ══════════════════════════════════════════════════
+   PROFILE SYSTEM — Part 2: Components
+   ══════════════════════════════════════════════════ */
+
+/* ── Buttons ── */
+.pf-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+  border: none; border-radius: 12px; padding: 0.65rem 1.2rem;
+  font-size: 0.88rem; font-weight: 600; cursor: pointer;
+  transition: all 0.2s; text-decoration: none;
+}
+.pf-btn--primary { background: linear-gradient(135deg,#059669,#047857); color: #fff; }
+.pf-btn--primary:hover { box-shadow: 0 4px 16px rgba(5,150,105,0.3); transform: translateY(-1px); }
+.pf-btn--primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+.pf-btn--ghost { background: transparent; color: #374151; }
+.pf-btn--ghost:hover { background: #f3f4f6; }
+.pf-btn--danger { background: #dc2626; color: #fff; }
+.pf-btn--danger:hover { background: #b91c1c; }
+.pf-btn--danger-outline { background: transparent; color: #dc2626; border: 1px solid #fca5a5; }
+.pf-btn--danger-outline:hover { background: #fef2f2; }
+.pf-btn--danger-text { color: #dc2626; }
+.pf-btn--sm { padding: 0.4rem 0.7rem; font-size: 0.8rem; border-radius: 8px; }
+
+/* ── Forms ── */
+.pf-form { display: flex; flex-direction: column; gap: 1.5rem; }
+.pf-form__avatar-section {
+  display: flex; align-items: center; gap: 1.2rem;
+  padding: 1.2rem; background: #fff;
+  border-radius: 16px; border: 1px solid #e5e7eb;
+}
+.pf-form__avatar-wrap { position: relative; }
+.pf-form__avatar {
+  width: 80px; height: 80px; border-radius: 50%;
+  background: linear-gradient(135deg, #059669, #10b981);
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+.pf-form__avatar img { width: 100%; height: 100%; object-fit: cover; }
+.pf-form__avatar-initial { color: #fff; font-size: 1.8rem; font-weight: 700; }
+.pf-form__avatar-btn {
+  position: absolute; bottom: 0; right: 0;
+  width: 28px; height: 28px; border-radius: 50%;
+  background: #fff; border: 2px solid #e5e7eb;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.2s;
+  color: #374151;
+}
+.pf-form__avatar-btn:hover { border-color: #059669; color: #059669; }
+.pf-form__avatar-hint { margin: 0; font-size: 0.88rem; font-weight: 600; color: #1f2937; }
+.pf-form__avatar-size { margin: 0.2rem 0 0; font-size: 0.78rem; color: #9ca3af; }
+.pf-form__fields {
+  display: flex; flex-direction: column; gap: 1rem;
+  background: #fff; border-radius: 16px; border: 1px solid #e5e7eb;
+  padding: 1.5rem;
+}
+.pf-form__group { display: flex; flex-direction: column; gap: 0.35rem; }
+.pf-form__group--full { grid-column: 1 / -1; }
+.pf-form__label { font-size: 0.82rem; font-weight: 600; color: #374151; }
+.pf-form__input {
+  border: 1px solid #d1d5db; border-radius: 10px;
+  padding: 0.6rem 0.8rem; font-size: 0.9rem;
+  outline: none; transition: all 0.2s;
+  background: #fafafa;
+}
+.pf-form__input:focus { border-color: #059669; box-shadow: 0 0 0 3px rgba(5,150,105,0.1); background: #fff; }
+.pf-form__input--disabled { background: #f3f4f6; color: #9ca3af; cursor: not-allowed; }
+.pf-form__input-wrap { position: relative; }
+.pf-form__input-wrap .pf-form__input { width: 100%; padding-right: 2.5rem; }
+.pf-form__input-toggle {
+  position: absolute; right: 0.6rem; top: 50%; transform: translateY(-50%);
+  background: none; border: none; color: #9ca3af; cursor: pointer;
+  padding: 4px;
+}
+.pf-form__hint { font-size: 0.75rem; color: #9ca3af; margin: 0; }
+.pf-form__static { font-size: 0.9rem; color: #4b5563; margin: 0; font-weight: 500; }
+.pf-form__textarea {
+  border: 1px solid #d1d5db; border-radius: 10px;
+  padding: 0.6rem 0.8rem; font-size: 0.9rem;
+  outline: none; transition: all 0.2s; resize: vertical;
+  font-family: inherit; background: #fafafa;
+}
+.pf-form__textarea:focus { border-color: #059669; box-shadow: 0 0 0 3px rgba(5,150,105,0.1); background: #fff; }
+.pf-form__actions { display: flex; justify-content: flex-end; gap: 0.6rem; }
+.pf-sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); }
+
+/* ── Tabs ── */
+.pf-tabs {
+  display: flex; gap: 0.3rem; overflow-x: auto;
+  padding-bottom: 0.5rem; margin-bottom: 1rem;
+  -ms-overflow-style: none; scrollbar-width: none;
+}
+.pf-tabs::-webkit-scrollbar { display: none; }
+.pf-tabs__item {
+  padding: 0.5rem 1rem; border-radius: 10px;
+  border: 1px solid #e5e7eb; background: #fff;
+  font-size: 0.82rem; font-weight: 600; color: #6b7280;
+  cursor: pointer; white-space: nowrap; transition: all 0.2s;
+}
+.pf-tabs__item:hover { border-color: #86efac; color: #059669; }
+.pf-tabs__item--active { background: #059669; color: #fff; border-color: #059669; }
+
+/* ── Order Cards ── */
+.pf-orders__grid { display: flex; flex-direction: column; gap: 0.8rem; }
+.pf-order__card {
+  display: block; background: #fff; border-radius: 14px;
+  border: 1px solid #e5e7eb; padding: 1rem;
+  text-decoration: none; color: inherit; transition: all 0.2s;
+}
+.pf-order__card:hover { border-color: #86efac; box-shadow: 0 4px 16px rgba(5,150,105,0.08); }
+.pf-order__card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.6rem; }
+.pf-order__card-id { display: flex; align-items: center; gap: 0.4rem; font-weight: 700; font-size: 0.85rem; color: #1f2937; }
+.pf-order__status {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  padding: 0.25rem 0.7rem; border-radius: 999px;
+  font-size: 0.75rem; font-weight: 700;
+}
+.pf-order__card-item { display: flex; justify-content: space-between; font-size: 0.85rem; color: #4b5563; padding: 0.15rem 0; }
+.pf-order__card-item-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 70%; }
+.pf-order__card-item-qty { color: #9ca3af; font-weight: 600; }
+.pf-order__card-more { font-size: 0.78rem; color: #9ca3af; margin: 0.3rem 0 0; }
+.pf-order__card-footer {
+  display: flex; align-items: center; gap: 0.8rem;
+  margin-top: 0.6rem; padding-top: 0.6rem;
+  border-top: 1px solid #f3f4f6;
+}
+.pf-order__card-total-label { font-size: 0.78rem; color: #9ca3af; }
+.pf-order__card-total-value { font-weight: 800; color: #059669; font-size: 0.95rem; margin-left: 0.3rem; }
+.pf-order__card-date { font-size: 0.78rem; color: #9ca3af; margin-left: auto; }
+.pf-order__card-arrow { color: #d1d5db; flex-shrink: 0; }
+
+/* ── Order Detail ── */
+.pf-order-detail__back {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  background: none; border: none; color: #059669;
+  font-weight: 600; font-size: 0.88rem; cursor: pointer;
+  margin-bottom: 1rem; padding: 0;
+}
+.pf-order-detail__back:hover { text-decoration: underline; }
+.pf-order-detail__header {
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.6rem;
+  margin-bottom: 1.5rem;
+}
+.pf-order-detail__id { font-size: 1.2rem; font-weight: 800; color: #1f2937; margin: 0; }
+.pf-order-detail__date { font-size: 0.85rem; color: #6b7280; margin: 0.2rem 0 0; }
+.pf-order-detail__status {
+  padding: 0.4rem 1rem; border-radius: 999px;
+  font-size: 0.82rem; font-weight: 700;
+  background: #d1fae5; color: #059669;
+}
+.pf-order-detail__status--cancelled { background: #fee2e2; color: #dc2626; }
+.pf-order-detail__status--pending { background: #fef3c7; color: #d97706; }
+.pf-order-detail__status--paid { background: #dbeafe; color: #2563eb; }
+.pf-order-detail__status--shipped { background: #cffafe; color: #0891b2; }
+
+/* Progress */
+.pf-order-detail__progress {
+  display: flex; align-items: flex-start; gap: 0;
+  margin-bottom: 1.5rem; padding: 1rem;
+  background: #fff; border-radius: 14px; border: 1px solid #e5e7eb;
+  overflow-x: auto;
+}
+.pf-progress-step {
+  display: flex; flex-direction: column; align-items: center;
+  position: relative; flex: 1; min-width: 60px;
+}
+.pf-progress-step__dot {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: #e5e7eb; display: flex; align-items: center; justify-content: center;
+  color: #9ca3af; z-index: 1;
+}
+.pf-progress-step--done .pf-progress-step__dot { background: #059669; color: #fff; }
+.pf-progress-step--current .pf-progress-step__dot { background: #059669; color: #fff; box-shadow: 0 0 0 4px rgba(5,150,105,0.2); }
+.pf-progress-step__label { font-size: 0.7rem; font-weight: 600; color: #9ca3af; margin-top: 0.4rem; text-align: center; }
+.pf-progress-step--done .pf-progress-step__label { color: #059669; }
+.pf-progress-step__line {
+  position: absolute; top: 14px; left: 50%; width: 100%; height: 2px;
+  background: #e5e7eb; z-index: 0;
+}
+.pf-progress-step__line--done { background: #059669; }
+
+.pf-order-detail__section {
+  background: #fff; border-radius: 14px; border: 1px solid #e5e7eb;
+  padding: 1.2rem; margin-bottom: 1rem;
+}
+.pf-order-detail__section-title {
+  display: flex; align-items: center; gap: 0.5rem;
+  font-size: 0.95rem; font-weight: 700; color: #1f2937;
+  margin: 0 0 0.8rem;
+}
+.pf-order-detail__item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0.5rem 0; border-bottom: 1px solid #f9fafb;
+}
+.pf-order-detail__item:last-child { border-bottom: none; }
+.pf-order-detail__item-name { font-weight: 600; color: #1f2937; font-size: 0.88rem; }
+.pf-order-detail__item-qty { font-size: 0.8rem; color: #9ca3af; }
+.pf-order-detail__item-price { font-weight: 700; color: #059669; }
+.pf-order-detail__summary-row {
+  display: flex; justify-content: space-between; padding: 0.4rem 0; font-size: 0.88rem;
+}
+.pf-order-detail__summary-row--total { font-weight: 800; font-size: 1rem; color: #059669; border-top: 1px solid #e5e7eb; padding-top: 0.6rem; margin-top: 0.3rem; }
+.pf-order-detail__address { color: #4b5563; font-size: 0.9rem; margin: 0; }
+.pf-order-detail__actions { margin-top: 1rem; }
+.pf-order-detail__confirm {
+  background: #fef2f2; border: 1px solid #fecaca; border-radius: 14px;
+  padding: 1rem; text-align: center;
+}
+.pf-order-detail__confirm p { margin: 0 0 0.8rem; font-weight: 600; color: #991b1b; }
+.pf-order-detail__confirm-actions { display: flex; justify-content: center; gap: 0.6rem; }
+
+/* ── Addresses ── */
+.pf-addresses__add-btn { margin-bottom: 1rem; }
+.pf-addresses__grid { display: flex; flex-direction: column; gap: 0.8rem; }
+.pf-addresses__form-wrap { margin-bottom: 1rem; }
+.pf-address-card {
+  background: #fff; border: 1px solid #e5e7eb; border-radius: 14px;
+  padding: 1.2rem; position: relative; transition: all 0.2s;
+}
+.pf-address-card--default { border-color: #86efac; background: linear-gradient(135deg, #f0fdf4, #fff); }
+.pf-address-card__badge {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  background: #dcfce7; color: #059669;
+  padding: 0.2rem 0.6rem; border-radius: 999px;
+  font-size: 0.72rem; font-weight: 700; margin-bottom: 0.5rem;
+}
+.pf-address-card__name { font-weight: 700; font-size: 0.95rem; margin: 0 0 0.2rem; color: #1f2937; }
+.pf-address-card__phone { font-size: 0.85rem; color: #6b7280; margin: 0 0 0.3rem; }
+.pf-address-card__line { font-size: 0.88rem; color: #4b5563; margin: 0 0 0.15rem; }
+.pf-address-card__region { font-size: 0.82rem; color: #9ca3af; margin: 0; }
+.pf-address-card__actions {
+  display: flex; gap: 0.4rem; margin-top: 0.8rem;
+  padding-top: 0.6rem; border-top: 1px solid #f3f4f6; flex-wrap: wrap;
+}
+
+/* Address Form */
+.pf-address-form {
+  background: #fff; border: 1px solid #e5e7eb; border-radius: 16px;
+  padding: 1.5rem;
+}
+.pf-address-form__header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 1rem;
+}
+.pf-address-form__header h3 { margin: 0; font-size: 1rem; font-weight: 700; color: #1f2937; }
+.pf-address-form__close {
+  background: none; border: none; color: #9ca3af; cursor: pointer;
+  padding: 4px; border-radius: 8px;
+}
+.pf-address-form__close:hover { color: #dc2626; background: #fef2f2; }
+.pf-address-form__grid {
+  display: grid; grid-template-columns: 1fr; gap: 0.8rem;
+}
+@media (min-width: 600px) { .pf-address-form__grid { grid-template-columns: 1fr 1fr; } }
+.pf-address-form__actions { display: flex; justify-content: flex-end; gap: 0.6rem; margin-top: 1rem; }
+
+/* Checkbox */
+.pf-checkbox {
+  display: flex; align-items: center; gap: 0.5rem;
+  cursor: pointer; font-size: 0.88rem; color: #4b5563;
+}
+.pf-checkbox input { accent-color: #059669; width: 16px; height: 16px; }
