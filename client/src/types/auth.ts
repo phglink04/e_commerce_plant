@@ -5,6 +5,8 @@ export type User = {
   role?: "user" | "admin" | "owner" | "deliverypartner";
   phone?: string | null;
   avatar?: string | null;
+  isActive?: boolean;
+  isTwoFactorEnabled?: boolean;
   createdAt?: string;
 };
 

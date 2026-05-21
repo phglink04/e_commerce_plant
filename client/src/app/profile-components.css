@@ -259,3 +259,25 @@
   cursor: pointer; font-size: 0.88rem; color: #4b5563;
 }
 .pf-checkbox input { accent-color: #059669; width: 16px; height: 16px; }
+
+/* Select dropdown wrapper */
+.pf-select-wrap { position: relative; }
+.pf-form__select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 100%;
+  padding-right: 2.2rem;
+  cursor: pointer;
+  background: #fafafa;
+}
+.pf-form__select:disabled { background: #f3f4f6; color: #9ca3af; cursor: not-allowed; }
+.pf-select-icon {
+  position: absolute;
+  right: 0.7rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  pointer-events: none;
+}
+

@@ -1,22 +1,27 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { HydratedDocument } from "mongoose";
 
-export type DiscountType = "percentage" | "fixed";
-
 @Schema({ timestamps: true })
 export class Discount {
+  /** Admin-friendly label (e.g. "summer", "newuser") */
+  @Prop({ required: true, trim: true })
+  name!: string;
+
+  /**
+   * Final coupon code = NAME (sanitised, uppercased) + percentage.
+   * e.g. name="sale", percentage=50 → code="SALE50"
+   */
   @Prop({ required: true, unique: true, uppercase: true, trim: true })
   code!: string;
 
-  @Prop({ required: true, enum: ["percentage", "fixed"] })
-  type!: DiscountType;
-
-  @Prop({ required: true, min: 0 })
-  value!: number;
+  /** Discount percentage (1–100) */
+  @Prop({ required: true, min: 1, max: 100 })
+  percentage!: number;
 
   @Prop({ required: true, min: 0 })
   minOrderValue!: number;
 
+  /** Maximum discount amount in VND (optional cap) */
   @Prop({ min: 0 })
   maxDiscount?: number;
 
@@ -35,11 +40,9 @@ export class Discount {
   @Prop({ default: true })
   isActive!: boolean;
 
-  @Prop({ type: [String], default: [] })
-  applicableCategories!: string[];
-
-  @Prop({ type: [String], default: [] })
-  applicableProducts!: string[];
+  /** Whether this voucher shows up in the user's quick-pick list */
+  @Prop({ default: true })
+  isVisible!: boolean;
 }
 
 export type DiscountDocument = HydratedDocument<Discount>;

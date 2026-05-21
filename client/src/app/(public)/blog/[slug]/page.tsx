@@ -38,7 +38,7 @@ export default function BlogDetailPage() {
         const blog = response.data?.data?.blog as BlogDetail | undefined;
 
         if (!blog) {
-          setError("Blog post not found.");
+          setError("Bài viết không tồn tại.");
           return;
         }
 

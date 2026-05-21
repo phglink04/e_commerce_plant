@@ -21,6 +21,7 @@ import { DiscountsModule } from "./module/discounts/discounts.module";
 import { ReviewsModule } from "./module/reviews/reviews.module";
 import { ChatModule } from "./module/chat/chat.module";
 import { envValidationSchema } from "./infrastructure/config/env.validation";
+import { DebugModule } from "./debug/debug.module";
 
 @Module({
   imports: [
@@ -78,6 +79,7 @@ import { envValidationSchema } from "./infrastructure/config/env.validation";
     DiscountsModule,
     ReviewsModule,
     ChatModule,
+    DebugModule,
   ],
   providers: [
     {

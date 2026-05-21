@@ -23,12 +23,12 @@ export default function ChangePasswordForm() {
     setSuccess("");
 
     if (password.length < 6) {
-      setLocalError("Password must be at least 6 characters");
+      setLocalError("Mật khẩu phải có ít nhất 6 ký tự");
       return;
     }
 
     if (password !== passwordConfirm) {
-      setLocalError("Passwords do not match");
+      setLocalError("Mật khẩu không khớp");
       return;
     }
 
@@ -53,8 +53,8 @@ export default function ChangePasswordForm() {
       <div className="pf-security-form__header">
         <Lock size={20} />
         <div>
-          <h3>Change Password</h3>
-          <p>Ensure your account is using a long, random password to stay secure.</p>
+          <h3>Đổi Mật Khẩu</h3>
+          <p>Sử dụng mật khẩu dài và ngẫu nhiên để bảo vệ tài khoản của bạn.</p>
         </div>
       </div>
 
@@ -71,7 +71,7 @@ export default function ChangePasswordForm() {
 
       <div className="pf-form__group">
         <label htmlFor="current-password" className="pf-form__label">
-          Current Password
+          Mật khẩu hiện tại
         </label>
         <div className="pf-form__input-wrap">
           <input
@@ -80,7 +80,7 @@ export default function ChangePasswordForm() {
             className="pf-form__input"
             value={currentPassword}
             onChange={(e) => setCurrentPassword(e.target.value)}
-            placeholder="Enter current password"
+            placeholder="Nhập mật khẩu hiện tại"
             required
           />
           <button
@@ -96,7 +96,7 @@ export default function ChangePasswordForm() {
 
       <div className="pf-form__group">
         <label htmlFor="new-password" className="pf-form__label">
-          New Password
+          Mật khẩu mới
         </label>
         <div className="pf-form__input-wrap">
           <input
@@ -105,7 +105,7 @@ export default function ChangePasswordForm() {
             className="pf-form__input"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter new password (min 6 chars)"
+            placeholder="Nhập mật khẩu mới (tối thiểu 6 ký tự)"
             required
             minLength={6}
           />
@@ -122,7 +122,7 @@ export default function ChangePasswordForm() {
 
       <div className="pf-form__group">
         <label htmlFor="confirm-password" className="pf-form__label">
-          Confirm New Password
+          Xác nhận mật khẩu mới
         </label>
         <div className="pf-form__input-wrap">
           <input
@@ -131,7 +131,7 @@ export default function ChangePasswordForm() {
             className="pf-form__input"
             value={passwordConfirm}
             onChange={(e) => setPasswordConfirm(e.target.value)}
-            placeholder="Confirm new password"
+            placeholder="Xác nhận mật khẩu mới"
             required
           />
           <button
@@ -155,12 +155,12 @@ export default function ChangePasswordForm() {
           {loading ? (
             <>
               <Loader2 size={16} className="pf-spin" />
-              Updating…
+              Đang cập nhật…
             </>
           ) : (
             <>
               <Save size={16} />
-              Update Password
+              Cập Nhật Mật Khẩu
             </>
           )}
         </button>

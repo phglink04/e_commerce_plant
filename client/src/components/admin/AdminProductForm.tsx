@@ -237,6 +237,22 @@ export default function AdminProductForm({
       setError("Vui lòng chọn danh mục.");
       return;
     }
+    if (form.price <= 0) {
+      setError("Giá bán phải lớn hơn 0.");
+      return;
+    }
+    if (form.costPrice < 0) {
+      setError("Giá nhập không được âm.");
+      return;
+    }
+    if (form.stock < 0) {
+      setError("Số lượng tồn kho không được âm.");
+      return;
+    }
+    if (form.discountPercentage < 0 || form.discountPercentage > 100) {
+      setError("Mã giảm giá phải từ 0 đến 100.");
+      return;
+    }
 
     try {
       setSubmitting(true);
@@ -493,7 +509,7 @@ export default function AdminProductForm({
             </label>
             <input
               type="number"
-              min={0}
+              min={1}
               value={form.price || ""}
               onChange={(e) => updateField("price", parseFloat(e.target.value) || 0)}
               placeholder="0"
@@ -508,9 +524,9 @@ export default function AdminProductForm({
             <input
               type="number"
               min={0}
-              max={99}
+              max={100}
               value={form.discountPercentage || ""}
-              onChange={(e) => updateField("discountPercentage", Math.min(99, parseInt(e.target.value) || 0))}
+              onChange={(e) => updateField("discountPercentage", Math.min(100, Math.max(0, parseInt(e.target.value) || 0)))}
               placeholder="0"
               className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
             />

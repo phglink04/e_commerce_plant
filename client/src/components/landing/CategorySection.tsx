@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import type { CategoryItem } from "@/components/landing/types";
 
@@ -35,10 +36,16 @@ export default function CategorySection({
   onCategoryChange,
   gridConfig,
 }: CategorySectionProps) {
+  const router = useRouter();
   const columns = gridConfig?.columns ?? 5;
   const rows = gridConfig?.rows ?? 1;
   const maxItems = rows * columns;
   const displayCategories = categories.slice(0, maxItems);
+
+  const handleCategoryClick = (name: string) => {
+    onCategoryChange(name);
+    router.push(`/shop?category=${encodeURIComponent(name)}`);
+  };
 
   return (
     <section id="categories" className="px-4 py-16 md:px-6">
@@ -53,17 +60,14 @@ export default function CategorySection({
         >
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-600">
-              Shop By Category
+             Khám phá theo danh mục
             </p>
             <h2 className="mt-2 text-3xl font-bold text-slate-900 md:text-4xl">
-              Find Your Perfect Plant
+              Tìm cây xanh phù hợp dành cho bạn
             </h2>
             <div className="hp-section-divider" />
           </div>
-          <p className="mt-2 max-w-xs text-sm text-slate-400 md:mt-0 md:text-right">
-            Browse our curated collection organized by type, purpose, and care
-            level.
-          </p>
+
         </motion.div>
 
         {/* ── Category Grid ── */}
@@ -84,7 +88,7 @@ export default function CategorySection({
                 type="button"
                 variants={cardVariants}
                 whileHover={{ y: -6 }}
-                onClick={() => onCategoryChange(item.name)}
+                onClick={() => handleCategoryClick(item.name)}
                 className={`hp-card-shine group relative min-w-[200px] snap-start overflow-hidden rounded-2xl text-left shadow-sm transition-all duration-300 md:min-w-0 ${
                   isActive
                     ? "ring-2 ring-emerald-500 ring-offset-2 shadow-emerald-100"
@@ -110,7 +114,7 @@ export default function CategorySection({
 
                   {/* Product count */}
                   <div className="absolute bottom-3 right-3 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-slate-700 backdrop-blur">
-                    {item.productCount}+ items
+                    {item.productCount}+ sản phẩm
                   </div>
                 </div>
 
@@ -120,7 +124,7 @@ export default function CategorySection({
                     {item.name}
                   </p>
                   <p className="mt-0.5 text-[11px] text-slate-400">
-                    {isActive ? "✓ Currently viewing" : "Tap to explore"}
+                    {isActive ? "✓ Đang xem" : "Xem tất cả →"}
                   </p>
                 </div>
               </motion.button>
@@ -131,3 +135,4 @@ export default function CategorySection({
     </section>
   );
 }
+

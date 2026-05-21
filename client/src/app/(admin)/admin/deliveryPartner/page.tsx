@@ -223,7 +223,7 @@ export default function AdminDeliveryPartnerPage() {
         >
           <FormInput
             id="partner-name"
-            label="Name"
+            label="Tên"
             value={name}
             onChange={setName}
             required
@@ -238,7 +238,7 @@ export default function AdminDeliveryPartnerPage() {
           />
           <FormInput
             id="partner-password"
-            label="Password"
+            label="Mật khẩu"
             type="password"
             value={password}
             onChange={setPassword}
@@ -246,7 +246,7 @@ export default function AdminDeliveryPartnerPage() {
           />
           <FormInput
             id="partner-phone"
-            label="Phone"
+            label="Số điện thoại"
             value={phone}
             onChange={setPhone}
           />

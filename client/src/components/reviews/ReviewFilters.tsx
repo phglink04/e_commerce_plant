@@ -17,7 +17,7 @@ export default function ReviewFilters({
   onRatingFilter, onWithImagesToggle, onVerifiedToggle, onSortChange, totalResults,
 }: Props) {
   const ratingOptions = [
-    { label: "All", value: undefined },
+    { label: "Tất cả", value: undefined },
     { label: "5 ★", value: 5 },
     { label: "4 ★", value: 4 },
     { label: "3 ★", value: 3 },
@@ -39,35 +39,20 @@ export default function ReviewFilters({
             </button>
           ))}
         </div>
-
-        <div className="review-filters__toggles">
-          <button
-            className={`review-filters__chip ${withImages ? "review-filters__chip--active" : ""}`}
-            onClick={onWithImagesToggle}
-          >
-            📷 With Images
-          </button>
-          <button
-            className={`review-filters__chip ${verifiedOnly ? "review-filters__chip--active" : ""}`}
-            onClick={onVerifiedToggle}
-          >
-            ✓ Verified
-          </button>
-        </div>
       </div>
 
       <div className="review-filters__bottom">
-        <span className="review-filters__count">{totalResults} review{totalResults !== 1 ? "s" : ""}</span>
+        <span className="review-filters__count">{totalResults} đánh giá</span>
         <select
           className="review-filters__sort"
           value={sortBy}
           onChange={(e) => onSortChange(e.target.value)}
         >
-          <option value="newest">Newest First</option>
-          <option value="oldest">Oldest First</option>
-          <option value="highest">Highest Rating</option>
-          <option value="lowest">Lowest Rating</option>
-          <option value="most_liked">Most Liked</option>
+          <option value="newest">Mới nhất</option>
+          <option value="oldest">Cũ nhất</option>
+          <option value="highest">Đánh giá cao</option>
+          <option value="lowest">Đánh giá thấp</option>
+          <option value="most_liked">Yêu thích nhất</option>
         </select>
       </div>
     </div>

@@ -24,8 +24,8 @@ type RoleFilter = "all" | "user" | "deliverypartner" | "admin";
 const roleTabs = [
   { value: "all" as RoleFilter, label: "All Users" },
   { value: "user" as RoleFilter, label: "Customers" },
-  { value: "deliverypartner" as RoleFilter, label: "Delivery" },
-  { value: "admin" as RoleFilter, label: "Admins" },
+  { value: "deliverypartner" as RoleFilter, label: "Đối tác giao hàng" },
+  { value: "admin" as RoleFilter, label: "Quản trị viên" },
 ];
 
 const roleLabels: Record<string, string> = {
@@ -132,7 +132,7 @@ export default function AdminUsersPage() {
     } catch (error) {
       setToast({
         type: "error",
-        message: error instanceof Error ? error.message : "Unable to delete user.",
+        message: error instanceof Error ? error.message : "Đã xáy ra lỗi khi xóa người dùng.",
       });
     } finally {
       setDeleting(false);
@@ -143,7 +143,7 @@ export default function AdminUsersPage() {
     if (!token) return;
     try {
       const detail = await getUserById(userId, token);
-      if (!detail) throw new Error("User not found");
+      if (!detail) throw new Error("Ñgười dùng không tồn tại");
       setSelectedUser(detail);
       setDrawerOpen(true);
     } catch (error) {
@@ -178,7 +178,7 @@ export default function AdminUsersPage() {
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by name or email…"
+          placeholder="Tìm kiếm theo tên hoặc email…"
           className="w-full rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
         />
       </div>
@@ -284,7 +284,7 @@ export default function AdminUsersPage() {
           ]}
           rows={users}
           rowKey={(row) => row.id}
-          emptyText="No users found"
+          emptyText="Không tìm thấy người dùng nào"
         />
       )}
 
@@ -403,9 +403,9 @@ export default function AdminUsersPage() {
       {/* Confirm delete */}
       <ConfirmDialog
         open={deleteTarget !== null}
-        title="Delete User?"
+        title="Xóa người dùng?"
         description={`"${deleteTarget?.email ?? ""}" will be permanently deleted. All data for this user will be lost.`}
-        confirmLabel="Delete User"
+        confirmLabel="Xóa người dùng"
         variant="danger"
         loading={deleting}
         onConfirm={() => void handleDeleteConfirm()}

@@ -2,22 +2,22 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Eye,
-  Heart,
   ShoppingCart,
   Star,
   X,
   ArrowRight,
 } from "lucide-react";
-import Link from "next/link";
 import api from "@/lib/api";
 import type { PlantProduct } from "@/components/landing/types";
 import {
   calcDiscountedPrice,
   enrichProduct,
   normalizeImageSrc,
+  formatCurrency,
 } from "@/utils/utils";
 import { useHomeUiStore } from "@/store/home-ui-store";
 import { useAuthStore } from "@/store/auth-store";
@@ -29,11 +29,6 @@ type FeaturedProductsProps = {
   onProductsLoaded?: (products: PlantProduct[]) => void;
   gridConfig?: GridConfig;
 };
-
-const skeletonRows = Array.from(
-  { length: 8 },
-  (_, index) => `skeleton-${index}`,
-);
 
 const containerVariants = {
   hidden: {},
@@ -57,7 +52,7 @@ export default function FeaturedProducts({
   gridConfig,
 }: FeaturedProductsProps) {
   const { token } = useAuthStore();
-  const { incrementCart, wishlistIds, toggleWishlist } = useHomeUiStore();
+  const { incrementCart } = useHomeUiStore();
 
   const columns = gridConfig?.columns ?? 4;
   const rows = gridConfig?.rows ?? 2;
@@ -90,7 +85,7 @@ export default function FeaturedProducts({
       setProducts(enriched);
       onProductsLoaded?.(enriched);
     } catch {
-      setError("Unable to load featured products right now.");
+      setError("Không thể tải sản phẩm nổi bật.");
       setProducts([]);
       onProductsLoaded?.([]);
     } finally {
@@ -132,6 +127,11 @@ export default function FeaturedProducts({
     }
   };
 
+  const getProductUrl = (product: PlantProduct) => {
+    if (product.slug) return `/plant/${product.slug}-${product._id}`;
+    return `/plant/${product._id}`;
+  };
+
   return (
     <section className="px-4 py-16 md:px-6" id="featured-products">
       <div className="mx-auto w-full max-w-[1320px]">
@@ -145,10 +145,10 @@ export default function FeaturedProducts({
         >
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-600">
-              Featured Products
+              Sản phẩm nổi bật
             </p>
             <h2 className="mt-2 text-3xl font-bold text-slate-900 md:text-4xl">
-              Best Sellers You&apos;ll Love
+              Bán chạy nhất dành cho bạn
             </h2>
             <div className="hp-section-divider" />
           </div>
@@ -156,7 +156,7 @@ export default function FeaturedProducts({
             href="/shop"
             className="group mt-2 inline-flex items-center gap-1 text-sm font-semibold text-emerald-600 transition hover:text-emerald-700 md:mt-0"
           >
-            View all products
+            Xem tất cả sản phẩm
             <ArrowRight
               size={15}
               className="transition-transform group-hover:translate-x-1"
@@ -188,7 +188,7 @@ export default function FeaturedProducts({
           </div>
         ) : null}
 
-        {/* ── Product Grid ── */}
+        {/* ── Product Grid (Shop-style cards) ── */}
         {!loading && !error ? (
           <motion.div
             variants={containerVariants}
@@ -199,40 +199,48 @@ export default function FeaturedProducts({
           >
             {filtered.map((product) => {
               const discount = product.discountPercentage ?? 0;
-              const discountedPrice = calcDiscountedPrice(
-                product.price,
-                discount,
-              );
+              const discountedPrice = calcDiscountedPrice(product.price, discount);
               const imageSrc = normalizeImageSrc(product.imageCover);
-              const isWished = wishlistIds.includes(product._id);
+              const outOfStock = product.availability === "Out Of Stock";
+              const productUrl = getProductUrl(product);
 
               return (
                 <motion.article
                   key={product._id}
                   variants={cardVariants}
-                  whileHover={{ y: -6 }}
-                  className="hp-card-shine group overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition-shadow duration-300 hover:shadow-xl"
+                  className="group overflow-hidden rounded-lg border border-slate-100 bg-white shadow-md transition-shadow duration-300 hover:shadow-lg flex flex-col h-full"
                 >
-                  {/* Image wrapper */}
-                  <div className="relative overflow-hidden">
-                    <Image
-                      src={imageSrc}
-                      alt={product.name}
-                      width={420}
-                      height={420}
-                      loading="lazy"
-                      className="h-52 w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
+                  {/* Image Container */}
+                  <div className="relative bg-gray-100 aspect-square overflow-hidden">
+                    <Link href={productUrl}>
+                      <Image
+                        src={imageSrc}
+                        alt={product.name}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 25vw"
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                    </Link>
 
-                    {/* Discount badge */}
-                    {discount > 0 && (
-                      <div className="absolute left-3 top-3 hp-sale-badge">
-                        -{discount}%
+                    {/* Badges */}
+                    {product.isFeatured && (
+                      <span className="absolute top-3 right-3 bg-red-500 text-white px-2 py-1 text-xs font-bold rounded">
+                        Nổi bật
+                      </span>
+                    )}
+                    {product.isFlashSale && (
+                      <span className="absolute top-3 left-3 bg-yellow-500 text-white px-2 py-1 text-xs font-bold rounded">
+                        Giảm giá
+                      </span>
+                    )}
+                    {outOfStock && (
+                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                        <span className="text-white font-bold">Hết hàng</span>
                       </div>
                     )}
 
-                    {/* Action buttons overlay */}
-                    <div className="absolute right-3 top-3 flex flex-col gap-2 opacity-0 transition-all duration-300 group-hover:opacity-100">
+                    {/* Quick View button */}
+                    <div className="absolute right-3 bottom-3 flex flex-col gap-2 opacity-0 transition-all duration-300 group-hover:opacity-100">
                       <button
                         type="button"
                         onClick={() => setActiveQuickView(product)}
@@ -241,58 +249,64 @@ export default function FeaturedProducts({
                         <Eye size={15} />
                       </button>
                     </div>
-
-                    {/* Bottom overlay with add to cart */}
-                    <div className="absolute inset-x-0 bottom-0 flex translate-y-full items-center justify-center bg-gradient-to-t from-black/50 to-transparent pb-4 pt-10 transition-transform duration-300 group-hover:translate-y-0">
-                      <button
-                        type="button"
-                        onClick={() => void handleAddToCart(product)}
-                        className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-emerald-700 shadow-lg transition hover:bg-emerald-50"
-                      >
-                        <ShoppingCart size={15} />
-                        Add to Cart
-                      </button>
-                    </div>
                   </div>
 
-                  {/* Card body */}
-                  <div className="p-4">
-                    <p className="text-[11px] font-medium uppercase tracking-wider text-slate-400">
-                      {product.category ?? "Plant"}
-                    </p>
-                    <h3 className="mt-1 line-clamp-1 text-base font-semibold text-slate-900">
-                      {product.name}
-                    </h3>
-
-                    {/* Rating */}
-                    <div className="mt-2 flex items-center gap-1">
-                      {Array.from({ length: 5 }).map((_, idx) => (
-                        <Star
-                          key={`${product._id}-star-${idx}`}
-                          size={13}
-                          className={
-                            idx < Math.round(product.rating ?? 0)
-                              ? "fill-amber-400 text-amber-400"
-                              : "text-slate-200"
-                          }
-                        />
-                      ))}
-                      <span className="ml-1 text-xs text-slate-400">
-                        {(product.rating ?? 0).toFixed(1)}
+                  {/* Content */}
+                  <div className="flex-1 p-4 flex flex-col">
+                    {/* Category & Tag */}
+                    <div className="flex gap-2 mb-2">
+                      <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">
+                        {product.category ?? "Cây cảnh"}
                       </span>
-                    </div>
-
-                    {/* Price */}
-                    <div className="mt-2 flex items-baseline gap-2">
-                      <span className="text-lg font-bold text-slate-900">
-                        ${discountedPrice}
-                      </span>
-                      {discount > 0 && (
-                        <span className="text-sm text-slate-400 line-through">
-                          ${product.price}
+                      {product.tag && (
+                        <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
+                          {product.tag}
                         </span>
                       )}
                     </div>
+
+                    {/* Name */}
+                    <Link href={productUrl}>
+                      <h3 className="font-semibold text-gray-900 line-clamp-2 hover:text-green-600 transition-colors">
+                        {product.name}
+                      </h3>
+                    </Link>
+
+                    {/* Stock Info */}
+                    {product.stock !== undefined && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        {product.stock > 0 ? `Còn ${product.stock} sản phẩm` : "Hết hàng"}
+                      </p>
+                    )}
+
+                    {/* Price */}
+                    <div className="mt-auto mb-3 pt-2">
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-lg font-bold text-green-600">
+                          {formatCurrency(discountedPrice)}
+                        </span>
+                        {discount > 0 && (
+                          <>
+                            <span className="text-sm text-gray-500 line-through">
+                              {formatCurrency(product.price)}
+                            </span>
+                            <span className="text-xs text-red-500 font-bold">
+                              -{discount}%
+                            </span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Add to Cart Button */}
+                    <button
+                      type="button"
+                      onClick={() => void handleAddToCart(product)}
+                      disabled={outOfStock}
+                      className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white py-2 rounded font-semibold transition-colors duration-200"
+                    >
+                      Thêm vào giỏ
+                    </button>
                   </div>
                 </motion.article>
               );
@@ -337,7 +351,7 @@ export default function FeaturedProducts({
                 />
                 <div className="flex flex-col justify-center">
                   <p className="text-xs font-medium uppercase tracking-wider text-emerald-600">
-                    {activeQuickView.category ?? "Plant"}
+                    {activeQuickView.category ?? "Cây cảnh"}
                   </p>
                   <h3 className="mt-1 text-2xl font-bold text-slate-900">
                     {activeQuickView.name}
@@ -359,20 +373,21 @@ export default function FeaturedProducts({
 
                   <p className="mt-3 text-sm leading-relaxed text-slate-500">
                     {activeQuickView.shortDescription ??
-                      "A healthy, hand-picked plant ready to bring calm and freshness into your space."}
+                      "Cây cảnh khỏe mạnh, được chọn lọc kỹ lưỡng, sẵn sàng mang sự tươi mát đến không gian của bạn."}
                   </p>
 
                   <div className="mt-4 flex items-baseline gap-2">
                     <span className="text-2xl font-bold text-emerald-600">
-                      $
-                      {calcDiscountedPrice(
-                        activeQuickView.price,
-                        activeQuickView.discountPercentage ?? 0,
+                      {formatCurrency(
+                        calcDiscountedPrice(
+                          activeQuickView.price,
+                          activeQuickView.discountPercentage ?? 0,
+                        ),
                       )}
                     </span>
                     {(activeQuickView.discountPercentage ?? 0) > 0 && (
                       <span className="text-base text-slate-400 line-through">
-                        ${activeQuickView.price}
+                        {formatCurrency(activeQuickView.price)}
                       </span>
                     )}
                   </div>
@@ -386,7 +401,7 @@ export default function FeaturedProducts({
                     className="mt-5 inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 px-6 text-sm font-semibold text-white shadow-lg shadow-emerald-500/25 transition hover:shadow-emerald-500/40 hover:brightness-105"
                   >
                     <ShoppingCart size={16} />
-                    Add to Cart
+                    Thêm vào giỏ
                   </button>
                 </div>
               </div>

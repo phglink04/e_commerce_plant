@@ -9,6 +9,7 @@ import { profileService } from "@/services/profile.service";
 import { addressService } from "@/services/address.service";
 import { orderService } from "@/services/order.service";
 import { reviewService } from "@/services/review.service";
+import { useAuthStore } from "@/store/auth-store";
 import { API_ENDPOINTS } from "@/constants";
 import { BaseApiService } from "@/services/base-api.service";
 import type {
@@ -26,6 +27,24 @@ import type {
 
 // ─── Profile Info ──────────────────────────────────────────
 
+const syncAuthenticatedUser = (profile: UserProfile) => {
+  const currentUser = useAuthStore.getState().user;
+  if (!currentUser) {
+    return;
+  }
+
+  useAuthStore.getState().setUser({
+    ...currentUser,
+    name: profile.name,
+    email: profile.email,
+    phone: profile.phone,
+    avatar: profile.avatar,
+    role: profile.role,
+    isActive: profile.isActive,
+    isTwoFactorEnabled: profile.isTwoFactorEnabled,
+  });
+};
+
 export function useProfileInfo() {
   const {
     data: profile,
@@ -41,6 +60,7 @@ export function useProfileInfo() {
       setUpdating(true);
       try {
         const updated = await profileService.updateMe(payload);
+        syncAuthenticatedUser(updated);
         await refetch();
         return updated;
       } finally {
@@ -55,6 +75,7 @@ export function useProfileInfo() {
       setUpdating(true);
       try {
         const updated = await profileService.updateAvatar(file);
+        syncAuthenticatedUser(updated);
         await refetch();
         return updated;
       } finally {

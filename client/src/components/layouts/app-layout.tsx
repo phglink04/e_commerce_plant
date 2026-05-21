@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
 import ChatWidget from "@/components/chat/ChatWidget";
+import AuthHydrator from "@/components/auth/auth-hydrator";
 
 type AppLayoutProps = {
   children: React.ReactNode;
@@ -17,6 +18,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <>
+      <AuthHydrator />
       {!hideChrome ? <Header /> : null}
       {children}
       {!hideChrome ? <Footer /> : null}

@@ -6,7 +6,6 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, Calendar, BookOpen } from "lucide-react";
 import api from "@/lib/api";
-import { blogPosts } from "@/lib/mock-content";
 import type { BlogPreview } from "@/components/landing/types";
 
 type ApiBlog = {
@@ -14,20 +13,55 @@ type ApiBlog = {
   id?: string;
   title?: string;
   excerpt?: string;
+  content?: string;
   coverImage?: string;
   slug?: string;
   category?: string;
+  author?: string;
   createdAt?: string;
 };
 
-const toPreview = (item: ApiBlog): BlogPreview => ({
-  id: item._id ?? item.id ?? item.slug ?? Math.random().toString(16).slice(2),
-  title: item.title ?? "Untitled",
-  description:
-    item.excerpt ?? "Read the latest plant care insights and ideas.",
-  image: item.coverImage ?? "/frontend/BlogPage/Box1.jpg",
-  slug: item.slug,
-});
+type BlogPreviewExtended = BlogPreview & {
+  category?: string;
+  date?: string;
+  author?: string;
+};
+
+const toPreview = (item: ApiBlog): BlogPreviewExtended => {
+  // Format date from API
+  let dateStr = "";
+  if (item.createdAt) {
+    try {
+      const d = new Date(item.createdAt);
+      dateStr = d.toLocaleDateString("vi-VN", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
+    } catch {
+      dateStr = "";
+    }
+  }
+
+  // Generate excerpt from content if not available
+  let excerpt = item.excerpt;
+  if (!excerpt && item.content) {
+    // Strip HTML tags and take first 120 chars
+    const plainText = item.content.replace(/<[^>]*>/g, "");
+    excerpt = plainText.length > 120 ? plainText.slice(0, 120) + "..." : plainText;
+  }
+
+  return {
+    id: item._id ?? item.id ?? item.slug ?? Math.random().toString(16).slice(2),
+    title: item.title ?? "Chưa có tiêu đề",
+    description: excerpt ?? "Đọc thêm về kiến thức chăm sóc cây cảnh.",
+    image: item.coverImage ?? "/frontend/BlogPage/Box1.jpg",
+    slug: item.slug,
+    category: item.category ?? "Chung",
+    date: dateStr,
+    author: item.author,
+  };
+};
 
 const containerVariants = {
   hidden: {},
@@ -46,31 +80,30 @@ const cardVariants = {
 };
 
 export default function BlogSection() {
-  const [blogs, setBlogs] = useState<BlogPreview[]>([]);
+  const [blogs, setBlogs] = useState<BlogPreviewExtended[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     const run = async () => {
       try {
         setLoading(true);
+        setError(false);
         const response = await api.get("/api/blogs/published?limit=4");
         const incoming = (response.data?.data?.blogs ??
           response.data?.data ??
           []) as ApiBlog[];
 
-        if (!incoming.length) throw new Error("No blogs available");
+        if (!incoming.length) {
+          setError(true);
+          setBlogs([]);
+          return;
+        }
 
         setBlogs(incoming.slice(0, 4).map(toPreview));
       } catch {
-        setBlogs(
-          blogPosts.slice(0, 4).map((item) => ({
-            id: item.slug,
-            title: item.title,
-            description: item.description,
-            image: item.image,
-            slug: item.slug,
-          })),
-        );
+        setError(true);
+        setBlogs([]);
       } finally {
         setLoading(false);
       }
@@ -81,6 +114,11 @@ export default function BlogSection() {
 
   const featured = blogs[0];
   const rest = blogs.slice(1, 4);
+
+  // Don't render section if no blogs available
+  if (!loading && (error || blogs.length === 0)) {
+    return null;
+  }
 
   return (
     <section className="px-4 py-16 md:px-6" id="blog-preview">
@@ -95,10 +133,10 @@ export default function BlogSection() {
         >
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-600">
-              Blog & Guides
+              Blog & Hướng dẫn
             </p>
             <h2 className="mt-2 text-3xl font-bold text-slate-900 md:text-4xl">
-              Plant Care Insights
+              Kiến thức chăm sóc cây
             </h2>
             <div className="hp-section-divider" />
           </div>
@@ -106,7 +144,7 @@ export default function BlogSection() {
             href="/blog"
             className="group mt-2 inline-flex items-center gap-1 text-sm font-semibold text-emerald-600 transition hover:text-emerald-700 md:mt-0"
           >
-            View all posts
+            Xem tất cả bài viết
             <ArrowRight
               size={15}
               className="transition-transform group-hover:translate-x-1"
@@ -165,20 +203,24 @@ export default function BlogSection() {
 
                   {/* Category tag */}
                   <div className="absolute left-4 top-4 rounded-lg bg-emerald-500/90 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur">
-                    Plant Care
+                    {featured.category}
                   </div>
                 </div>
 
                 <div className="p-5">
                   <div className="flex items-center gap-3 text-xs text-slate-400">
-                    <span className="inline-flex items-center gap-1">
-                      <Calendar size={12} />
-                      May 2026
-                    </span>
-                    <span className="inline-flex items-center gap-1">
-                      <BookOpen size={12} />
-                      5 min read
-                    </span>
+                    {featured.date && (
+                      <span className="inline-flex items-center gap-1">
+                        <Calendar size={12} />
+                        {featured.date}
+                      </span>
+                    )}
+                    {featured.author && (
+                      <span className="inline-flex items-center gap-1">
+                        <BookOpen size={12} />
+                        {featured.author}
+                      </span>
+                    )}
                   </div>
                   <h3 className="mt-2 text-xl font-bold text-slate-900 transition group-hover:text-emerald-700">
                     {featured.title}
@@ -190,7 +232,7 @@ export default function BlogSection() {
                     href={featured.slug ? `/blog/${featured.slug}` : "/blog"}
                     className="group/link mt-4 inline-flex items-center gap-1 text-sm font-semibold text-emerald-600 transition hover:text-emerald-700"
                   >
-                    Read article
+                    Đọc bài viết
                     <ArrowRight
                       size={14}
                       className="transition-transform group-hover/link:translate-x-1"
@@ -220,8 +262,17 @@ export default function BlogSection() {
 
                   <div className="flex flex-1 flex-col justify-center py-1">
                     <div className="flex items-center gap-2 text-[11px] text-slate-400">
-                      <Calendar size={11} />
-                      <span>May 2026</span>
+                      {post.date && (
+                        <>
+                          <Calendar size={11} />
+                          <span>{post.date}</span>
+                        </>
+                      )}
+                      {post.category && (
+                        <span className="rounded bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700">
+                          {post.category}
+                        </span>
+                      )}
                     </div>
                     <h3 className="mt-1 line-clamp-2 text-sm font-semibold text-slate-900 transition group-hover:text-emerald-700">
                       {post.title}
@@ -230,7 +281,7 @@ export default function BlogSection() {
                       href={post.slug ? `/blog/${post.slug}` : "/blog"}
                       className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 transition hover:text-emerald-700"
                     >
-                      Read more
+                      Đọc thêm
                       <ArrowRight size={12} />
                     </Link>
                   </div>

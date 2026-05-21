@@ -37,14 +37,14 @@ export default function QRPaymentModal({
       <section className="relative z-10 w-full max-w-md origin-center rounded-2xl bg-white p-5 shadow-2xl ring-1 ring-black/5 transition duration-200 animate-in fade-in zoom-in-95 md:p-6">
         <header className="mb-4 flex items-center justify-between">
           <h3 className="text-lg font-semibold text-slate-900">
-            QR Bank Transfer
+            Chuyển Khoản QR
           </h3>
           <button
             type="button"
             onClick={onClose}
             className="rounded-lg px-2 py-1 text-sm text-slate-500 transition hover:bg-slate-100"
           >
-            Close
+            Đóng
           </button>
         </header>
 
@@ -94,8 +94,8 @@ export default function QRPaymentModal({
         </div>
 
         <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600">
-          Open your banking app, scan the QR, keep the exact transfer note, then
-          tap "I have paid".
+          Mở ứng dụng ngân hàng, quét mã QR, giữ đúng nội dung chuyển khoản, sau đó
+          nhấn "Tôi đã thanh toán".
         </div>
 
         {statusText ? (
@@ -105,7 +105,7 @@ export default function QRPaymentModal({
 
         <div className="mt-5 flex flex-wrap items-center justify-between gap-2">
           <span className="text-xs text-slate-500">
-            {polling ? "Auto-checking every 7 seconds" : "Polling stopped"}
+            {polling ? "Tự động kiểm tra mỗi 7 giây" : "Đã dừng kiểm tra"}
           </span>
 
           <button
@@ -114,7 +114,7 @@ export default function QRPaymentModal({
             disabled={checking}
             className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {checking ? "Checking..." : "I have paid"}
+            {checking ? "Đang kiểm tra..." : "Tôi đã thanh toán"}
           </button>
         </div>
       </section>

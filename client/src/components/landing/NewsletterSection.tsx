@@ -12,11 +12,11 @@ export default function NewsletterSection() {
     event.preventDefault();
 
     if (!email.trim()) {
-      setMessage("Please enter a valid email address.");
+      setMessage("Vui lòng nhập địa chỉ email hợp lệ.");
       return;
     }
 
-    setMessage("Thanks for subscribing! Your 10% discount code is on the way 🎉");
+    setMessage("Cảm ơn bạn đã đăng ký! Mã giảm giá 10% đang trên đường đến bạn 🎉");
     setEmail("");
   };
 
@@ -41,11 +41,11 @@ export default function NewsletterSection() {
             </div>
 
             <h2 className="text-3xl font-bold md:text-4xl">
-              Get 10% Off Your First Order
+              Giảm 10% Cho Đơn Hàng Đầu Tiên
             </h2>
             <p className="mt-3 text-sm text-emerald-50/90 md:text-base">
-              Join our newsletter for flash deals, restock alerts, and care tips
-              curated by our plant experts.
+              Đăng ký nhận bản tin để nhận ưu đãi flash, thông báo hàng mới về
+              và mẹo chăm sóc từ chuyên gia cây cảnh.
             </p>
 
             {/* Form */}
@@ -62,7 +62,7 @@ export default function NewsletterSection() {
                   type="email"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
-                  placeholder="Enter your email"
+                  placeholder="Nhập email của bạn"
                   className="h-12 w-full rounded-xl border-0 bg-white pl-10 pr-4 text-sm text-slate-900 shadow-lg outline-none ring-2 ring-transparent transition focus:ring-emerald-300"
                 />
               </div>
@@ -70,7 +70,7 @@ export default function NewsletterSection() {
                 type="submit"
                 className="group inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 text-sm font-semibold text-white shadow-lg transition hover:bg-slate-800"
               >
-                Subscribe
+                Đăng ký
                 <ArrowRight
                   size={15}
                   className="transition-transform group-hover:translate-x-1"

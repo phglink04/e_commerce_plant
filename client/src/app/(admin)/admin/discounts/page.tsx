@@ -1,7 +1,16 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Plus, Trash2, Pencil, Tag, ToggleLeft, ToggleRight } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  Pencil,
+  Tag,
+  ToggleLeft,
+  ToggleRight,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 import { SearchBar, Pagination } from "@/components/ui";
 import AdminModal from "@/components/admin/ui/admin-modal";
 import AdminToast from "@/components/admin/ui/admin-toast";
@@ -11,9 +20,9 @@ import { discountService } from "@/services/admin/discount.service";
 import { Discount } from "@/types/discount";
 
 const statusColors: Record<string, string> = {
-  active: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  inactive: "bg-slate-100 text-slate-600 border-slate-200",
-  expired: "bg-red-50 text-red-600 border-red-200",
+  active: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200",
+  inactive: "bg-slate-100 text-slate-600 ring-1 ring-slate-200",
+  expired: "bg-red-50 text-red-600 ring-1 ring-red-200",
 };
 
 function getDiscountStatus(d: Discount): string {
@@ -79,7 +88,7 @@ export default function AdminDiscountsPage() {
       console.error("Failed to fetch discounts:", err);
       setToast({
         type: "error",
-        message: "Failed to load discounts",
+        message: "Không thể tải danh sách mã giảm giá",
       });
     } finally {
       setLoading(false);
@@ -110,14 +119,14 @@ export default function AdminDiscountsPage() {
     try {
       setDeleting(true);
       await discountService.deleteDiscount(deleteTarget.id);
-      setToast({ type: "success", message: "Discount deleted successfully" });
+      setToast({ type: "success", message: "Đã xóa mã giảm giá" });
       setDeleteTarget(null);
       fetchDiscounts();
     } catch (err) {
       setToast({
         type: "error",
         message:
-          err instanceof Error ? err.message : "Failed to delete discount",
+          err instanceof Error ? err.message : "Không thể xóa mã giảm giá",
       });
     } finally {
       setDeleting(false);
@@ -131,13 +140,31 @@ export default function AdminDiscountsPage() {
       });
       setToast({
         type: "success",
-        message: d.isActive ? "Discount deactivated" : "Discount activated",
+        message: d.isActive ? "Đã vô hiệu hóa" : "Đã kích hoạt",
       });
       fetchDiscounts();
-    } catch (err) {
+    } catch {
       setToast({
         type: "error",
-        message: "Failed to update status",
+        message: "Không thể cập nhật trạng thái",
+      });
+    }
+  };
+
+  const handleToggleVisible = async (d: Discount) => {
+    try {
+      await discountService.updateDiscount(d.id, {
+        isVisible: !d.isVisible,
+      });
+      setToast({
+        type: "success",
+        message: d.isVisible ? "Đã ẩn khỏi danh sách gợi ý" : "Đã hiển thị trong danh sách gợi ý",
+      });
+      fetchDiscounts();
+    } catch {
+      setToast({
+        type: "error",
+        message: "Không thể cập nhật hiển thị",
       });
     }
   };
@@ -146,8 +173,8 @@ export default function AdminDiscountsPage() {
     setToast({
       type: "success",
       message: editingDiscount
-        ? "Discount updated successfully"
-        : "Discount created successfully",
+        ? "Đã cập nhật mã giảm giá"
+        : "Đã tạo mã giảm giá mới",
     });
     fetchDiscounts();
   };
@@ -161,10 +188,10 @@ export default function AdminDiscountsPage() {
         <div>
           <h2 className="text-2xl font-bold tracking-tight text-slate-900">
             <Tag className="mr-2 inline-block" size={24} />
-            Discount Codes
+            Mã giảm giá
           </h2>
           <p className="mt-0.5 text-sm text-slate-500">
-            {pagination?.totalResults?.toLocaleString() || 0} total coupons
+            {pagination?.totalResults?.toLocaleString() || 0} mã giảm giá
           </p>
         </div>
         <button
@@ -172,7 +199,7 @@ export default function AdminDiscountsPage() {
           className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-emerald-200 transition hover:from-emerald-700 hover:to-emerald-600"
         >
           <Plus size={16} />
-          Add Coupon
+          Tạo mã
         </button>
       </header>
 
@@ -184,7 +211,7 @@ export default function AdminDiscountsPage() {
               setSearch(val);
               setPage(1);
             }}
-            placeholder="Search coupons…"
+            placeholder="Tìm kiếm mã giảm giá…"
             debounceDelay={500}
           />
         </div>
@@ -197,9 +224,9 @@ export default function AdminDiscountsPage() {
           }}
           className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
         >
-          <option value="">All Statuses</option>
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
+          <option value="">Tất cả</option>
+          <option value="active">Hoạt động</option>
+          <option value="inactive">Không hoạt động</option>
         </select>
       </div>
 
@@ -208,97 +235,126 @@ export default function AdminDiscountsPage() {
         <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
           <table className="w-full">
             <thead className="border-b border-slate-200 bg-slate-50">
-              <tr className="text-sm font-semibold text-slate-700">
-                <th className="px-5 py-3 text-left">Code</th>
-                <th className="px-5 py-3 text-left">Type</th>
-                <th className="px-5 py-3 text-right">Value</th>
-                <th className="px-5 py-3 text-right">Min Order</th>
-                <th className="px-5 py-3 text-center">Usage</th>
-                <th className="px-5 py-3 text-center">Status</th>
-                <th className="px-5 py-3 text-left">Period</th>
-                <th className="px-5 py-3 text-right">Actions</th>
+              <tr className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                <th className="px-4 py-3 text-left">Mã</th>
+                <th className="px-4 py-3 text-center">Giảm giá</th>
+                <th className="px-4 py-3 text-right">Giảm tối đa</th>
+                <th className="px-4 py-3 text-right">Đơn tối thiểu</th>
+                <th className="px-4 py-3 text-center">Lượt dùng</th>
+                <th className="px-4 py-3 text-center">Trạng thái</th>
+                <th className="px-4 py-3 text-center">Hiển thị</th>
+                <th className="px-4 py-3 text-left">Thời gian</th>
+                <th className="px-4 py-3 text-right">Thao tác</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200">
+            <tbody className="divide-y divide-slate-100">
               {discounts.map((d) => {
                 const status = getDiscountStatus(d);
                 return (
-                  <tr key={d.id} className="transition hover:bg-slate-50">
-                    <td className="px-5 py-3">
-                      <span className="inline-flex items-center gap-1.5 rounded-lg bg-violet-50 px-2.5 py-1 text-sm font-bold text-violet-700 tracking-wide">
-                        <Tag size={12} />
-                        {d.code}
+                  <tr key={d.id} className="transition hover:bg-slate-50/80">
+                    <td className="px-4 py-3">
+                      <div>
+                        <span className="inline-flex items-center gap-1.5 rounded-lg bg-violet-50 px-2.5 py-1 text-sm font-bold text-violet-700 tracking-wide ring-1 ring-violet-200">
+                          <Tag size={12} />
+                          {d.code}
+                        </span>
+                        {d.name && (
+                          <p className="mt-0.5 text-xs text-slate-400">{d.name}</p>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <span className="inline-flex items-center rounded-full bg-rose-50 px-2.5 py-1 text-sm font-bold text-rose-600 ring-1 ring-rose-200">
+                        -{d.percentage}%
                       </span>
                     </td>
-                    <td className="px-5 py-3 text-sm text-slate-600 capitalize">
-                      {d.type}
-                    </td>
-                    <td className="px-5 py-3 text-right text-sm font-semibold text-slate-800">
-                      {d.type === "percentage"
-                        ? `${d.value}%`
-                        : `${formatMoney(d.value)} ₫`}
+                    <td className="px-4 py-3 text-right text-sm tabular-nums">
                       {d.maxDiscount ? (
-                        <span className="block text-xs font-normal text-slate-400">
-                          max {formatMoney(d.maxDiscount)} ₫
-                        </span>
-                      ) : null}
+                        <span className="font-medium text-slate-700">{formatMoney(d.maxDiscount)}₫</span>
+                      ) : (
+                        <span className="text-slate-400 text-xs">Không giới hạn</span>
+                      )}
                     </td>
-                    <td className="px-5 py-3 text-right text-sm text-slate-600">
-                      {formatMoney(d.minOrderValue)} ₫
+                    <td className="px-4 py-3 text-right text-sm text-slate-600 tabular-nums">
+                      {formatMoney(d.minOrderValue)}₫
                     </td>
-                    <td className="px-5 py-3 text-center text-sm">
+                    <td className="px-4 py-3 text-center text-sm">
                       <span className="font-semibold text-slate-800">
                         {d.usedCount}
                       </span>
                       <span className="text-slate-400">/{d.usageLimit}</span>
                     </td>
-                    <td className="px-5 py-3 text-center">
+                    <td className="px-4 py-3 text-center">
                       <span
-                        className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
+                        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${
                           statusColors[status] || statusColors.inactive
                         }`}
                       >
+                        <span
+                          className={`h-1.5 w-1.5 rounded-full ${
+                            status === "active"
+                              ? "bg-emerald-500"
+                              : status === "expired"
+                                ? "bg-red-500"
+                                : "bg-slate-400"
+                          }`}
+                        />
                         {status === "active"
-                          ? "Active"
+                          ? "Hoạt động"
                           : status === "expired"
-                            ? "Expired"
-                            : "Inactive"}
+                            ? "Hết hạn"
+                            : "Tắt"}
                       </span>
                     </td>
-                    <td className="px-5 py-3">
+                    <td className="px-4 py-3 text-center">
+                      <button
+                        onClick={() => handleToggleVisible(d)}
+                        className={`inline-flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-medium transition ${
+                          d.isVisible
+                            ? "bg-violet-50 text-violet-600 hover:bg-violet-100"
+                            : "bg-slate-100 text-slate-400 hover:bg-slate-200"
+                        }`}
+                        title={d.isVisible ? "Đang hiển thị — bấm để ẩn" : "Đang ẩn — bấm để hiện"}
+                      >
+                        {d.isVisible ? <Eye size={14} /> : <EyeOff size={14} />}
+                      </button>
+                    </td>
+                    <td className="px-4 py-3">
                       <div className="text-xs text-slate-500">
                         <div>{formatDate(d.startDate)}</div>
                         <div className="text-slate-400">→ {formatDate(d.endDate)}</div>
                       </div>
                     </td>
-                    <td className="px-5 py-3 text-right">
+                    <td className="px-4 py-3 text-right">
                       <div className="flex justify-end gap-1.5">
                         <button
                           onClick={() => handleToggleActive(d)}
-                          title={d.isActive ? "Deactivate" : "Activate"}
-                          className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-sm font-medium transition ${
+                          title={d.isActive ? "Vô hiệu hóa" : "Kích hoạt"}
+                          className={`inline-flex h-8 w-8 items-center justify-center rounded-lg transition ${
                             d.isActive
-                              ? "bg-amber-50 text-amber-600 hover:bg-amber-100"
-                              : "bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
+                              ? "text-amber-600 hover:bg-amber-50"
+                              : "text-emerald-600 hover:bg-emerald-50"
                           }`}
                         >
                           {d.isActive ? (
-                            <ToggleRight size={14} />
+                            <ToggleRight size={16} />
                           ) : (
-                            <ToggleLeft size={14} />
+                            <ToggleLeft size={16} />
                           )}
                         </button>
                         <button
                           onClick={() => handleEdit(d)}
-                          className="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-2.5 py-1.5 text-sm font-medium text-blue-600 transition hover:bg-blue-100"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-blue-600 transition hover:bg-blue-50"
+                          title="Chỉnh sửa"
                         >
-                          <Pencil size={14} />
+                          <Pencil size={15} />
                         </button>
                         <button
                           onClick={() => setDeleteTarget(d)}
-                          className="inline-flex items-center gap-1 rounded-lg bg-red-50 px-2.5 py-1.5 text-sm font-medium text-red-600 transition hover:bg-red-100"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-red-500 transition hover:bg-red-50"
+                          title="Xóa"
                         >
-                          <Trash2 size={14} />
+                          <Trash2 size={15} />
                         </button>
                       </div>
                     </td>
@@ -312,18 +368,18 @@ export default function AdminDiscountsPage() {
         <div className="flex h-48 items-center justify-center rounded-xl border border-slate-200 bg-slate-50">
           <div className="flex flex-col items-center gap-3">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600" />
-            <p className="text-slate-400">Loading discounts...</p>
+            <p className="text-slate-400">Đang tải...</p>
           </div>
         </div>
       ) : (
         <div className="flex h-48 flex-col items-center justify-center rounded-xl border border-slate-200 bg-slate-50">
           <Tag size={32} className="mb-2 text-slate-300" />
-          <p className="text-slate-400">No discount codes found</p>
+          <p className="text-slate-400">Chưa có mã giảm giá nào</p>
           <button
             onClick={handleCreate}
             className="mt-3 text-sm font-medium text-emerald-600 hover:text-emerald-700"
           >
-            Create your first coupon →
+            Tạo mã đầu tiên →
           </button>
         </div>
       )}
@@ -342,7 +398,7 @@ export default function AdminDiscountsPage() {
       {showForm && (
         <AdminModal
           title={
-            editingDiscount ? "Edit Discount Code" : "Create New Discount Code"
+            editingDiscount ? "Chỉnh sửa mã giảm giá" : "Tạo mã giảm giá mới"
           }
           open={true}
           onClose={handleCloseForm}
@@ -358,10 +414,10 @@ export default function AdminDiscountsPage() {
       {/* Delete Confirmation */}
       {deleteTarget && (
         <ConfirmDialog
-          title="Delete Discount Code"
-          description={`Are you sure you want to delete coupon "${deleteTarget.code}"? This action cannot be undone.`}
-          confirmLabel="Delete"
-          cancelLabel="Cancel"
+          title="Xóa mã giảm giá"
+          description={`Bạn có chắc chắn muốn xóa mã "${deleteTarget.code}"? Hành động này không thể hoàn tác.`}
+          confirmLabel="Xóa"
+          cancelLabel="Hủy"
           open={!!deleteTarget}
           loading={deleting}
           onConfirm={handleDelete}

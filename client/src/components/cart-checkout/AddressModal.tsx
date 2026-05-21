@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { ChevronDown } from "lucide-react";
+import { useVnAddress } from "@/hooks/useVnAddress";
 import type { Address } from "./types";
 
 type AddressModalProps = {
@@ -39,6 +41,19 @@ export default function AddressModal({
   const [form, setForm] = useState<FormState>(emptyForm);
   const [errors, setErrors] = useState<Partial<FormState>>({});
 
+  const {
+    provinces,
+    districts,
+    wards,
+    loadingProvinces,
+    loadingDistricts,
+    loadingWards,
+    fetchDistricts,
+    fetchWards,
+    findProvinceCode,
+    findDistrictCode,
+  } = useVnAddress();
+
   useEffect(() => {
     if (!open) {
       return;
@@ -60,6 +75,38 @@ export default function AddressModal({
     setForm(emptyForm);
     setErrors({});
   }, [initialAddress, open]);
+
+  /* ── Hydrate dropdowns for edit mode ── */
+  useEffect(() => {
+    if (form.city && provinces.length > 0) {
+      const code = findProvinceCode(form.city);
+      if (code) fetchDistricts(code);
+    }
+  }, [form.city, provinces, findProvinceCode, fetchDistricts]);
+
+  useEffect(() => {
+    if (form.district && districts.length > 0) {
+      const code = findDistrictCode(form.district);
+      if (code) fetchWards(code);
+    }
+  }, [form.district, districts, findDistrictCode, fetchWards]);
+
+  /* ── Handlers ── */
+  const handleProvinceChange = (name: string) => {
+    setForm((prev) => ({ ...prev, city: name, district: "", ward: "" }));
+    const code = provinces.find((p) => p.name === name)?.code ?? 0;
+    fetchDistricts(code);
+  };
+
+  const handleDistrictChange = (name: string) => {
+    setForm((prev) => ({ ...prev, district: name, ward: "" }));
+    const code = districts.find((d) => d.name === name)?.code ?? 0;
+    fetchWards(code);
+  };
+
+  const handleWardChange = (name: string) => {
+    setForm((prev) => ({ ...prev, ward: name }));
+  };
 
   const canSubmit = useMemo(
     () =>
@@ -83,29 +130,29 @@ export default function AddressModal({
     const nextErrors: Partial<FormState> = {};
 
     if (!form.fullName.trim()) {
-      nextErrors.fullName = "Full name is required.";
+      nextErrors.fullName = "Họ tên là bắt buộc.";
     }
 
     if (!form.phone.trim()) {
-      nextErrors.phone = "Phone is required.";
+      nextErrors.phone = "Số điện thoại là bắt buộc.";
     } else if (!/^\+?[0-9\s-]{8,15}$/.test(form.phone.trim())) {
-      nextErrors.phone = "Phone format is invalid.";
-    }
-
-    if (!form.addressLine.trim()) {
-      nextErrors.addressLine = "Address detail is required.";
+      nextErrors.phone = "Số điện thoại không hợp lệ.";
     }
 
     if (!form.city.trim()) {
-      nextErrors.city = "City is required.";
+      nextErrors.city = "Vui lòng chọn Tỉnh/Thành phố.";
     }
 
     if (!form.district.trim()) {
-      nextErrors.district = "District is required.";
+      nextErrors.district = "Vui lòng chọn Quận/Huyện.";
     }
 
     if (!form.ward.trim()) {
-      nextErrors.ward = "Ward is required.";
+      nextErrors.ward = "Vui lòng chọn Phường/Xã.";
+    }
+
+    if (!form.addressLine.trim()) {
+      nextErrors.addressLine = "Địa chỉ chi tiết là bắt buộc.";
     }
 
     setErrors(nextErrors);
@@ -115,6 +162,9 @@ export default function AddressModal({
   if (!open) {
     return null;
   }
+
+  const selectClass =
+    "w-full appearance-none rounded-xl border border-slate-200 px-3 py-2 pr-9 text-sm outline-none transition focus:border-emerald-400 bg-white disabled:bg-slate-50 disabled:text-slate-400";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
@@ -131,14 +181,15 @@ export default function AddressModal({
             onClick={onClose}
             className="rounded-lg px-2 py-1 text-sm text-slate-500 transition hover:bg-slate-100"
           >
-            Close
+            Đóng
           </button>
         </header>
 
         <div className="space-y-3">
+          {/* Họ tên */}
           <div>
             <label className="mb-1 block text-sm font-medium text-slate-700">
-              Full name
+              Họ và tên
             </label>
             <input
               value={form.fullName}
@@ -146,16 +197,17 @@ export default function AddressModal({
                 setForm((prev) => ({ ...prev, fullName: event.target.value }))
               }
               className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none transition focus:border-emerald-400"
-              placeholder="Nguyen Van A"
+              placeholder="Nguyễn Văn A"
             />
             {errors.fullName ? (
               <p className="mt-1 text-xs text-rose-600">{errors.fullName}</p>
             ) : null}
           </div>
 
+          {/* Số điện thoại */}
           <div>
             <label className="mb-1 block text-sm font-medium text-slate-700">
-              Phone number
+              Số điện thoại
             </label>
             <input
               value={form.phone}
@@ -170,60 +222,96 @@ export default function AddressModal({
             ) : null}
           </div>
 
+          {/* Tỉnh / Thành phố */}
           <div>
             <label className="mb-1 block text-sm font-medium text-slate-700">
-              City
+              Tỉnh / Thành phố
             </label>
-            <input
-              value={form.city}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, city: event.target.value }))
-              }
-              className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none transition focus:border-emerald-400"
-              placeholder="Ho Chi Minh City"
-            />
+            <div className="relative">
+              <select
+                value={form.city}
+                onChange={(e) => handleProvinceChange(e.target.value)}
+                className={selectClass}
+                disabled={loadingProvinces}
+              >
+                <option value="">
+                  {loadingProvinces ? "Đang tải..." : "-- Chọn Tỉnh/Thành phố --"}
+                </option>
+                {provinces.map((p) => (
+                  <option key={p.code} value={p.name}>{p.name}</option>
+                ))}
+              </select>
+              <ChevronDown size={15} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            </div>
             {errors.city ? (
               <p className="mt-1 text-xs text-rose-600">{errors.city}</p>
             ) : null}
           </div>
 
+          {/* Quận / Huyện */}
           <div>
             <label className="mb-1 block text-sm font-medium text-slate-700">
-              District
+              Quận / Huyện
             </label>
-            <input
-              value={form.district}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, district: event.target.value }))
-              }
-              className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none transition focus:border-emerald-400"
-              placeholder="District 1"
-            />
+            <div className="relative">
+              <select
+                value={form.district}
+                onChange={(e) => handleDistrictChange(e.target.value)}
+                className={selectClass}
+                disabled={!form.city || loadingDistricts}
+              >
+                <option value="">
+                  {loadingDistricts
+                    ? "Đang tải..."
+                    : !form.city
+                      ? "-- Chọn Tỉnh/TP trước --"
+                      : "-- Chọn Quận/Huyện --"}
+                </option>
+                {districts.map((d) => (
+                  <option key={d.code} value={d.name}>{d.name}</option>
+                ))}
+              </select>
+              <ChevronDown size={15} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            </div>
             {errors.district ? (
               <p className="mt-1 text-xs text-rose-600">{errors.district}</p>
             ) : null}
           </div>
 
+          {/* Phường / Xã */}
           <div>
             <label className="mb-1 block text-sm font-medium text-slate-700">
-              Ward
+              Phường / Xã
             </label>
-            <input
-              value={form.ward}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, ward: event.target.value }))
-              }
-              className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none transition focus:border-emerald-400"
-              placeholder="Ward 6"
-            />
+            <div className="relative">
+              <select
+                value={form.ward}
+                onChange={(e) => handleWardChange(e.target.value)}
+                className={selectClass}
+                disabled={!form.district || loadingWards}
+              >
+                <option value="">
+                  {loadingWards
+                    ? "Đang tải..."
+                    : !form.district
+                      ? "-- Chọn Quận/Huyện trước --"
+                      : "-- Chọn Phường/Xã --"}
+                </option>
+                {wards.map((w) => (
+                  <option key={w.code} value={w.name}>{w.name}</option>
+                ))}
+              </select>
+              <ChevronDown size={15} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            </div>
             {errors.ward ? (
               <p className="mt-1 text-xs text-rose-600">{errors.ward}</p>
             ) : null}
           </div>
 
+          {/* Địa chỉ chi tiết */}
           <div>
             <label className="mb-1 block text-sm font-medium text-slate-700">
-              Address detail
+              Địa chỉ chi tiết
             </label>
             <textarea
               value={form.addressLine}
@@ -235,7 +323,7 @@ export default function AddressModal({
               }
               rows={3}
               className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none transition focus:border-emerald-400"
-              placeholder="123 Nguyen Trai, District 5, Ho Chi Minh City"
+              placeholder="Số nhà, tên đường, tòa nhà..."
             />
             {errors.addressLine ? (
               <p className="mt-1 text-xs text-rose-600">{errors.addressLine}</p>
@@ -249,7 +337,7 @@ export default function AddressModal({
             onClick={onClose}
             className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
           >
-            Cancel
+            Hủy
           </button>
           <button
             type="button"
@@ -270,7 +358,7 @@ export default function AddressModal({
             }}
             className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            Save
+            Lưu địa chỉ
           </button>
         </footer>
       </section>

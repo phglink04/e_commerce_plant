@@ -13,18 +13,17 @@ type FooterInfo = {
 };
 
 const quickLinks = [
-  { href: "/", label: "Home" },
-  { href: "/shop", label: "Shop" },
+  { href: "/", label: "Trang chủ" },
+  { href: "/shop", label: "Cửa hàng" },
   { href: "/blog", label: "Blog" },
-  { href: "/contact", label: "Contact" },
 ];
 
 const categories = [
-  "Indoor Plants",
-  "Outdoor Plants",
+  "Cây nội thất",
+  "Cây ngoại thất",
   "Bonsai",
-  "Succulents",
-  "Air Purifying",
+  "Sen đá",
+  "Cây lọc không khí",
 ];
 
 const defaultFooter: FooterInfo = {
@@ -64,8 +63,7 @@ export default function Footer() {
         <section>
           <h3 className="text-xl font-semibold">PlantWorld</h3>
           <p className="mt-3 text-sm text-slate-300">
-            Premium plant commerce platform with expert care guidance and secure
-            nationwide delivery.
+            Lan tỏa phong cách sống xanh với cây cảnh chất lượng và trải nghiệm mua sắm hiện đại.
           </p>
           <div className="mt-4 flex gap-2">
             {footerInfo.facebookLink ? (
@@ -92,7 +90,7 @@ export default function Footer() {
 
         <section>
           <h4 className="text-sm font-semibold uppercase tracking-[0.15em] text-emerald-300">
-            Quick Links
+            Liên kết nhanh
           </h4>
           <ul className="mt-4 space-y-2 text-sm text-slate-300">
             {quickLinks.map((item) => (
@@ -110,7 +108,7 @@ export default function Footer() {
 
         <section>
           <h4 className="text-sm font-semibold uppercase tracking-[0.15em] text-emerald-300">
-            Categories
+            Danh mục
           </h4>
           <ul className="mt-4 space-y-2 text-sm text-slate-300">
             {categories.map((item) => (
@@ -121,7 +119,7 @@ export default function Footer() {
 
         <section>
           <h4 className="text-sm font-semibold uppercase tracking-[0.15em] text-emerald-300">
-            Contact
+            Liên hệ
           </h4>
           <ul className="mt-4 space-y-3 text-sm text-slate-300">
             <li className="flex items-start gap-2">
@@ -141,7 +139,7 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-slate-800 py-4 text-center text-xs text-slate-400">
-        © 2026 PlantWorld. All rights reserved.
+        © 2026 PlantWorld. Bảo lưu mọi quyền.
       </div>
     </footer>
   );

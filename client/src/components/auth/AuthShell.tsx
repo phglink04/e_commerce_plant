@@ -19,8 +19,7 @@ export default function AuthShell({
             PlantWorld
           </h1>
           <p style={{ maxWidth: "520px", lineHeight: 1.5 }}>
-            Keep the PlantWorld visual identity and upgrade the authentication
-            flow like hotel-management.
+            Giữ thương hiệu PlantWorld và nâng cấp trải nghiệm xác thực.
           </p>
         </div>
       </section>

@@ -8,6 +8,7 @@ type CartItemProps = {
   plant?: Plant;
   selected: boolean;
   disabled?: boolean;
+  maxStock?: number;
   onToggle: (plantId: string) => void;
   onIncrease: (plantId: string) => void;
   onDecrease: (plantId: string) => void;
@@ -35,24 +36,34 @@ export default function CartItem({
   plant,
   selected,
   disabled = false,
+  maxStock = 0,
   onToggle,
   onIncrease,
   onDecrease,
   onRemove,
 }: CartItemProps) {
-  const name = plant?.name ?? "Plant";
+  const name = plant?.name ?? "Sản phẩm";
   const imageSrc = normalizeImageSrc(plant?.imageCover);
   const subtotal = item.price * item.quantity;
   const hasDiscount = plant && (plant.discountPercentage ?? 0) > 0;
+  const isOutOfStock = maxStock <= 0;
+  const isOverMaxStock = item.quantity > maxStock;
+  const canIncrease = !isOutOfStock && item.quantity < maxStock;
 
   return (
-    <article className="flex gap-3 rounded-2xl border border-emerald-100 bg-white p-3 shadow-sm transition hover:shadow-md md:gap-4 md:p-4">
+    <article className={`flex gap-3 rounded-2xl border p-3 shadow-sm transition hover:shadow-md md:gap-4 md:p-4 ${
+      isOutOfStock 
+        ? "border-rose-200 bg-rose-50" 
+        : isOverMaxStock
+        ? "border-amber-200 bg-amber-50"
+        : "border-emerald-100 bg-white"
+    }`}>
       <label className="mt-2 flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center">
         <input
           type="checkbox"
           checked={selected}
           onChange={() => onToggle(item.plantId)}
-          disabled={disabled}
+          disabled={disabled || isOutOfStock}
           className="h-4 w-4 rounded border-emerald-300 text-emerald-600 focus:ring-emerald-500"
           aria-label={`Select ${name}`}
         />
@@ -63,15 +74,21 @@ export default function CartItem({
         alt={name}
         width={100}
         height={100}
-        className="h-20 w-20 rounded-xl object-cover md:h-24 md:w-24"
+        className={`h-20 w-20 rounded-xl object-cover md:h-24 md:w-24 ${
+          isOutOfStock ? "opacity-50" : ""
+        }`}
       />
 
       <div className="min-w-0 flex-1">
-        <h3 className="truncate text-sm font-semibold text-slate-900 md:text-base">
+        <h3 className={`truncate text-sm font-semibold md:text-base ${
+          isOutOfStock ? "text-slate-500" : "text-slate-900"
+        }`}>
           {name}
         </h3>
         <div className="mt-1 flex items-center gap-2">
-          <span className="text-sm font-medium text-emerald-700">
+          <span className={`text-sm font-medium ${
+            isOutOfStock ? "text-slate-500" : "text-emerald-700"
+          }`}>
             {item.price.toLocaleString("vi-VN")} VND
           </span>
           {hasDiscount && (
@@ -86,19 +103,38 @@ export default function CartItem({
           )}
         </div>
         <p className="text-xs text-slate-500 md:text-sm">
-          Subtotal: {subtotal.toLocaleString("vi-VN")} VND
+          Tạm tính: {subtotal.toLocaleString("vi-VN")} VND
         </p>
+
+        {/* Stock information and warnings */}
+        <div className="mt-2 space-y-1">
+          {isOutOfStock && (
+            <p className="text-xs font-medium text-rose-600">
+              ⚠️ Sản phẩm hết hàng
+            </p>
+          )}
+          {isOverMaxStock && (
+            <p className="text-xs font-medium text-amber-600">
+              ⚠️ Kho chỉ còn {maxStock} sản phẩm. Đã điều chỉnh số lượng.
+            </p>
+          )}
+          {!isOutOfStock && maxStock > 0 && (
+            <p className="text-xs text-slate-500">
+              Kho còn: <span className="font-medium text-slate-700">{maxStock}</span>
+            </p>
+          )}
+        </div>
 
         <div className="mt-3 flex flex-wrap items-center gap-3">
           <div className="inline-flex items-center overflow-hidden rounded-lg border border-slate-200">
             <button
               type="button"
               onClick={() => onDecrease(item.plantId)}
-              disabled={disabled}
+              disabled={disabled || isOutOfStock || item.quantity <= 1}
               className="h-8 w-8 border-r border-slate-200 text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
               aria-label="Decrease quantity"
             >
-              -
+              −
             </button>
             <span className="inline-flex h-8 min-w-10 items-center justify-center px-2 text-sm font-medium text-slate-700">
               {item.quantity}
@@ -106,7 +142,7 @@ export default function CartItem({
             <button
               type="button"
               onClick={() => onIncrease(item.plantId)}
-              disabled={disabled}
+              disabled={disabled || !canIncrease}
               className="h-8 w-8 border-l border-slate-200 text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
               aria-label="Increase quantity"
             >
@@ -120,7 +156,7 @@ export default function CartItem({
             disabled={disabled}
             className="rounded-lg border border-rose-200 px-3 py-1.5 text-xs font-medium text-rose-600 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            Remove
+            Xóa
           </button>
         </div>
       </div>

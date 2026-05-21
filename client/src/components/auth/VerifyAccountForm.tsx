@@ -42,9 +42,9 @@ export default function VerifyAccountForm() {
     <div className={styles.formContainer}>
       <div className={styles.formCard}>
         <div className={styles.formHeader}>
-          <h1 className={styles.formTitle}>Verify Account</h1>
+          <h1 className={styles.formTitle}>Xác Thực Tài Khoản</h1>
           <p className={styles.formSubtitle}>
-            Enter the verification code sent to your email
+            Nhập mã xác thực đã gửi đến email của bạn
           </p>
         </div>
 
@@ -64,7 +64,7 @@ export default function VerifyAccountForm() {
         <form onSubmit={onSubmit} className={styles.form}>
           <div className={styles.formGroup}>
             <label htmlFor="email" className={styles.label}>
-              Email Address
+              Địa chỉ Email
             </label>
             <input
               id="email"
@@ -72,14 +72,14 @@ export default function VerifyAccountForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className={styles.input}
-              placeholder="you@example.com"
+              placeholder="abc@example.com"
               required
             />
           </div>
 
           <div className={styles.formGroup}>
             <label htmlFor="verificationCode" className={styles.label}>
-              Verification Code
+              Mã xác thực
             </label>
             <input
               id="verificationCode"
@@ -89,12 +89,12 @@ export default function VerifyAccountForm() {
                 setVerificationCode(e.target.value.toUpperCase())
               }
               className={styles.input}
-              placeholder="Enter 6-digit code"
+              placeholder="Nhập mã 6 chữ số"
               maxLength={6}
               required
             />
             <p className={styles.inputHint}>
-              Check your email for the verification code
+              Kiểm tra email để lấy mã xác thực
             </p>
           </div>
 
@@ -102,17 +102,17 @@ export default function VerifyAccountForm() {
             {loading ? (
               <>
                 <span className={styles.spinner}></span>
-                Verifying...
+                Đang xác thực...
               </>
             ) : (
-              "Verify Account"
+              "Xác Thực Tài Khoản"
             )}
           </button>
         </form>
 
         <div className={styles.footer}>
           <Link href="/auth/login" className={styles.link}>
-            Back to sign in
+            Quay lại đăng nhập
           </Link>
         </div>
       </div>

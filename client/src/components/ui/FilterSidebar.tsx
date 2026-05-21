@@ -77,7 +77,7 @@ export function FilterSidebar({
   return (
     <div className="bg-white p-4 rounded-lg border border-gray-200 h-fit">
       <div className="flex justify-between items-center mb-4">
-        <h3 className="font-bold text-lg">Filters</h3>
+        <h3 className="font-bold text-lg">Độc lọc</h3>
         <button
           onClick={handleReset}
           className="text-sm text-blue-600 hover:text-blue-700"
@@ -88,7 +88,7 @@ export function FilterSidebar({
 
       {/* Categories */}
       <div className="mb-6">
-        <h4 className="font-semibold text-sm mb-3">Categories</h4>
+        <h4 className="font-semibold text-sm mb-3">Danh mục</h4>
         <div className="space-y-2">
           {categories.map((cat) => (
             <label key={cat} className="flex items-center gap-2 cursor-pointer">
@@ -106,7 +106,7 @@ export function FilterSidebar({
 
       {/* Tags */}
       <div className="mb-6">
-        <h4 className="font-semibold text-sm mb-3">Tags</h4>
+        <h4 className="font-semibold text-sm mb-3">Đường khỏ</h4>
         <div className="space-y-2">
           {tags.map((tag) => (
             <label key={tag} className="flex items-center gap-2 cursor-pointer">
@@ -124,10 +124,10 @@ export function FilterSidebar({
 
       {/* Price Range */}
       <div>
-        <h4 className="font-semibold text-sm mb-3">Price Range</h4>
+        <h4 className="font-semibold text-sm mb-3">Khoảng giá</h4>
         <div className="space-y-3">
           <div>
-            <label className="text-xs text-gray-600">Min Price</label>
+            <label className="text-xs text-gray-600">Giá tối thiểu</label>
             <input
               type="range"
               min="0"
@@ -142,7 +142,7 @@ export function FilterSidebar({
             </div>
           </div>
           <div>
-            <label className="text-xs text-gray-600">Max Price</label>
+            <label className="text-xs text-gray-600">Giá tối đa</label>
             <input
               type="range"
               min="0"

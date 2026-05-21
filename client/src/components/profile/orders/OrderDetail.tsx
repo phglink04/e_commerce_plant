@@ -26,18 +26,18 @@ const STATUS_STEPS: OrderStatus[] = [
 ];
 
 const STATUS_STEP_LABELS: Record<string, string> = {
-  pending: "Pending",
-  confirmed: "Confirmed",
-  processing: "Processing",
-  shipped: "Shipped",
-  delivered: "Delivered",
+  pending: "Chờ xử lý",
+  confirmed: "Đã xác nhận",
+  processing: "Đang xử lý",
+  shipped: "Đang giao",
+  delivered: "Đã giao",
 };
 
 const PAYMENT_STATUS_LABELS: Record<string, string> = {
-  unpaid: "Unpaid",
-  paid: "Paid",
-  failed: "Failed",
-  refunded: "Refunded",
+  unpaid: "Chưa thanh toán",
+  paid: "Đã thanh toán",
+  failed: "Thất bại",
+  refunded: "Hoàn tiền",
 };
 
 interface OrderDetailProps {
@@ -53,11 +53,11 @@ export default function OrderDetail({ orderId }: OrderDetailProps) {
   const handleCancel = async () => {
     try {
       await cancelOrder();
-      setToast("Order cancelled successfully");
+      setToast("Đã hủy đơn hàng thành công");
       setShowCancelConfirm(false);
       setTimeout(() => setToast(""), 3000);
     } catch {
-      setToast("Failed to cancel order");
+      setToast("Hủy đơn hàng thất bại");
     }
   };
 
@@ -73,12 +73,12 @@ export default function OrderDetail({ orderId }: OrderDetailProps) {
     return (
       <div className="pf-empty">
         <Package size={48} />
-        <h3>Order not found</h3>
+        <h3>Không tìm thấy đơn hàng</h3>
         <button
           onClick={() => router.push("/profile/orders")}
           className="pf-btn pf-btn--primary"
         >
-          Back to Orders
+          Quay lại Đơn hàng
         </button>
       </div>
     );
@@ -104,18 +104,18 @@ export default function OrderDetail({ orderId }: OrderDetailProps) {
         id="back-to-orders"
       >
         <ArrowLeft size={18} />
-        Back to Orders
+        Quay lại Đơn hàng
       </button>
 
       {/* Order Header */}
       <div className="pf-order-detail__header">
         <div>
           <h2 className="pf-order-detail__id">
-            Order #{(order.id || order._id).slice(-8).toUpperCase()}
+            Đơn hàng #{(order.id || order._id).slice(-8).toUpperCase()}
           </h2>
           <p className="pf-order-detail__date">
-            Placed on{" "}
-            {new Date(order.createdAt).toLocaleDateString("en-US", {
+            Đặt ngày{" "}
+            {new Date(order.createdAt).toLocaleDateString("vi-VN", {
               weekday: "long",
               year: "numeric",
               month: "long",
@@ -169,7 +169,7 @@ export default function OrderDetail({ orderId }: OrderDetailProps) {
       <div className="pf-order-detail__section">
         <h3 className="pf-order-detail__section-title">
           <Package size={18} />
-          Items ({order.items.length})
+          Sản phẩm ({order.items.length})
         </h3>
         <div className="pf-order-detail__items">
           {order.items.map((item, i) => (
@@ -177,7 +177,7 @@ export default function OrderDetail({ orderId }: OrderDetailProps) {
               <div className="pf-order-detail__item-info">
                 <span className="pf-order-detail__item-name">{item.name}</span>
                 <span className="pf-order-detail__item-qty">
-                  Qty: {item.quantity}
+                  SL: {item.quantity}
                 </span>
               </div>
               <span className="pf-order-detail__item-price">
@@ -192,12 +192,12 @@ export default function OrderDetail({ orderId }: OrderDetailProps) {
       <div className="pf-order-detail__section">
         <h3 className="pf-order-detail__section-title">
           <CreditCard size={18} />
-          Summary
+          Tóm tắt
         </h3>
         <div className="pf-order-detail__summary">
           {order.discount && (
             <div className="pf-order-detail__summary-row">
-              <span>Discount ({order.discount.code})</span>
+              <span>Giảm giá ({order.discount.code})</span>
               <span className="pf-text-green">
                 −{order.discount.amount.toLocaleString("vi-VN")}₫
               </span>
@@ -205,16 +205,16 @@ export default function OrderDetail({ orderId }: OrderDetailProps) {
           )}
           {order.paymentMethod && (
             <div className="pf-order-detail__summary-row">
-              <span>Payment Method</span>
+              <span>Phương thức thanh toán</span>
               <span>{order.paymentMethod}</span>
             </div>
           )}
           <div className="pf-order-detail__summary-row">
-            <span>Payment Status</span>
+            <span>Trạng thái thanh toán</span>
             <span>{PAYMENT_STATUS_LABELS[order.paymentStatus] || order.paymentStatus}</span>
           </div>
           <div className="pf-order-detail__summary-row pf-order-detail__summary-row--total">
-            <span>Total</span>
+            <span>Tổng cộng</span>
             <span>{order.total.toLocaleString("vi-VN")}₫</span>
           </div>
         </div>
@@ -224,7 +224,7 @@ export default function OrderDetail({ orderId }: OrderDetailProps) {
       <div className="pf-order-detail__section">
         <h3 className="pf-order-detail__section-title">
           <MapPin size={18} />
-          Shipping Address
+          Địa chỉ giao hàng
         </h3>
         <p className="pf-order-detail__address">{order.shippingAddress}</p>
       </div>
@@ -232,7 +232,7 @@ export default function OrderDetail({ orderId }: OrderDetailProps) {
       {/* Notes */}
       {order.notes && (
         <div className="pf-order-detail__section">
-          <h3 className="pf-order-detail__section-title">Notes</h3>
+          <h3 className="pf-order-detail__section-title">Ghi chú</h3>
           <p className="pf-order-detail__notes">{order.notes}</p>
         </div>
       )}
@@ -242,7 +242,7 @@ export default function OrderDetail({ orderId }: OrderDetailProps) {
         <div className="pf-order-detail__actions">
           {showCancelConfirm ? (
             <div className="pf-order-detail__confirm">
-              <p>Are you sure you want to cancel this order?</p>
+              <p>Bạn có chắc muốn hủy đơn hàng này không?</p>
               <div className="pf-order-detail__confirm-actions">
                 <button
                   onClick={handleCancel}
@@ -253,17 +253,17 @@ export default function OrderDetail({ orderId }: OrderDetailProps) {
                   {cancelling ? (
                     <>
                       <Loader2 size={16} className="pf-spin" />
-                      Cancelling…
+                      Đang hủy…
                     </>
                   ) : (
-                    "Yes, Cancel Order"
+                    "Đồng ý, Hủy Đơn"
                   )}
                 </button>
                 <button
                   onClick={() => setShowCancelConfirm(false)}
                   className="pf-btn pf-btn--ghost"
                 >
-                  No, Keep Order
+                  Không, Giữ Đơn
                 </button>
               </div>
             </div>
@@ -274,7 +274,7 @@ export default function OrderDetail({ orderId }: OrderDetailProps) {
               id="cancel-order-btn"
             >
               <XCircle size={16} />
-              Cancel Order
+              Hủy Đơn Hàng
             </button>
           )}
         </div>

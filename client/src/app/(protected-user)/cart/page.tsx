@@ -336,20 +336,35 @@ export default function CartPage() {
     if (!current) return;
 
     const nextQty = current.quantity + delta;
+    const maxStock = plantsMap[plantId]?.stock ?? 0;
+
+    // Validate against max stock
+    if (nextQty > maxStock && nextQty > 0) {
+      setSuccess("");
+      setError(`Kho hàng chỉ còn ${maxStock} sản phẩm`);
+      return;
+    }
 
     try {
       setUpdatingId(plantId);
+      setError("");
+      setSuccess("");
 
       if (nextQty <= 0) {
         await api.delete(`/api/users/deleteitem/${plantId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
       } else {
-        await api.patch(
+        const response = await api.patch(
           "/api/users/updatecart",
           { plantId, quantity: nextQty },
           { headers: { Authorization: `Bearer ${token}` } },
         );
+        
+        // Check for stock warning in response
+        if (response.data?.data?.stockWarning) {
+          setSuccess(response.data.data.stockWarning);
+        }
       }
 
       await loadCart();
@@ -508,6 +523,16 @@ export default function CartPage() {
       throw new Error("Please select at least one item.");
     }
 
+    // Validate stock availability for selected items
+    for (const item of selectedItems) {
+      const maxStock = plantsMap[item.plantId]?.stock ?? 0;
+      if (item.quantity > maxStock) {
+        throw new Error(
+          `${plantsMap[item.plantId]?.name ?? "Sản phẩm"} chỉ còn ${maxStock} chiếc. Vui lòng điều chỉnh số lượng.`
+        );
+      }
+    }
+
     const orderItems = selectedItems.map((item) => ({
       plantId: item.plantId,
       name: plantsMap[item.plantId]?.name ?? item.plantId,
@@ -538,6 +563,16 @@ export default function CartPage() {
         headers: { Authorization: `Bearer ${token}` },
       },
     );
+
+    // Check for stock validation errors from backend
+    if (orderRes.data?.errors) {
+      const errors = orderRes.data.errors as Array<{
+        plantId: string;
+        message: string;
+      }>;
+      const errorMessages = errors.map((err) => err.message).join("; ");
+      throw new Error(errorMessages);
+    }
 
     const orderId = orderRes.data?.data?.order?.id as string | undefined;
     if (!orderId) {
@@ -576,7 +611,7 @@ export default function CartPage() {
       | undefined;
 
     if (!qrDataURL || !transactionCode || Number.isNaN(amount) || amount <= 0) {
-      throw new Error("Invalid QR payment response.");
+      throw new Error("Đóng mã QR thanh toán không hợp lệ.");
     }
 
     return {
@@ -730,6 +765,7 @@ export default function CartPage() {
                       plant={plantsMap[item.plantId]}
                       selected={selectedIds.includes(item.plantId)}
                       disabled={updatingId === item.plantId || processingOrder}
+                      maxStock={plantsMap[item.plantId]?.stock ?? 0}
                       onToggle={toggleSelect}
                       onIncrease={(id) => {
                         void updateQty(id, 1);

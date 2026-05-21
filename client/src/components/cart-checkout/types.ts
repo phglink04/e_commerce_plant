@@ -11,6 +11,7 @@ export type Plant = {
   price: number;
   salePrice?: number;
   discountPercentage?: number;
+  stock?: number;
 };
 
 export type Address = {

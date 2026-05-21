@@ -122,7 +122,7 @@ export default function ReviewSection({ productId }: Props) {
 
   return (
     <section className="review-section" id="reviews">
-      <h2 className="review-section__title">Customer Reviews</h2>
+      <h2 className="review-section__title">Đánh Giá Khách Hàng</h2>
 
       {summary && (
         <RatingSummaryHeader
@@ -159,7 +159,7 @@ export default function ReviewSection({ productId }: Props) {
           Array.from({ length: 3 }).map((_, i) => <ReviewSkeleton key={i} />)
         ) : reviews.length === 0 ? (
           <div className="review-section__empty">
-            <p>No reviews yet. Be the first to review this product!</p>
+            <p>Chưa có đánh giá nào. Hãy là người đầu tiên đánh giá sản phẩm này!</p>
           </div>
         ) : (
           reviews.map((review) => (
@@ -182,17 +182,17 @@ export default function ReviewSection({ productId }: Props) {
             onClick={() => setPage(page - 1)}
             className="review-pagination__btn"
           >
-            ← Previous
+            ← Trước
           </button>
           <span className="review-pagination__info">
-            Page {page} of {totalPages}
+            Trang {page} / {totalPages}
           </span>
           <button
             disabled={page >= totalPages}
             onClick={() => setPage(page + 1)}
             className="review-pagination__btn"
           >
-            Next →
+            Tiếp →
           </button>
         </div>
       )}

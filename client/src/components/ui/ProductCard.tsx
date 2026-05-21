@@ -49,17 +49,17 @@ export const ProductCard = memo(function ProductCard({
         {/* Badges */}
         {product.isFeatured && (
           <span className="absolute top-3 right-3 bg-red-500 text-white px-2 py-1 text-xs font-bold rounded">
-            Featured
+            Nổi bật
           </span>
         )}
         {product.isFlashSale && (
           <span className="absolute top-3 left-3 bg-yellow-500 text-white px-2 py-1 text-xs font-bold rounded">
-            Sale
+            Giảm giá
           </span>
         )}
         {outOfStock && (
           <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-            <span className="text-white font-bold">Out of Stock</span>
+            <span className="text-white font-bold">Hết hàng</span>
           </div>
         )}
       </div>
@@ -93,7 +93,7 @@ export const ProductCard = memo(function ProductCard({
         {/* Stock Info */}
         {product.stock !== undefined && (
           <p className="text-xs text-gray-500 mb-2">
-            {product.stock > 0 ? `${product.stock} in stock` : "Out of stock"}
+            {product.stock > 0 ? `Còn ${product.stock} sản phẩm` : "Hết hàng"}
           </p>
         )}
 
@@ -122,7 +122,7 @@ export const ProductCard = memo(function ProductCard({
           disabled={outOfStock || isLoading}
           className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white py-2 rounded font-semibold transition-colors duration-200"
         >
-          {isLoading ? "Adding..." : "Add to Cart"}
+          {isLoading ? "Đang thêm..." : "Thêm vào giỏ"}
         </button>
       </div>
     </div>

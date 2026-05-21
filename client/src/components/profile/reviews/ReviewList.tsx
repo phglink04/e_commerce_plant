@@ -68,13 +68,13 @@ function ReviewCard({
           {!review.isApproved && (
             <span className="pf-review-card__pending">
               <AlertTriangle size={12} />
-              Pending Approval
+              Đang chờ duyệt
             </span>
           )}
           {review.isVerifiedPurchase && (
             <span className="pf-review-card__verified">
               <CheckCircle2 size={12} />
-              Verified
+              Đã xác thực
             </span>
           )}
         </div>
@@ -96,10 +96,10 @@ function ReviewCard({
         <div className="pf-review-card__stats">
           <span>
             <MessageSquare size={14} />
-            {review.replies?.length || 0} replies
+            {review.replies?.length || 0} trả lời
           </span>
           <span>
-            👍 {review.likes || 0} likes
+            👍 {review.likes || 0} lượt thích
           </span>
         </div>
         <div className="pf-review-card__actions">
@@ -108,7 +108,7 @@ function ReviewCard({
             className="pf-btn pf-btn--ghost pf-btn--sm"
           >
             <Edit3 size={14} />
-            Edit
+            Sửa
           </button>
           <button
             onClick={() => onDelete(review.id)}
@@ -120,7 +120,7 @@ function ReviewCard({
             ) : (
               <Trash2 size={14} />
             )}
-            Delete
+            Xóa
           </button>
         </div>
       </div>
@@ -159,9 +159,9 @@ export default function ReviewList() {
         content: editContent,
       });
       setEditingReview(null);
-      showToast("Review updated (pending re-approval)");
+      showToast("Đánh giá đã cập nhật (chờ duyệt lại)");
     } catch {
-      showToast("Failed to update review", "error");
+      showToast("Cập nhật đánh giá thất bại", "error");
     }
   };
 
@@ -169,9 +169,9 @@ export default function ReviewList() {
     setDeletingId(id);
     try {
       await deleteReview(id);
-      showToast("Review deleted");
+      showToast("Đã xóa đánh giá");
     } catch {
-      showToast("Failed to delete review", "error");
+      showToast("Xóa đánh giá thất bại", "error");
     } finally {
       setDeletingId(null);
     }
@@ -191,7 +191,7 @@ export default function ReviewList() {
     return (
       <div className="pf-empty">
         <AlertTriangle size={48} />
-        <h3>Unable to load reviews</h3>
+        <h3>Không thể tải đánh giá</h3>
         <p>{error.message}</p>
       </div>
     );
@@ -214,7 +214,7 @@ export default function ReviewList() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="pf-modal__header">
-              <h3>Edit Review</h3>
+              <h3>Chỉnh Sửa Đánh Giá</h3>
               <button
                 onClick={() => setEditingReview(null)}
                 className="pf-modal__close"
@@ -224,7 +224,7 @@ export default function ReviewList() {
             </div>
             <div className="pf-modal__body">
               <div className="pf-form__group">
-                <label className="pf-form__label">Rating</label>
+                <label className="pf-form__label">Đánh giá sao</label>
                 <StarRating
                   rating={editRating}
                   editable
@@ -232,13 +232,13 @@ export default function ReviewList() {
                 />
               </div>
               <div className="pf-form__group">
-                <label className="pf-form__label">Review</label>
+                <label className="pf-form__label">Nhận xét</label>
                 <textarea
                   className="pf-form__textarea"
                   rows={4}
                   value={editContent}
                   onChange={(e) => setEditContent(e.target.value)}
-                  placeholder="Write your review..."
+                  placeholder="Viết đánh giá của bạn..."
                 />
               </div>
             </div>
@@ -247,7 +247,7 @@ export default function ReviewList() {
                 onClick={() => setEditingReview(null)}
                 className="pf-btn pf-btn--ghost"
               >
-                Cancel
+                Hủy
               </button>
               <button
                 onClick={handleSaveEdit}
@@ -258,12 +258,12 @@ export default function ReviewList() {
                 {submitting ? (
                   <>
                     <Loader2 size={16} className="pf-spin" />
-                    Saving…
+                    Đang lưu…
                   </>
                 ) : (
                   <>
                     <Save size={16} />
-                    Save Changes
+                    Lưu Thay Đổi
                   </>
                 )}
               </button>
@@ -276,8 +276,8 @@ export default function ReviewList() {
       {reviews.length === 0 ? (
         <div className="pf-empty">
           <Star size={48} />
-          <h3>No reviews yet</h3>
-          <p>Your product reviews will appear here.</p>
+          <h3>Chưa có đánh giá</h3>
+          <p>Đánh giá sản phẩm của bạn sẽ xuất hiện tại đây.</p>
         </div>
       ) : (
         <div className="pf-reviews__list">

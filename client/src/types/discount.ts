@@ -1,8 +1,8 @@
 export interface Discount {
   id: string;
+  name: string;
   code: string;
-  type: "percentage" | "fixed";
-  value: number;
+  percentage: number;
   minOrderValue: number;
   maxDiscount: number | null;
   usageLimit: number;
@@ -10,24 +10,21 @@ export interface Discount {
   startDate: string;
   endDate: string;
   isActive: boolean;
-  applicableCategories: string[];
-  applicableProducts: string[];
+  isVisible: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface CreateDiscountPayload {
-  code: string;
-  type: "percentage" | "fixed";
-  value: number;
+  name: string;
+  percentage: number;
   minOrderValue: number;
   maxDiscount?: number;
   usageLimit: number;
   startDate: string;
   endDate: string;
   isActive?: boolean;
-  applicableCategories?: string[];
-  applicableProducts?: string[];
+  isVisible?: boolean;
 }
 
 export interface UpdateDiscountPayload extends Partial<CreateDiscountPayload> {}
@@ -40,7 +37,7 @@ export interface ApplyDiscountPayload {
 export interface ApplyDiscountResponse {
   valid: boolean;
   code: string;
-  type: "percentage" | "fixed";
+  percentage: number;
   discountAmount: number;
   finalTotal: number;
   message: string;

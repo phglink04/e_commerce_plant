@@ -16,7 +16,7 @@ export class UpsertPlantDto {
 
   @Type(() => Number)
   @IsNumber()
-  @Min(0)
+  @Min(1, { message: 'Giá bán phải lớn hơn 0' })
   price!: number;
 
   @IsOptional()

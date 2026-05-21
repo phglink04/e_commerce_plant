@@ -34,7 +34,7 @@ export default async function PlantDetailPage({
       <div className="pw-plant-meta">
         <span>Price: {plant.price} VND</span>
         <span>Category: {plant.category}</span>
-        <span>Type: {plant.tag}</span>
+        <span>Type: {plant.tags?.[0] ?? "Unspecified"}</span>
         <span>Availability: {plant.availability}</span>
       </div>
       <p className="pw-plant-desc">{plant.description}</p>

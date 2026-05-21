@@ -228,6 +228,26 @@ export class PlantsService {
     return Boolean(result);
   }
 
+  /**
+   * Decrement stock for a plant by a given quantity.
+   * Automatically sets availability to "Out Of Stock" when stock reaches 0.
+   */
+  async decrementStock(
+    plantId: string,
+    quantity: number,
+  ): Promise<void> {
+    const plant = await this.plantModel.findById(plantId);
+    if (!plant) return;
+
+    const newStock = Math.max(0, plant.stock - quantity);
+    const update: Record<string, unknown> = { stock: newStock };
+    if (newStock === 0) {
+      update.availability = "Out Of Stock";
+    }
+
+    await this.plantModel.findByIdAndUpdate(plantId, { $set: update });
+  }
+
   private splitCsv(value?: string): string[] {
     if (!value) return [];
     return value

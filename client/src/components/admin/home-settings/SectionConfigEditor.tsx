@@ -239,7 +239,7 @@ function HeroConfigEditor({
           type="text"
           value={(config.title as string) || ""}
           onChange={(e) => onUpdate("title", e.target.value)}
-          placeholder="e.g., Welcome to PlantWorld"
+            placeholder="vd: Chào mừng đến PlantWorld"
           className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm"
         />
       </div>
@@ -252,7 +252,7 @@ function HeroConfigEditor({
           value={(config.subtitle as string) || ""}
           onChange={(e) => onUpdate("subtitle", e.target.value)}
           rows={3}
-          placeholder="e.g., Discover nature's finest plants curated for your home"
+            placeholder="vd: Khám phá những cây xanh tốt nhất cho nhà của bạn"
           className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm"
         />
       </div>

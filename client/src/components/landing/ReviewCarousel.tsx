@@ -8,43 +8,43 @@ import Image from "next/image";
 const reviews = [
   {
     id: "rv-1",
-    name: "Sarah K.",
-    role: "Interior Designer",
+    name: "Sophia L.",
+    role: "Thiết kế nội thất",
     avatar: "/frontend/Feedback/testimonial1.jpg",
     rating: 5,
-    text: "The quality is incredible. Packaging was secure, and every plant arrived healthy and vibrant. The care guide was a nice touch!",
+    text: "Chất lượng cây tuyệt vời và dịch vụ khách hàng xuất sắc! Tôi đã mua 5 cây và tất cả đều đến trong tình trạng hoàn hảo. Rất hài lòng với trải nghiệm mua sắm.",
   },
   {
     id: "rv-2",
-    name: "Daniel M.",
+    name: "An Nguyên",
     role: "Startup Founder",
     avatar: "/frontend/Feedback/testimonial2.jpeg",
     rating: 5,
-    text: "Fast delivery and a sleek shopping experience. The recommendation quality feels premium. Ordered again the next week!",
+    text: "Giao hàng nhanh chóng và trải nghiệm mua sắm hiện đại. Chất lượng đề xuất cảm giác cao cấp. Đặt hàng lại tuần sau!",
   },
   {
     id: "rv-3",
-    name: "Emily R.",
-    role: "Plant Enthusiast",
+    name: "Linh Phạm",
+    role: "Nhân viên văn phòng",
     avatar: "/frontend/Feedback/testimonial3.jpg",
     rating: 4,
-    text: "Love the care instructions and quick support. I now order monthly for my home office. Customer service is exceptional.",
+    text: "Cây rất đẹp và khỏe mạnh, nhưng tôi ước có thêm hướng dẫn chăm sóc chi tiết hơn. Dù sao thì tôi vẫn rất hài lòng với chất lượng sản phẩm.",
   },
   {
     id: "rv-4",
-    name: "Alex T.",
-    role: "Home Decorator",
+    name: "Thảo Vũ",
+    role: "Nhà thiết kế đồ họa",
     avatar: "/frontend/Profile.jpg",
     rating: 5,
-    text: "Best plant store I've found online. Every plant looks exactly like the photos. The 30-day guarantee gives me confidence.",
+    text: "Tôi đã thử nhiều nhà cung cấp cây cảnh trực tuyến, nhưng đây là lần đầu tiên tôi thực sự ấn tượng. Cây đến trong tình trạng tuyệt vời và dịch vụ khách hàng rất thân thiện. Tôi sẽ giới thiệu cho bạn bè!",
   },
   {
     id: "rv-5",
-    name: "Priya S.",
-    role: "Garden Hobbyist",
+    name: "Minh Hương",
+    role: "Thiết kế nhà",
     avatar: "/frontend/Profile.jpg",
     rating: 5,
-    text: "Amazing variety and the plants are so healthy! I've recommended this to all my friends. The subscription box is fantastic.",
+    text: "Cây rất đẹp và khỏe mạnh, giao hàng nhanh chóng. Tôi đã mua 3 cây và tất cả đều đến trong tình trạng hoàn hảo. Rất hài lòng với trải nghiệm mua sắm.",
   },
 ];
 
@@ -100,12 +100,12 @@ export default function ReviewCarousel({ config }: { config?: ReviewConfig }) {
           className="mb-10 text-center"
         >
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-600">
-            Customer Reviews
+            Đánh giá của khách hàng
           </p>
           <h2 className="mt-2 text-3xl font-bold text-slate-900 md:text-4xl">
-            Loved By Thousands Of
+            Được yêu thích bởi hàng ngàn
             <br className="hidden sm:block" />
-            <span className="hp-gradient-text"> Plant Parents</span>
+            <span className="hp-gradient-text"> người yêu cây cảnh</span>
           </h2>
           <div className="hp-section-divider mx-auto" />
         </motion.div>

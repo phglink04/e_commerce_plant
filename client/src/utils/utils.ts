@@ -46,3 +46,8 @@ export const enrichProduct = (item: PlantProduct): PlantProduct => ({
   discountPercentage: safeDiscount(item.discountPercentage),
   category: item.category ?? item.tag ?? "Indoor Plants",
 });
+
+export const formatCurrency = (value: number): string => {
+  return new Intl.NumberFormat("vi-VN").format(Math.round(value)) + "₫";
+};
+

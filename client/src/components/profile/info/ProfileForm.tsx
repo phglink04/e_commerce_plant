@@ -36,14 +36,14 @@ export default function ProfileForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
-      showToast("Name is required", "error");
+      showToast("Tên là bắt buộc", "error");
       return;
     }
     try {
       await updateProfile({ name: name.trim(), phone: phone.trim() || null });
-      showToast("Profile updated successfully");
+      showToast("Cập nhật hồ sơ thành công");
     } catch {
-      showToast("Failed to update profile", "error");
+      showToast("Cập nhật hồ sơ thất bại", "error");
     }
   };
 
@@ -52,15 +52,15 @@ export default function ProfileForm() {
     if (!file) return;
 
     if (file.size > 5 * 1024 * 1024) {
-      showToast("Image must be smaller than 5MB", "error");
+      showToast("Ảnh phải nhỏ hơn 5MB", "error");
       return;
     }
 
     try {
       await uploadAvatar(file);
-      showToast("Avatar updated successfully");
+      showToast("Cập nhật ảnh đại diện thành công");
     } catch {
-      showToast("Failed to upload avatar", "error");
+      showToast("Tải ảnh đại diện thất bại", "error");
     }
   };
 
@@ -116,9 +116,9 @@ export default function ProfileForm() {
           </div>
           <div className="pf-form__avatar-text">
             <p className="pf-form__avatar-hint">
-              Click the camera icon to change your avatar
+              Nhấp vào biểu tượng máy ảnh để thay đổi ảnh đại diện
             </p>
-            <p className="pf-form__avatar-size">Max 5MB · JPG, PNG, WebP</p>
+            <p className="pf-form__avatar-size">Tối đa 5MB · JPG, PNG, WebP</p>
           </div>
         </div>
 
@@ -126,7 +126,7 @@ export default function ProfileForm() {
         <div className="pf-form__fields">
           <div className="pf-form__group">
             <label htmlFor="profile-name" className="pf-form__label">
-              Full Name
+              Họ và tên
             </label>
             <input
               id="profile-name"
@@ -134,14 +134,14 @@ export default function ProfileForm() {
               className="pf-form__input"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Enter your full name"
+              placeholder="Nhập họ và tên"
               required
             />
           </div>
 
           <div className="pf-form__group">
             <label htmlFor="profile-email" className="pf-form__label">
-              Email Address
+              Địa chỉ Email
             </label>
             <input
               id="profile-email"
@@ -150,12 +150,12 @@ export default function ProfileForm() {
               value={profile?.email || ""}
               disabled
             />
-            <p className="pf-form__hint">Email cannot be changed</p>
+            <p className="pf-form__hint">Email không thể thay đổi</p>
           </div>
 
           <div className="pf-form__group">
             <label htmlFor="profile-phone" className="pf-form__label">
-              Phone Number
+              Số điện thoại
             </label>
             <input
               id="profile-phone"
@@ -163,15 +163,15 @@ export default function ProfileForm() {
               className="pf-form__input"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              placeholder="e.g. 0912 345 678"
+              placeholder="vd: 0912 345 678"
             />
           </div>
 
           <div className="pf-form__group">
-            <label className="pf-form__label">Account Created</label>
+            <label className="pf-form__label">Ngày tạo tài khoản</label>
             <p className="pf-form__static">
               {profile?.createdAt
-                ? new Date(profile.createdAt).toLocaleDateString("en-US", {
+                ? new Date(profile.createdAt).toLocaleDateString("vi-VN", {
                     year: "numeric",
                     month: "long",
                     day: "numeric",
@@ -192,12 +192,12 @@ export default function ProfileForm() {
             {updating ? (
               <>
                 <Loader2 size={18} className="pf-spin" />
-                Saving…
+                Đang lưu…
               </>
             ) : (
               <>
                 <Save size={18} />
-                Save Changes
+                Lưu Thay Đổi
               </>
             )}
           </button>

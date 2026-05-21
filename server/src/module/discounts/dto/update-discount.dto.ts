@@ -1,12 +1,11 @@
 import {
   IsString,
-  IsEnum,
   IsNumber,
   IsBoolean,
   IsOptional,
   IsDateString,
-  IsArray,
   Min,
+  Max,
   MaxLength,
 } from "class-validator";
 
@@ -14,16 +13,13 @@ export class UpdateDiscountDto {
   @IsOptional()
   @IsString()
   @MaxLength(50)
-  code?: string;
-
-  @IsOptional()
-  @IsEnum(["percentage", "fixed"])
-  type?: "percentage" | "fixed";
+  name?: string;
 
   @IsOptional()
   @IsNumber()
-  @Min(0)
-  value?: number;
+  @Min(1, { message: "Phần trăm giảm giá phải lớn hơn 0" })
+  @Max(100, { message: "Phần trăm giảm giá tối đa 100" })
+  percentage?: number;
 
   @IsOptional()
   @IsNumber()
@@ -53,12 +49,6 @@ export class UpdateDiscountDto {
   isActive?: boolean;
 
   @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  applicableCategories?: string[];
-
-  @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  applicableProducts?: string[];
+  @IsBoolean()
+  isVisible?: boolean;
 }

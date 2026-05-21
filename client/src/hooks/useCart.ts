@@ -56,8 +56,11 @@ export function useCart() {
   const addToCart = useCallback(async (plantId: string, quantity: number) => {
     try {
       setState((prev) => ({ ...prev, loading: true, error: null }));
-      const cart = await cartService.addToCart({ plantId, quantity });
-      updateCartState(cart);
+      const response = await cartService.addToCart({ plantId, quantity });
+      const cart = response.data?.cart;
+      if (cart) {
+        updateCartState(cart);
+      }
       return true;
     } catch (err) {
       setState((prev) => ({
@@ -91,8 +94,11 @@ export function useCart() {
     async (plantId: string, quantity: number) => {
       try {
         setState((prev) => ({ ...prev, loading: true, error: null }));
-        const cart = await cartService.updateCartItem({ plantId, quantity });
-        updateCartState(cart);
+        const response = await cartService.updateCartItem({ plantId, quantity });
+        const cart = response.data?.cart;
+        if (cart) {
+          updateCartState(cart);
+        }
         return true;
       } catch (err) {
         setState((prev) => ({

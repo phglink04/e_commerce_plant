@@ -20,9 +20,9 @@ export default function ForgotPasswordForm() {
     <div className={styles.formContainer}>
       <div className={styles.formCard}>
         <div className={styles.formHeader}>
-          <h1 className={styles.formTitle}>Reset Password</h1>
+          <h1 className={styles.formTitle}>Quên Mật Khẩu</h1>
           <p className={styles.formSubtitle}>
-            Enter your email to receive a reset link
+            Nhập email để nhận liên kết đặt lại mật khẩu
           </p>
         </div>
 
@@ -42,7 +42,7 @@ export default function ForgotPasswordForm() {
         <form onSubmit={onSubmit} className={styles.form}>
           <div className={styles.formGroup}>
             <label htmlFor="email" className={styles.label}>
-              Email Address
+              Địa chỉ Email
             </label>
             <input
               id="email"
@@ -50,7 +50,7 @@ export default function ForgotPasswordForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className={styles.input}
-              placeholder="you@example.com"
+              placeholder="abc@example.com"
               required
             />
           </div>
@@ -59,17 +59,17 @@ export default function ForgotPasswordForm() {
             {loading ? (
               <>
                 <span className={styles.spinner}></span>
-                Sending...
+                Đang gửi...
               </>
             ) : (
-              "Send Reset Link"
+              "Gửi Liên Kết"
             )}
           </button>
         </form>
 
         <div className={styles.footer}>
           <Link href="/auth/login" className={styles.link}>
-            Back to sign in
+            Quay lại đăng nhập
           </Link>
         </div>
       </div>

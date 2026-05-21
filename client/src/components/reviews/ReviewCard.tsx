@@ -17,12 +17,12 @@ interface Props {
 function timeAgo(dateStr: string) {
   const diff = Date.now() - new Date(dateStr).getTime();
   const mins = Math.floor(diff / 60000);
-  if (mins < 1) return "Just now";
-  if (mins < 60) return `${mins}m ago`;
+  if (mins < 1) return "Vừa xong";
+  if (mins < 60) return `${mins} phút trước`;
   const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
+  if (hrs < 24) return `${hrs} giờ trước`;
   const days = Math.floor(hrs / 24);
-  if (days < 30) return `${days}d ago`;
+  if (days < 30) return `${days} ngày trước`;
   return new Date(dateStr).toLocaleDateString();
 }
 
@@ -57,9 +57,6 @@ export default function ReviewCard({ review, currentUserId, onLike, onReply, isL
         <div className="review-card__meta">
           <div className="review-card__name-row">
             <span className="review-card__name">{review.userName}</span>
-            {review.isVerifiedPurchase && (
-              <span className="review-card__verified">✓ Verified Purchase</span>
-            )}
           </div>
           <div className="review-card__stars">
             {[1, 2, 3, 4, 5].map((s) => (
@@ -94,12 +91,12 @@ export default function ReviewCard({ review, currentUserId, onLike, onReply, isL
         </button>
         {isLoggedIn && (
           <button className="review-card__reply-btn" onClick={() => setShowReplyForm(!showReplyForm)}>
-            💬 Reply
+            💬 Trả lời
           </button>
         )}
         {review.replies.length > 0 && (
           <button className="review-card__show-replies" onClick={() => setShowReplies(!showReplies)}>
-            {showReplies ? "Hide" : "Show"} {review.replies.length} repl{review.replies.length === 1 ? "y" : "ies"}
+            {showReplies ? "Ẩn" : "Xem"} {review.replies.length} trả lời
           </button>
         )}
       </div>
@@ -109,13 +106,13 @@ export default function ReviewCard({ review, currentUserId, onLike, onReply, isL
           <textarea
             value={replyText}
             onChange={(e) => setReplyText(e.target.value)}
-            placeholder="Write a reply..."
+            placeholder="Viết trả lời..."
             maxLength={2000}
             className="review-card__reply-textarea"
           />
           <div className="review-card__reply-actions">
-            <button className="review-card__reply-cancel" onClick={() => setShowReplyForm(false)}>Cancel</button>
-            <button className="review-card__reply-submit" onClick={handleSubmitReply} disabled={!replyText.trim()}>Reply</button>
+            <button className="review-card__reply-cancel" onClick={() => setShowReplyForm(false)}>Hủy</button>
+            <button className="review-card__reply-submit" onClick={handleSubmitReply} disabled={!replyText.trim()}>Trả lời</button>
           </div>
         </div>
       )}
@@ -126,7 +123,7 @@ export default function ReviewCard({ review, currentUserId, onLike, onReply, isL
             <div key={i} className={`review-card__reply ${reply.isAdmin ? "review-card__reply--admin" : ""}`}>
               <div className="review-card__reply-header">
                 <span className="review-card__reply-name">{reply.userName}</span>
-                {reply.isAdmin && <span className="review-card__reply-badge">Admin</span>}
+                {reply.isAdmin && <span className="review-card__reply-badge">Quản trị</span>}
                 <span className="review-card__reply-date">{timeAgo(reply.createdAt)}</span>
               </div>
               <p className="review-card__reply-content">{reply.content}</p>

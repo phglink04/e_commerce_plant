@@ -12,6 +12,7 @@ export interface User {
   avatar?: string | null;
   role?: "user" | "admin" | "owner" | "deliverypartner";
   isActive?: boolean;
+  isTwoFactorEnabled?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }

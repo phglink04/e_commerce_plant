@@ -28,7 +28,7 @@ export default function MyOrdersPage() {
         });
         setOrders(response.data?.data?.orders ?? []);
       } catch {
-        setError("Unable to load orders.");
+        setError("Đã xáy ra lỗi khi tải danh sách đơn hàng.");
       }
     };
 
@@ -40,7 +40,7 @@ export default function MyOrdersPage() {
       <h1>My Orders</h1>
 
       {error ? <p className="error">{error}</p> : null}
-      {orders.length === 0 ? <p>No orders yet.</p> : null}
+      {orders.length === 0 ? <p>Chưa có đơn hàng nào.</p> : null}
 
       <section className="pw-orders-list">
         {orders.map((order) => (

@@ -26,12 +26,14 @@ import { AddDeliveryPartnerDto } from "./dto/add-delivery-partner.dto";
 import { AdminUpdateUserDto } from "./dto/admin-update-user.dto";
 import { UploadInterceptor } from "../../helpers/upload.interceptor";
 import { SupabaseStorageService } from "../../helpers/supabase-storage.service";
+import { PlantsService } from "../plants/plants.service";
 
 @Controller("users")
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
     private readonly supabaseStorageService: SupabaseStorageService,
+    private readonly plantsService: PlantsService,
   ) {}
 
   @Patch("updateMyPassword")
@@ -112,14 +114,42 @@ export class UsersController {
       throw new BadRequestException("User not found");
     }
 
+    // Get plant stock information
+    const plantData = await this.plantsService.getById(dto.plantId);
+    const availableStock = plantData?.data?.plant?.stock ?? 0;
+    
+    // Validate and adjust quantity if needed
+    let requestedQuantity = dto.quantity;
+    let quantityAdjusted = false;
+    let stockWarning: string | undefined;
+    
+    if (requestedQuantity > availableStock) {
+      requestedQuantity = Math.max(0, availableStock);
+      quantityAdjusted = true;
+      stockWarning = `Kho hàng chỉ còn ${availableStock} sản phẩm. Số lượng đã được điều chỉnh.`;
+    }
+    
+    if (requestedQuantity <= 0) {
+      throw new BadRequestException(
+        "Sản phẩm hết hàng"
+      );
+    }
+
     const existing = me.cart.find((item) => item.plantId === dto.plantId);
     if (existing) {
-      existing.quantity += dto.quantity;
+      const newQuantity = existing.quantity + requestedQuantity;
+      if (newQuantity > availableStock) {
+        existing.quantity = Math.max(0, availableStock);
+        quantityAdjusted = true;
+        stockWarning = `Tổng số lượng vượt quá kho. Đã điều chỉnh thành ${availableStock} sản phẩm.`;
+      } else {
+        existing.quantity = newQuantity;
+      }
       existing.price = dto.price;
     } else {
       me.cart.push({
         plantId: dto.plantId,
-        quantity: dto.quantity,
+        quantity: requestedQuantity,
         price: dto.price,
       });
     }
@@ -127,7 +157,16 @@ export class UsersController {
     me.updatedAt = new Date().toISOString();
     await this.usersService.update(me);
 
-    return { message: "Item added to cart", data: { cart: me.cart } };
+    return {
+      message: quantityAdjusted 
+        ? "Số lượng được điều chỉnh theo kho hàng" 
+        : "Thêm sản phẩm vào giỏ thành công",
+      data: {
+        cart: me.cart,
+        stockWarning,
+        quantityAdjusted,
+      },
+    };
   }
 
   @Patch("updatecart")
@@ -146,14 +185,46 @@ export class UsersController {
       throw new BadRequestException("Item not found in cart");
     }
 
-    item.quantity = dto.quantity;
+    // Get plant stock information
+    const plantData = await this.plantsService.getById(dto.plantId);
+    const availableStock = plantData?.data?.plant?.stock ?? 0;
+    
+    // Validate and adjust quantity if needed
+    let newQuantity = Math.max(0, dto.quantity);
+    let quantityAdjusted = false;
+    let stockWarning: string | undefined;
+    
+    if (newQuantity > availableStock) {
+      newQuantity = Math.max(0, availableStock);
+      quantityAdjusted = true;
+      stockWarning = `Kho hàng chỉ còn ${availableStock} sản phẩm. Số lượng đã được điều chỉnh.`;
+    }
+    
+    if (newQuantity <= 0) {
+      // Remove item from cart if quantity becomes 0
+      me.cart = me.cart.filter((cartItem) => cartItem.plantId !== dto.plantId);
+    } else {
+      item.quantity = newQuantity;
+    }
+    
     if (dto.price !== undefined) {
       item.price = dto.price;
     }
+    
     me.updatedAt = new Date().toISOString();
     await this.usersService.update(me);
 
-    return { message: "Cart updated", data: { cart: me.cart } };
+    return {
+      message: quantityAdjusted 
+        ? "Số lượng được điều chỉnh theo kho hàng" 
+        : "Cập nhật giỏ hàng thành công",
+      data: {
+        cart: me.cart,
+        stockWarning,
+        quantityAdjusted,
+        maxQuantity: availableStock,
+      },
+    };
   }
 
   @Delete("deleteitem/:plantId")

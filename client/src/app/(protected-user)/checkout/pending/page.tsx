@@ -259,7 +259,7 @@ export default function CheckoutPendingPage() {
             Complete Your Payment
           </h1>
           <p className="mt-1 text-sm text-slate-500">
-            Scan the QR code with your banking app to complete the order
+            Quét mã QR bằng ứng dụng ngân hàng của bạn để hoàn thành đơn hàng
           </p>
         </div>
 
@@ -331,10 +331,10 @@ export default function CheckoutPendingPage() {
                     className="w-full rounded-xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {paymentStatus === "checking"
-                      ? "Checking..."
+                      ? "\u0110ang kiểm tra..."
                       : paymentStatus === "success"
-                        ? "Payment Confirmed!"
-                        : "I Have Paid"}
+                        ? "Thanh toán đũ̆c xác nhẫn!"
+                        : "Tôi đã thanh toán"}
                   </button>
                 </div>
               </div>

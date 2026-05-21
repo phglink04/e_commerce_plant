@@ -105,7 +105,7 @@ export default function ChatWindow() {
         placeholder={
           status === "admin"
             ? "Chat with support..."
-            : "Ask about plants, shipping, orders..."
+            : "Hỏi về cây xanh, vận chuyển, đơn hàng..."
         }
       />
     </div>

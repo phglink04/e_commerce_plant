@@ -19,7 +19,7 @@ export default function DeliveryPartnerSettingsPage() {
     <section>
       <h1>Delivery Partner Settings</h1>
       <form className="pw-address-form" onSubmit={onSubmit}>
-        <label htmlFor="newPassword">New Password</label>
+        <label htmlFor="newPassword">Mật khẩu mới</label>
         <input
           id="newPassword"
           type="password"

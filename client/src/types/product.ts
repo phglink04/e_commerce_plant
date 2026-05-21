@@ -13,6 +13,7 @@ export interface Product {
   costPrice?: number;
   salePrice?: number;
   availability: "In Stock" | "Out Of Stock" | "Up Coming";
+  tag?: string;
   tags: string[];
   description?: string;
   stock?: number;

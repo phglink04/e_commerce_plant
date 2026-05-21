@@ -22,7 +22,7 @@ export default function ReviewForm({ productId, orderId, onSubmitted, onCancel }
   const handleAddImage = () => {
     const url = newUrl.trim();
     if (!url) return;
-    if (imageUrls.length >= 5) { setError("Maximum 5 images"); return; }
+    if (imageUrls.length >= 5) { setError("Tối đa 5 hình ảnh"); return; }
     setImageUrls([...imageUrls, url]);
     setNewUrl("");
   };
@@ -33,9 +33,9 @@ export default function ReviewForm({ productId, orderId, onSubmitted, onCancel }
 
   const handleSubmit = async () => {
     setError("");
-    if (rating === 0) { setError("Please select a rating"); return; }
+    if (rating === 0) { setError("Vui lòng chọn đánh giá sao"); return; }
     if (!content.trim() && imageUrls.length === 0) {
-      setError("Please write a review or add images");
+      setError("Vui lòng viết nhận xét hoặc thêm hình ảnh");
       return;
     }
 
@@ -50,7 +50,7 @@ export default function ReviewForm({ productId, orderId, onSubmitted, onCancel }
       });
       onSubmitted();
     } catch (err: any) {
-      setError(err?.message || "Failed to submit review");
+      setError(err?.message || "Gửi đánh giá thất bại");
     } finally {
       setSubmitting(false);
     }
@@ -58,10 +58,10 @@ export default function ReviewForm({ productId, orderId, onSubmitted, onCancel }
 
   return (
     <div className="review-form">
-      <h3 className="review-form__title">Write Your Review</h3>
+      <h3 className="review-form__title">Viết Đánh Giá</h3>
 
       <div className="review-form__rating">
-        <label className="review-form__label">Rating</label>
+        <label className="review-form__label">Đánh giá sao</label>
         <div className="review-form__stars">
           {[1, 2, 3, 4, 5].map((star) => (
             <button
@@ -80,12 +80,12 @@ export default function ReviewForm({ productId, orderId, onSubmitted, onCancel }
       </div>
 
       <div className="review-form__field">
-        <label className="review-form__label">Your Review</label>
+        <label className="review-form__label">Nhận xét của bạn</label>
         <textarea
           className="review-form__textarea"
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder="Share your experience with this product..."
+          placeholder="Chia sẻ trải nghiệm của bạn với sản phẩm này..."
           maxLength={5000}
           rows={4}
         />
@@ -93,18 +93,18 @@ export default function ReviewForm({ productId, orderId, onSubmitted, onCancel }
       </div>
 
       <div className="review-form__field">
-        <label className="review-form__label">Images (optional, max 5)</label>
+        <label className="review-form__label">Hình ảnh (không bắt buộc, tối đa 5)</label>
         <div className="review-form__image-input">
           <input
             type="text"
             value={newUrl}
             onChange={(e) => setNewUrl(e.target.value)}
-            placeholder="Paste image URL..."
+            placeholder="Dán đường dẫn hình ảnh..."
             className="review-form__url-input"
             onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleAddImage())}
           />
           <button type="button" className="review-form__add-img-btn" onClick={handleAddImage} disabled={imageUrls.length >= 5}>
-            Add
+            Thêm
           </button>
         </div>
         {imageUrls.length > 0 && (
@@ -122,9 +122,9 @@ export default function ReviewForm({ productId, orderId, onSubmitted, onCancel }
       {error && <p className="review-form__error">{error}</p>}
 
       <div className="review-form__actions">
-        <button className="review-form__cancel" onClick={onCancel}>Cancel</button>
+        <button className="review-form__cancel" onClick={onCancel}>Hủy</button>
         <button className="review-form__submit" onClick={handleSubmit} disabled={submitting}>
-          {submitting ? "Submitting..." : "Submit Review"}
+          {submitting ? "Đang gửi..." : "Gửi Đánh Giá"}
         </button>
       </div>
     </div>

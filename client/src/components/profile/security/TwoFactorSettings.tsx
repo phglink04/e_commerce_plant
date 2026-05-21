@@ -48,7 +48,7 @@ export default function TwoFactorSettings() {
       setSecret(data.secret || "");
       setStep("setup");
     } catch {
-      showToast("Failed to setup 2FA", "error");
+      showToast("Thiết lập 2FA thất bại", "error");
     } finally {
       setSubmitting(false);
     }
@@ -56,7 +56,7 @@ export default function TwoFactorSettings() {
 
   const handleVerify = useCallback(async () => {
     if (code.length < 6) {
-      setError("Enter a valid 6-digit code");
+      setError("Nhập mã 6 chữ số hợp lệ");
       return;
     }
     setSubmitting(true);
@@ -69,9 +69,9 @@ export default function TwoFactorSettings() {
       setStep("idle");
       setCode("");
       await refetch();
-      showToast("2FA enabled successfully!");
+      showToast("Đã bật xác thực 2 lớp!");
     } catch {
-      setError("Invalid verification code. Please try again.");
+      setError("Mã xác thực không hợp lệ. Vui lòng thử lại.");
     } finally {
       setSubmitting(false);
     }
@@ -79,7 +79,7 @@ export default function TwoFactorSettings() {
 
   const handleDisable = useCallback(async () => {
     if (code.length < 6) {
-      setError("Enter a valid 6-digit code");
+      setError("Nhập mã 6 chữ số hợp lệ");
       return;
     }
     setSubmitting(true);
@@ -90,9 +90,9 @@ export default function TwoFactorSettings() {
       setCode("");
       setBackupCodes([]);
       await refetch();
-      showToast("2FA disabled");
+      showToast("Đã tắt xác thực 2 lớp");
     } catch {
-      setError("Invalid code. Please try again.");
+      setError("Mã không hợp lệ. Vui lòng thử lại.");
     } finally {
       setSubmitting(false);
     }
@@ -100,7 +100,7 @@ export default function TwoFactorSettings() {
 
   const copySecret = () => {
     navigator.clipboard.writeText(secret);
-    showToast("Secret copied to clipboard");
+    showToast("Đã sao chép mã bí mật");
   };
 
   const isEnabled = status?.isTwoFactorEnabled ?? false;
@@ -129,13 +129,13 @@ export default function TwoFactorSettings() {
             <div className="pf-modal__header">
               <h3>
                 <Key size={18} />
-                Backup Codes
+                Mã Dự Phòng
               </h3>
             </div>
             <div className="pf-modal__body">
               <p className="pf-2fa__backup-note">
-                Save these backup codes in a safe place. You can use them to
-                access your account if you lose your authenticator device.
+                Lưu các mã dự phòng này ở nơi an toàn. Bạn có thể sử dụng chúng
+                để truy cập tài khoản nếu mất thiết bị xác thực.
               </p>
               <div className="pf-2fa__codes-grid">
                 {backupCodes.map((bc, i) => (
@@ -149,18 +149,18 @@ export default function TwoFactorSettings() {
               <button
                 onClick={() => {
                   navigator.clipboard.writeText(backupCodes.join("\n"));
-                  showToast("Backup codes copied");
+                  showToast("Đã sao chép mã dự phòng");
                 }}
                 className="pf-btn pf-btn--ghost"
               >
                 <Copy size={14} />
-                Copy All
+                Sao Chép Tất Cả
               </button>
               <button
                 onClick={() => setBackupCodes([])}
                 className="pf-btn pf-btn--primary"
               >
-                I've Saved Them
+                Đã Lưu Xong
               </button>
             </div>
           </div>
@@ -177,16 +177,16 @@ export default function TwoFactorSettings() {
           )}
         </div>
         <div className="pf-2fa__status-text">
-          <h3>Two-Factor Authentication</h3>
+          <h3>Xác Thực Hai Lớp</h3>
           <p>
             {isEnabled
-              ? "Your account is protected with 2FA. An authenticator code is required for login."
-              : "Add an extra layer of security by enabling two-factor authentication."}
+              ? "Tài khoản của bạn được bảo vệ bởi xác thực 2 lớp. Mã xác thực được yêu cầu khi đăng nhập."
+              : "Thêm một lớp bảo mật bằng cách bật xác thực hai lớp."}
           </p>
           <span
             className={`pf-2fa__badge ${isEnabled ? "pf-2fa__badge--enabled" : "pf-2fa__badge--disabled"}`}
           >
-            {isEnabled ? "Enabled" : "Disabled"}
+            {isEnabled ? "Đang bật" : "Đang tắt"}
           </span>
         </div>
       </div>
@@ -205,7 +205,7 @@ export default function TwoFactorSettings() {
               id="disable-2fa-btn"
             >
               <ShieldOff size={16} />
-              Disable 2FA
+              Tắt 2FA
             </button>
           ) : (
             <button
@@ -217,12 +217,12 @@ export default function TwoFactorSettings() {
               {submitting ? (
                 <>
                   <Loader2 size={16} className="pf-spin" />
-                  Setting up…
+                  Đang thiết lập…
                 </>
               ) : (
                 <>
                   <Shield size={16} />
-                  Enable 2FA
+                  Bật 2FA
                 </>
               )}
             </button>
@@ -233,10 +233,10 @@ export default function TwoFactorSettings() {
       {/* Setup Step */}
       {step === "setup" && (
         <div className="pf-2fa__setup">
-          <h4>Step 1: Scan QR Code</h4>
+          <h4>Bước 1: Quét mã QR</h4>
           <p>
-            Scan this QR code with your authenticator app (Google Authenticator,
-            Authy, etc.)
+            Quét mã QR này bằng ứng dụng xác thực (Google Authenticator,
+            Authy, v.v.)
           </p>
 
           {qrUrl && (
@@ -247,7 +247,7 @@ export default function TwoFactorSettings() {
 
           {secret && (
             <div className="pf-2fa__secret">
-              <p>Or enter this key manually:</p>
+              <p>Hoặc nhập mã thủ công:</p>
               <div className="pf-2fa__secret-row">
                 <code>{secret}</code>
                 <button
@@ -260,8 +260,8 @@ export default function TwoFactorSettings() {
             </div>
           )}
 
-          <h4>Step 2: Verify Code</h4>
-          <p>Enter the 6-digit code from your authenticator app:</p>
+          <h4>Bước 2: Xác thực mã</h4>
+          <p>Nhập mã 6 chữ số từ ứng dụng xác thực:</p>
 
           {error && <div className="pf-alert pf-alert--error">{error}</div>}
 
@@ -284,7 +284,7 @@ export default function TwoFactorSettings() {
               {submitting ? (
                 <Loader2 size={16} className="pf-spin" />
               ) : (
-                "Verify & Enable"
+                "Xác Thực & Bật"
               )}
             </button>
           </div>
@@ -297,7 +297,7 @@ export default function TwoFactorSettings() {
             }}
             className="pf-btn pf-btn--ghost"
           >
-            Cancel
+            Hủy
           </button>
         </div>
       )}
@@ -305,8 +305,8 @@ export default function TwoFactorSettings() {
       {/* Disable Step */}
       {step === "disable" && (
         <div className="pf-2fa__setup">
-          <h4>Disable Two-Factor Authentication</h4>
-          <p>Enter a code from your authenticator app to disable 2FA:</p>
+          <h4>Tắt Xác Thực Hai Lớp</h4>
+          <p>Nhập mã từ ứng dụng xác thực để tắt 2FA:</p>
 
           {error && <div className="pf-alert pf-alert--error">{error}</div>}
 
@@ -329,7 +329,7 @@ export default function TwoFactorSettings() {
               {submitting ? (
                 <Loader2 size={16} className="pf-spin" />
               ) : (
-                "Disable 2FA"
+                "Tắt 2FA"
               )}
             </button>
           </div>
@@ -342,7 +342,7 @@ export default function TwoFactorSettings() {
             }}
             className="pf-btn pf-btn--ghost"
           >
-            Cancel
+            Hủy
           </button>
         </div>
       )}

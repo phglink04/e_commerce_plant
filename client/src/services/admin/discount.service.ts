@@ -53,6 +53,16 @@ class DiscountService extends BaseApiService {
   }
 
   /**
+   * Get visible vouchers for user quick-pick list
+   */
+  async getVisibleDiscounts(): Promise<Discount[]> {
+    const response = await this.get<{ discounts: Discount[] }>(
+      API_ENDPOINTS.discounts.visible,
+    );
+    return response.data?.discounts || [];
+  }
+
+  /**
    * Get discount by ID (admin)
    */
   async getDiscountById(id: string): Promise<Discount> {

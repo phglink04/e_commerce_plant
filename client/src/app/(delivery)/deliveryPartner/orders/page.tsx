@@ -67,16 +67,16 @@ export default function DeliveryPartnerOrdersPage() {
 
   return (
     <section>
-      <h1>Delivery Orders</h1>
+      <h1>Đơn hàng vận chuyển</h1>
       {error ? <p className="error">{error}</p> : null}
       <table className="pw-admin-table">
         <thead>
           <tr>
-            <th>Order</th>
-            <th>Customer</th>
-            <th>Address</th>
-            <th>Status</th>
-            <th>Update</th>
+            <th>Đơn hàng</th>
+            <th>Khách hàng</th>
+            <th>Địa chỉ</th>
+            <th>Trạng thái</th>
+            <th>Cập nhật</th>
           </tr>
         </thead>
         <tbody>

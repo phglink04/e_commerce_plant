@@ -9,8 +9,14 @@ import {
   CartItem,
   AddToCartPayload,
   UpdateCartItemPayload,
+  CartResponse,
 } from "@/types";
 import { API_ENDPOINTS } from "@/constants";
+
+interface CartServiceResponse extends CartResponse {
+  stockWarning?: string;
+  quantityAdjusted?: boolean;
+}
 
 class CartService extends BaseApiService {
   /**
@@ -24,8 +30,11 @@ class CartService extends BaseApiService {
   /**
    * Thêm sản phẩm vào giỏ hàng
    */
-  async addToCart(payload: AddToCartPayload): Promise<Cart> {
-    const response = await this.post<Cart>(API_ENDPOINTS.cart.add, payload);
+  async addToCart(payload: AddToCartPayload): Promise<CartServiceResponse> {
+    const response = await this.post<CartServiceResponse>(
+      API_ENDPOINTS.cart.add,
+      payload,
+    );
     return response.data;
   }
 
@@ -42,8 +51,11 @@ class CartService extends BaseApiService {
   /**
    * Cập nhật số lượng sản phẩm trong giỏ hàng
    */
-  async updateCartItem(payload: UpdateCartItemPayload): Promise<Cart> {
-    const response = await this.patch<Cart>(API_ENDPOINTS.cart.update, payload);
+  async updateCartItem(payload: UpdateCartItemPayload): Promise<CartServiceResponse> {
+    const response = await this.patch<CartServiceResponse>(
+      API_ENDPOINTS.cart.update,
+      payload,
+    );
     return response.data;
   }
 

@@ -53,7 +53,7 @@ export default function AdminLoginPage() {
           required
         />
 
-        <label htmlFor="admin-password">Password</label>
+        <label htmlFor="admin-password">Mật khẩu</label>
         <input
           id="admin-password"
           type="password"

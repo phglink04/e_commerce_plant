@@ -117,7 +117,7 @@ export default function LoginForm() {
     clearMessages();
 
     if (captchaRequired && !captchaToken.trim()) {
-      setError("Please complete captcha verification.");
+      setError("Vui lòng hoàn tất xác minh bảo mật.");
       return;
     }
 
@@ -135,13 +135,13 @@ export default function LoginForm() {
 
     if (isUnsupportedGoogleContext()) {
       setError(
-        "Google Sign-In is blocked in embedded webview. Open this page in Chrome/Edge/Firefox to continue with Google.",
+        "Đăng nhập Google bị chặn trong webview. Vui lòng mở trang này trong Chrome/Edge/Firefox để tiếp tục.",
       );
       return;
     }
 
     if (!googleClientId) {
-      setError("Missing NEXT_PUBLIC_GOOGLE_CLIENT_ID in frontend env.");
+      setError("Thiếu NEXT_PUBLIC_GOOGLE_CLIENT_ID trong cấu hình.");
       return;
     }
 
@@ -158,7 +158,7 @@ export default function LoginForm() {
     ).google;
 
     if (!googleReady || !google?.accounts?.id) {
-      setError("Google Sign-In is still loading. Please try again.");
+      setError("Đăng nhập Google đang tải. Vui lòng thử lại.");
       return;
     }
 
@@ -169,9 +169,9 @@ export default function LoginForm() {
     <div className={styles.formContainer}>
       <div className={styles.formCard}>
         <div className={styles.formHeader}>
-          <h1 className={styles.formTitle}>Welcome Back</h1>
+          <h1 className={styles.formTitle}>Chào Mừng Trở Lại</h1>
           <p className={styles.formSubtitle}>
-            Sign in to your account to continue
+            Đăng nhập vào tài khoản của bạn để tiếp tục
           </p>
         </div>
 
@@ -191,7 +191,7 @@ export default function LoginForm() {
         <form onSubmit={onSubmit} className={styles.form}>
           <div className={styles.formGroup}>
             <label htmlFor="email" className={styles.label}>
-              Email Address
+              Địa chỉ Email
             </label>
             <input
               id="email"
@@ -199,14 +199,14 @@ export default function LoginForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className={styles.input}
-              placeholder="you@example.com"
+              placeholder="abc@example.com"
               required
             />
           </div>
 
           <div className={styles.formGroup}>
             <label htmlFor="password" className={styles.label}>
-              Password
+              Mật khẩu
             </label>
             <div className={styles.passwordWrapper}>
               <input
@@ -224,7 +224,7 @@ export default function LoginForm() {
                 onClick={() => setShowPassword(!showPassword)}
                 tabIndex={-1}
               >
-                {showPassword ? "Hide" : "Show"}
+                {showPassword ? "Ẩn" : "Hiện"}
               </button>
             </div>
           </div>
@@ -251,16 +251,16 @@ export default function LoginForm() {
             {loading ? (
               <>
                 <span className={styles.spinner}></span>
-                Signing in...
+                Đang đăng nhập...
               </>
             ) : (
-              "Sign In"
+              "Đăng Nhập"
             )}
           </button>
         </form>
 
         <div className={styles.divider}>
-          <span>or</span>
+          <span>hoặc</span>
         </div>
 
         <button
@@ -292,18 +292,18 @@ export default function LoginForm() {
               d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
             />
           </svg>
-          Continue with Google
+          Tiếp tục với Google
         </button>
 
         <div className={styles.footer}>
           <p>
-            Don&apos;t have an account?{" "}
+            Chưa có tài khoản?{" "}
             <Link href="/auth/register" className={styles.link}>
-              Create one
+              Tạo tài khoản
             </Link>
           </p>
           <Link href="/auth/forgot-password" className={styles.link}>
-            Forgot your password?
+            Quên mật khẩu?
           </Link>
         </div>
       </div>

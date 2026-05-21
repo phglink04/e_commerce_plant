@@ -41,9 +41,9 @@ export default function AddressList() {
     try {
       await createAddress(data);
       setShowForm(false);
-      showToast("Address added successfully");
+      showToast("Đã thêm địa chỉ thành công");
     } catch {
-      showToast("Failed to add address", "error");
+      showToast("Thêm địa chỉ thất bại", "error");
     }
   };
 
@@ -52,9 +52,9 @@ export default function AddressList() {
     try {
       await updateAddress(editingAddress.id, data);
       setEditingAddress(null);
-      showToast("Address updated successfully");
+      showToast("Cập nhật địa chỉ thành công");
     } catch {
-      showToast("Failed to update address", "error");
+      showToast("Cập nhật địa chỉ thất bại", "error");
     }
   };
 
@@ -62,9 +62,9 @@ export default function AddressList() {
     setDeletingId(id);
     try {
       await deleteAddress(id);
-      showToast("Address deleted");
+      showToast("Đã xóa địa chỉ");
     } catch {
-      showToast("Failed to delete address", "error");
+      showToast("Xóa địa chỉ thất bại", "error");
     } finally {
       setDeletingId(null);
     }
@@ -73,9 +73,9 @@ export default function AddressList() {
   const handleSetDefault = async (address: Address) => {
     try {
       await updateAddress(address.id, { isDefault: true });
-      showToast("Default address updated");
+      showToast("Đã cập nhật địa chỉ mặc định");
     } catch {
-      showToast("Failed to set default", "error");
+      showToast("Đặt mặc định thất bại", "error");
     }
   };
 
@@ -106,7 +106,7 @@ export default function AddressList() {
           id="add-address-btn"
         >
           <Plus size={18} />
-          Add New Address
+          Thêm Địa Chỉ Mới
         </button>
       )}
 
@@ -137,8 +137,8 @@ export default function AddressList() {
       {addresses.length === 0 && !showForm ? (
         <div className="pf-empty">
           <MapPin size={48} />
-          <h3>No addresses yet</h3>
-          <p>Add a shipping address to get started.</p>
+          <h3>Chưa có địa chỉ</h3>
+          <p>Thêm địa chỉ giao hàng để bắt đầu.</p>
         </div>
       ) : (
         <div className="pf-addresses__grid">
@@ -151,7 +151,7 @@ export default function AddressList() {
               {addr.isDefault && (
                 <span className="pf-address-card__badge">
                   <Star size={12} />
-                  Default
+                  Mặc định
                 </span>
               )}
 
@@ -172,7 +172,7 @@ export default function AddressList() {
                     disabled={submitting}
                   >
                     <Star size={14} />
-                    Set Default
+                    Đặt mặc định
                   </button>
                 )}
                 <button
@@ -184,7 +184,7 @@ export default function AddressList() {
                   disabled={submitting}
                 >
                   <Edit3 size={14} />
-                  Edit
+                  Sửa
                 </button>
                 <button
                   onClick={() => handleDelete(addr.id)}
@@ -196,7 +196,7 @@ export default function AddressList() {
                   ) : (
                     <Trash2 size={14} />
                   )}
-                  Delete
+                  Xóa
                 </button>
               </div>
             </div>

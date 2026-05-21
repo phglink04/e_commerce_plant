@@ -59,7 +59,7 @@ export default function AdminPlantsPage() {
       setToast({
         type: "error",
         message:
-          err instanceof Error ? err.message : "Failed to delete product",
+          err instanceof Error ? err.message : "Đã xáy ra lỗi khi xóa sản phẩm",
       });
     } finally {
       setDeleting(false);
@@ -101,7 +101,7 @@ export default function AdminPlantsPage() {
       {/* Search Bar */}
       <SearchBar
         onSearch={setSearch}
-        placeholder="Search products…"
+        placeholder="Tìm kiếm sản phẩm…"
         debounceDelay={500}
       />
 
@@ -110,83 +110,130 @@ export default function AdminPlantsPage() {
         <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
           <table className="w-full">
             <thead className="border-b border-slate-200 bg-slate-50">
-              <tr className="text-sm font-semibold text-slate-700">
-                <th className="px-6 py-3 text-left">Product Name</th>
-                <th className="px-6 py-3 text-left">Category</th>
-                <th className="px-6 py-3 text-right">Giá nhập</th>
-                <th className="px-6 py-3 text-right">Giá bán</th>
-                <th className="px-6 py-3 text-center">Discount</th>
-                <th className="px-6 py-3 text-left">Stock</th>
-                <th className="px-6 py-3 text-center">Featured</th>
-                <th className="px-6 py-3 text-center">Flash Sale</th>
-                <th className="px-6 py-3 text-right">Actions</th>
+              <tr className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                <th className="px-4 py-3 text-left">Sản phẩm</th>
+                <th className="px-4 py-3 text-left">Danh mục</th>
+                <th className="px-4 py-3 text-right">Giá nhập</th>
+                <th className="px-4 py-3 text-right">Giá bán</th>
+                <th className="px-4 py-3 text-center">Giảm giá</th>
+                <th className="px-4 py-3 text-center">Kho</th>
+                <th className="px-4 py-3 text-center">Trạng thái</th>
+                <th className="px-4 py-3 text-center">Nổi bật</th>
+                <th className="px-4 py-3 text-right">Thao tác</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200">
+            <tbody className="divide-y divide-slate-100">
               {products.map((product) => (
-                <tr key={product._id} className="transition hover:bg-slate-50">
-                  <td className="px-6 py-3 text-sm font-medium text-slate-900">
-                    {product.name}
+                <tr key={product._id} className="transition hover:bg-slate-50/80">
+                  {/* Product name with image */}
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg border border-slate-200 bg-slate-100">
+                        {product.imageCover ? (
+                          <img
+                            src={product.imageCover}
+                            alt={product.name}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center text-slate-300 text-xs">N/A</div>
+                        )}
+                      </div>
+                      <span className="text-sm font-semibold text-slate-800 line-clamp-1">{product.name}</span>
+                    </div>
                   </td>
-                  <td className="px-6 py-3 text-sm text-slate-600">
-                    {product.category}
+                  {/* Category */}
+                  <td className="px-4 py-3">
+                    <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
+                      {product.category}
+                    </span>
                   </td>
-                  <td className="px-6 py-3 text-right text-sm text-slate-500">
-                    {(product.costPrice ?? 0).toLocaleString()} ₫
+                  {/* Cost Price */}
+                  <td className="px-4 py-3 text-right text-sm text-slate-500 tabular-nums">
+                    {(product.costPrice ?? 0).toLocaleString("vi-VN")}₫
                   </td>
-                  <td className="px-6 py-3 text-right text-sm font-semibold text-emerald-600">
-                    {product.price.toLocaleString()} ₫
+                  {/* Sell Price */}
+                  <td className="px-4 py-3 text-right">
+                    <div className="text-sm font-semibold text-emerald-600 tabular-nums">
+                      {product.price.toLocaleString("vi-VN")}₫
+                    </div>
                     {(product.discountPercentage ?? 0) > 0 && (
-                      <div className="text-xs font-normal text-rose-500">
-                        → {(product.salePrice ?? product.price).toLocaleString()} ₫
+                      <div className="text-xs text-rose-500 tabular-nums">
+                        → {(product.salePrice ?? product.price).toLocaleString("vi-VN")}₫
                       </div>
                     )}
                   </td>
-                  <td className="px-6 py-3 text-center">
+                  {/* Discount */}
+                  <td className="px-4 py-3 text-center">
                     {(product.discountPercentage ?? 0) > 0 ? (
-                      <span className="inline-flex items-center rounded-full bg-rose-100 px-2 py-0.5 text-xs font-bold text-rose-600">
+                      <span className="inline-flex items-center rounded-full bg-rose-50 px-2 py-0.5 text-xs font-bold text-rose-600 ring-1 ring-rose-200">
                         -{product.discountPercentage}%
                       </span>
                     ) : (
-                      <span className="text-xs text-slate-400">—</span>
+                      <span className="text-xs text-slate-300">—</span>
                     )}
                   </td>
-                  <td className="px-6 py-3 text-sm text-slate-600">
-                    {product.stock} units
-                  </td>
-                  <td className="px-6 py-3 text-center">
-                    <span
-                      className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold text-white ${
-                        product.isFeatured ? "bg-amber-500" : "bg-slate-300"
-                      }`}
-                    >
-                      {product.isFeatured ? "✓" : "−"}
+                  {/* Stock */}
+                  <td className="px-4 py-3 text-center">
+                    <span className={`text-sm font-semibold tabular-nums ${
+                      (product.stock ?? 0) === 0 ? "text-red-500" : (product.stock ?? 0) <= 5 ? "text-amber-600" : "text-slate-700"
+                    }`}>
+                      {product.stock ?? 0}
                     </span>
                   </td>
-                  <td className="px-6 py-3 text-center">
-                    <span
-                      className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold text-white ${
-                        product.isFlashSale ? "bg-orange-500" : "bg-slate-300"
-                      }`}
-                    >
-                      {product.isFlashSale ? "✓" : "−"}
+                  {/* Availability */}
+                  <td className="px-4 py-3 text-center">
+                    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${
+                      product.availability === "In Stock"
+                        ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
+                        : product.availability === "Out Of Stock"
+                        ? "bg-red-50 text-red-600 ring-1 ring-red-200"
+                        : "bg-blue-50 text-blue-600 ring-1 ring-blue-200"
+                    }`}>
+                      <span className={`h-1.5 w-1.5 rounded-full ${
+                        product.availability === "In Stock"
+                          ? "bg-emerald-500"
+                          : product.availability === "Out Of Stock"
+                          ? "bg-red-500"
+                          : "bg-blue-500"
+                      }`} />
+                      {product.availability === "In Stock" ? "Còn hàng" : product.availability === "Out Of Stock" ? "Hết hàng" : "Sắp về"}
                     </span>
                   </td>
-                  <td className="px-6 py-3 text-right">
-                    <div className="flex justify-end gap-2">
+                  {/* Featured & Flash Sale */}
+                  <td className="px-4 py-3 text-center">
+                    <div className="flex items-center justify-center gap-1.5">
+                      {product.isFeatured && (
+                        <span className="inline-flex h-6 items-center gap-1 rounded-full bg-amber-50 px-2 text-xs font-semibold text-amber-600 ring-1 ring-amber-200" title="Nổi bật">
+                          ⭐
+                        </span>
+                      )}
+                      {product.isFlashSale && (
+                        <span className="inline-flex h-6 items-center gap-1 rounded-full bg-orange-50 px-2 text-xs font-semibold text-orange-600 ring-1 ring-orange-200" title="Flash Sale">
+                          🔥
+                        </span>
+                      )}
+                      {!product.isFeatured && !product.isFlashSale && (
+                        <span className="text-xs text-slate-300">—</span>
+                      )}
+                    </div>
+                  </td>
+                  {/* Actions */}
+                  <td className="px-4 py-3 text-right">
+                    <div className="flex justify-end gap-1.5">
                       <button
                         onClick={() => handleEdit(product)}
-                        className="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-600 transition hover:bg-blue-100"
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-blue-600 transition hover:bg-blue-50"
+                        title="Chỉnh sửa"
                       >
-                        <Pencil size={14} />
-                        Edit
+                        <Pencil size={15} />
                       </button>
                       <button
                         onClick={() => setDeleteTarget(product)}
-                        className="inline-flex items-center gap-1 rounded-lg bg-red-50 px-3 py-1.5 text-sm font-medium text-red-600 transition hover:bg-red-100"
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-red-500 transition hover:bg-red-50"
+                        title="Xóa"
                       >
-                        <Trash2 size={14} />
-                        Delete
+                        <Trash2 size={15} />
                       </button>
                     </div>
                   </td>
@@ -233,10 +280,10 @@ export default function AdminPlantsPage() {
       {/* Delete Confirmation */}
       {deleteTarget && (
         <ConfirmDialog
-          title="Delete Product"
-          description={`Are you sure you want to delete "${deleteTarget.name}"? This action cannot be undone.`}
-          confirmLabel="Delete"
-          cancelLabel="Cancel"
+          title="Xóa sản phẩm"
+          description={`Bạn có chắc chắn muốn xóa "${deleteTarget.name}"? Hành động này không thể được hoàn tác.`}
+          confirmLabel="Xóa"
+          cancelLabel="Hủy"
           open={!!deleteTarget}
           loading={deleting}
           onConfirm={handleDelete}

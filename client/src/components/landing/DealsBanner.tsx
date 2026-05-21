@@ -78,11 +78,11 @@ export default function DealsBanner() {
               Flash Sale
             </p>
             <h2 className="mt-2 text-3xl font-semibold md:text-4xl">
-              Up To {maxDiscount}% OFF On Trending Plants
+              Giảm Đến {maxDiscount}% Cây Cảnh HOT
             </h2>
             <p className="mt-2 max-w-xl text-sm text-emerald-50/90 md:text-base">
-              Limited-time offer on indoor premium bundles, smart pots, and
-              fast-shipping seasonal picks.
+              Ưu đãi có thời hạn cho combo cây nội thất cao cấp, chậu thông
+              minh và lựa chọn theo mùa giao nhanh.
             </p>
 
             {flashSaleProducts.length > 0 && (
@@ -105,7 +105,7 @@ export default function DealsBanner() {
                         {product.name}
                       </p>
                       <p className="text-xs text-emerald-200">
-                        -{product.discountPercentage}% OFF
+                        Giảm {product.discountPercentage}%
                       </p>
                     </div>
                   </Link>
@@ -117,9 +117,9 @@ export default function DealsBanner() {
           <div className="flex flex-col items-start gap-4 md:items-end">
             <div className="grid grid-cols-4 gap-2 text-center text-sm">
               {[
-                { label: "D", value: countdown.days },
-                { label: "H", value: countdown.hours },
-                { label: "M", value: countdown.minutes },
+                { label: "N", value: countdown.days },
+                { label: "G", value: countdown.hours },
+                { label: "P", value: countdown.minutes },
                 { label: "S", value: countdown.seconds },
               ].map((item) => (
                 <div
@@ -137,7 +137,7 @@ export default function DealsBanner() {
               href="/shop?deal=true"
               className="inline-flex h-11 items-center rounded-xl bg-white px-5 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-50"
             >
-              Shop Deals Now
+              Xem Ưu Đãi Ngay
             </Link>
           </div>
         </div>

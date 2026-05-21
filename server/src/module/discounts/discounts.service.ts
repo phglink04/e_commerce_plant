@@ -28,6 +28,15 @@ const toIsoString = (value: unknown): string => {
   return new Date().toISOString();
 };
 
+/**
+ * Sanitise a string for use in a coupon code:
+ * remove whitespace & special chars, uppercase.
+ */
+const sanitiseCodePart = (raw: string): string =>
+  raw
+    .replace(/[^a-zA-Z0-9]/g, "")
+    .toUpperCase();
+
 @Injectable()
 export class DiscountsService {
   constructor(
@@ -36,20 +45,51 @@ export class DiscountsService {
   ) {}
 
   /**
-   * Create a new discount code (admin)
+   * Create a new discount code (admin).
+   * The final code is auto-generated: SANITISE(name) + percentage.
    */
   async create(dto: CreateDiscountDto) {
-    const codeUpper = dto.code.trim().toUpperCase();
+    // Validate dates
+    const start = new Date(dto.startDate);
+    const end = new Date(dto.endDate);
+    const now = new Date();
 
-    const existing = await this.discountModel.findOne({ code: codeUpper });
+    if (end <= start) {
+      throw new BadRequestException(
+        "Ngày kết thúc phải lớn hơn ngày bắt đầu",
+      );
+    }
+    if (end <= now) {
+      throw new BadRequestException(
+        "Không thể tạo mã đã hết hạn",
+      );
+    }
+
+    // Generate the final code
+    const namePart = sanitiseCodePart(dto.name);
+    if (!namePart) {
+      throw new BadRequestException("Tên mã không hợp lệ");
+    }
+    const code = `${namePart}${dto.percentage}`;
+
+    // Check for duplicates
+    const existing = await this.discountModel.findOne({ code });
     if (existing) {
-      throw new ConflictException(`Discount code "${codeUpper}" already exists`);
+      throw new ConflictException(`Mã giảm giá "${code}" đã tồn tại`);
     }
 
     const discount = await this.discountModel.create({
-      ...dto,
-      code: codeUpper,
+      name: dto.name.trim(),
+      code,
+      percentage: dto.percentage,
+      minOrderValue: dto.minOrderValue,
+      maxDiscount: dto.maxDiscount ?? undefined,
+      usageLimit: dto.usageLimit,
       usedCount: 0,
+      startDate: start,
+      endDate: end,
+      isActive: dto.isActive ?? true,
+      isVisible: dto.isVisible ?? true,
     });
 
     return {
@@ -59,7 +99,7 @@ export class DiscountsService {
   }
 
   /**
-   * List all discounts (admin) with pagination
+   * List all discounts (admin) with pagination.
    */
   async getAll(query?: {
     page?: number;
@@ -82,7 +122,10 @@ export class DiscountsService {
 
     if (normalizedSearch) {
       const escaped = normalizedSearch.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-      filter.code = { $regex: new RegExp(escaped, "i") };
+      filter.$or = [
+        { code: { $regex: new RegExp(escaped, "i") } },
+        { name: { $regex: new RegExp(escaped, "i") } },
+      ];
     }
 
     const totalResults = await this.discountModel.countDocuments(filter);
@@ -105,7 +148,31 @@ export class DiscountsService {
   }
 
   /**
-   * Get a single discount by ID (admin)
+   * Get visible vouchers (user-facing).
+   * Only returns active, non-expired, within-usage-limit, isVisible coupons.
+   */
+  async getVisible() {
+    const now = new Date();
+    const discounts = await this.discountModel
+      .find({
+        isActive: true,
+        isVisible: true,
+        startDate: { $lte: now },
+        endDate: { $gte: now },
+        $expr: { $lt: ["$usedCount", "$usageLimit"] },
+      })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return {
+      data: {
+        discounts: discounts.map((d) => this.toResponse(d)),
+      },
+    };
+  }
+
+  /**
+   * Get a single discount by ID (admin).
    */
   async getById(id: string) {
     const discount = await this.discountModel.findById(id).lean();
@@ -116,24 +183,53 @@ export class DiscountsService {
   }
 
   /**
-   * Update a discount (admin)
+   * Update a discount (admin).
+   * If name or percentage changes, re-generate the code.
    */
   async update(id: string, dto: UpdateDiscountDto) {
+    const existing = await this.discountModel.findById(id);
+    if (!existing) {
+      throw new NotFoundException("Discount not found");
+    }
+
+    // Validate dates if provided
+    const startDate = dto.startDate
+      ? new Date(dto.startDate)
+      : existing.startDate;
+    const endDate = dto.endDate ? new Date(dto.endDate) : existing.endDate;
+
+    if (endDate <= startDate) {
+      throw new BadRequestException(
+        "Ngày kết thúc phải lớn hơn ngày bắt đầu",
+      );
+    }
+
     const updateData: Record<string, unknown> = { ...dto };
 
-    // If code is being updated, uppercase it and check for conflicts
-    if (dto.code) {
-      const codeUpper = dto.code.trim().toUpperCase();
-      const existing = await this.discountModel.findOne({
-        code: codeUpper,
+    // Re-generate code if name or percentage changed
+    const newName = dto.name ?? existing.name;
+    const newPct = dto.percentage ?? existing.percentage;
+    const namePart = sanitiseCodePart(newName);
+    if (!namePart) {
+      throw new BadRequestException("Tên mã không hợp lệ");
+    }
+    const newCode = `${namePart}${newPct}`;
+
+    if (newCode !== existing.code) {
+      // Check uniqueness
+      const dup = await this.discountModel.findOne({
+        code: newCode,
         _id: { $ne: id },
       });
-      if (existing) {
-        throw new ConflictException(
-          `Discount code "${codeUpper}" already exists`,
-        );
+      if (dup) {
+        throw new ConflictException(`Mã giảm giá "${newCode}" đã tồn tại`);
       }
-      updateData.code = codeUpper;
+      updateData.code = newCode;
+    }
+
+    // Persist name as-is (trimmed)
+    if (dto.name) {
+      updateData.name = dto.name.trim();
     }
 
     const discount = await this.discountModel
@@ -151,7 +247,7 @@ export class DiscountsService {
   }
 
   /**
-   * Delete a discount (admin)
+   * Delete a discount (admin).
    */
   async remove(id: string) {
     const discount = await this.discountModel.findByIdAndDelete(id).lean();
@@ -162,8 +258,8 @@ export class DiscountsService {
   }
 
   /**
-   * Apply a discount code (user-facing)
-   * Validates all conditions and returns the calculated discount
+   * Apply a discount code (user-facing).
+   * Validates all conditions and returns the calculated discount.
    */
   async apply(dto: ApplyDiscountDto) {
     const codeUpper = dto.code.trim().toUpperCase();
@@ -172,49 +268,41 @@ export class DiscountsService {
     const discount = await this.discountModel.findOne({ code: codeUpper });
 
     if (!discount) {
-      throw new BadRequestException("Invalid discount code");
+      throw new BadRequestException("Mã giảm giá không hợp lệ");
     }
 
     // Check if active
     if (!discount.isActive) {
-      throw new BadRequestException("This discount code is no longer active");
+      throw new BadRequestException("Mã giảm giá đã bị vô hiệu hóa");
     }
 
     // Check date range
     const now = new Date();
     if (now < new Date(discount.startDate)) {
-      throw new BadRequestException("This discount code is not yet available");
+      throw new BadRequestException("Mã giảm giá chưa có hiệu lực");
     }
     if (now > new Date(discount.endDate)) {
-      throw new BadRequestException("This discount code has expired");
+      throw new BadRequestException("Mã giảm giá đã hết hạn");
     }
 
     // Check usage limit
     if (discount.usedCount >= discount.usageLimit) {
-      throw new BadRequestException(
-        "This discount code has reached its usage limit",
-      );
+      throw new BadRequestException("Mã giảm giá đã hết lượt sử dụng");
     }
 
     // Check minimum order value
     if (cartTotal < discount.minOrderValue) {
       throw new BadRequestException(
-        `Minimum order value is ${discount.minOrderValue.toLocaleString()} VND`,
+        `Đơn hàng tối thiểu ${discount.minOrderValue.toLocaleString("vi-VN")}₫`,
       );
     }
 
-    // Calculate discount amount
-    let discountAmount: number;
+    // Calculate discount amount (always percentage-based)
+    let discountAmount = Math.round((cartTotal * discount.percentage) / 100);
 
-    if (discount.type === "percentage") {
-      discountAmount = Math.round((cartTotal * discount.value) / 100);
-      // Cap at maxDiscount if set
-      if (discount.maxDiscount && discountAmount > discount.maxDiscount) {
-        discountAmount = discount.maxDiscount;
-      }
-    } else {
-      // Fixed discount
-      discountAmount = discount.value;
+    // Cap at maxDiscount if set
+    if (discount.maxDiscount && discountAmount > discount.maxDiscount) {
+      discountAmount = discount.maxDiscount;
     }
 
     // Ensure discount doesn't exceed cart total
@@ -227,10 +315,10 @@ export class DiscountsService {
     return {
       valid: true,
       code: codeUpper,
-      type: discount.type,
+      percentage: discount.percentage,
       discountAmount,
       finalTotal,
-      message: "Discount applied successfully",
+      message: `Giảm ${discount.percentage}% thành công`,
     };
   }
 
@@ -249,9 +337,9 @@ export class DiscountsService {
   private toResponse(discount: Record<string, any>) {
     return {
       id: String(discount._id),
+      name: discount.name ?? "",
       code: discount.code,
-      type: discount.type,
-      value: discount.value,
+      percentage: discount.percentage ?? discount.value ?? 0,
       minOrderValue: discount.minOrderValue,
       maxDiscount: discount.maxDiscount ?? null,
       usageLimit: discount.usageLimit,
@@ -259,8 +347,7 @@ export class DiscountsService {
       startDate: toIsoString(discount.startDate),
       endDate: toIsoString(discount.endDate),
       isActive: discount.isActive,
-      applicableCategories: discount.applicableCategories ?? [],
-      applicableProducts: discount.applicableProducts ?? [],
+      isVisible: discount.isVisible ?? true,
       createdAt: toIsoString(discount.createdAt),
       updatedAt: toIsoString(discount.updatedAt),
     };

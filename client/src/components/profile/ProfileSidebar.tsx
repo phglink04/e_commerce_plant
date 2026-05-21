@@ -16,33 +16,33 @@ import { useAuthStore } from "@/store/auth-store";
 const MENU_ITEMS = [
   {
     href: "/profile/info",
-    label: "Profile Info",
+    label: "Thông tin cá nhân",
     icon: User,
-    description: "Manage your personal details",
+    description: "Quản lý thông tin cá nhân",
   },
   {
     href: "/profile/orders",
-    label: "My Orders",
+    label: "Đơn hàng",
     icon: Package,
-    description: "Track and manage orders",
+    description: "Theo dõi và quản lý đơn hàng",
   },
   {
     href: "/profile/addresses",
-    label: "Addresses",
+    label: "Địa chỉ",
     icon: MapPin,
-    description: "Manage delivery addresses",
+    description: "Quản lý địa chỉ giao hàng",
   },
   {
     href: "/profile/reviews",
-    label: "My Reviews",
+    label: "Đánh giá",
     icon: Star,
-    description: "Your product reviews",
+    description: "Đánh giá sản phẩm của bạn",
   },
   {
     href: "/profile/security",
-    label: "Security",
+    label: "Bảo mật",
     icon: Shield,
-    description: "Password & 2FA settings",
+    description: "Mật khẩu & xác thực 2 lớp",
   },
 ];
 
@@ -73,7 +73,7 @@ export default function ProfileSidebar({
           )}
         </div>
         <div className="pf-sidebar__user-info">
-          <p className="pf-sidebar__name">{user?.name || "User"}</p>
+          <p className="pf-sidebar__name">{user?.name || "Người dùng"}</p>
           <p className="pf-sidebar__email">{user?.email || ""}</p>
         </div>
       </div>
@@ -113,7 +113,7 @@ export default function ProfileSidebar({
           id="profile-logout-btn"
         >
           <LogOut size={18} />
-          <span>Sign Out</span>
+          <span>Đăng xuất</span>
         </button>
       </div>
     </aside>

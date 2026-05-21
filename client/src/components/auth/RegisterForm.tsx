@@ -111,17 +111,17 @@ export default function RegisterForm() {
     clearMessages();
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match.");
+      setError("Mật khẩu không khớp.");
       return;
     }
 
     if (password.length < 8) {
-      setError("Password must be at least 8 characters long.");
+      setError("Mật khẩu phải có ít nhất 8 ký tự.");
       return;
     }
 
     if (captchaRequired && !captchaToken.trim()) {
-      setError("Please complete security verification.");
+      setError("Vui lòng hoàn tất xác minh bảo mật.");
       return;
     }
 
@@ -145,13 +145,13 @@ export default function RegisterForm() {
 
     if (isUnsupportedContext) {
       setError(
-        "Google Sign-Up is blocked in embedded webview. Open this page in Chrome/Edge/Firefox to continue with Google.",
+        "Đăng ký Google bị chặn trong webview. Vui lòng mở trang này trong Chrome/Edge/Firefox để tiếp tục.",
       );
       return;
     }
 
     if (!googleClientId) {
-      setError("Missing NEXT_PUBLIC_GOOGLE_CLIENT_ID in frontend env.");
+      setError("Thiếu NEXT_PUBLIC_GOOGLE_CLIENT_ID trong cấu hình.");
       return;
     }
 
@@ -168,7 +168,7 @@ export default function RegisterForm() {
     ).google;
 
     if (!googleReady || !google?.accounts?.id) {
-      setError("Google Sign-Up is still loading. Please try again.");
+      setError("Đăng ký Google đang tải. Vui lòng thử lại.");
       return;
     }
 
@@ -179,9 +179,9 @@ export default function RegisterForm() {
     <div className={styles.formContainer}>
       <div className={styles.formCard}>
         <div className={styles.formHeader}>
-          <h1 className={styles.formTitle}>Create Account</h1>
+          <h1 className={styles.formTitle}>Tạo Tài Khoản</h1>
           <p className={styles.formSubtitle}>
-            Join us and start exploring plants
+            Tham gia và khám phá thế giới cây xanh
           </p>
         </div>
 
@@ -201,7 +201,7 @@ export default function RegisterForm() {
         <form onSubmit={onSubmit} className={styles.form}>
           <div className={styles.formGroup}>
             <label htmlFor="name" className={styles.label}>
-              Full Name
+              Họ và tên
             </label>
             <input
               id="name"
@@ -209,14 +209,14 @@ export default function RegisterForm() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               className={styles.input}
-              placeholder="John Doe"
+              placeholder="Nguyễn Văn A"
               required
             />
           </div>
 
           <div className={styles.formGroup}>
             <label htmlFor="email" className={styles.label}>
-              Email Address
+              Địa chỉ Email
             </label>
             <input
               id="email"
@@ -224,14 +224,14 @@ export default function RegisterForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className={styles.input}
-              placeholder="you@example.com"
+              placeholder="abc@example.com"
               required
             />
           </div>
 
           <div className={styles.formGroup}>
             <label htmlFor="password" className={styles.label}>
-              Password
+              Mật khẩu
             </label>
             <div className={styles.passwordWrapper}>
               <input
@@ -249,15 +249,15 @@ export default function RegisterForm() {
                 onClick={() => setShowPassword(!showPassword)}
                 tabIndex={-1}
               >
-                {showPassword ? "Hide" : "Show"}
+                {showPassword ? "Ẩn" : "Hiện"}
               </button>
             </div>
-            <p className={styles.inputHint}>At least 8 characters</p>
+            <p className={styles.inputHint}>Tối thiểu 8 ký tự</p>
           </div>
 
           <div className={styles.formGroup}>
             <label htmlFor="confirmPassword" className={styles.label}>
-              Confirm Password
+              Xác nhận mật khẩu
             </label>
             <div className={styles.passwordWrapper}>
               <input
@@ -275,7 +275,7 @@ export default function RegisterForm() {
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 tabIndex={-1}
               >
-                {showConfirmPassword ? "Hide" : "Show"}
+                {showConfirmPassword ? "Ẩn" : "Hiện"}
               </button>
             </div>
           </div>
@@ -302,16 +302,16 @@ export default function RegisterForm() {
             {loading ? (
               <>
                 <span className={styles.spinner}></span>
-                Creating account...
+                Đang tạo tài khoản...
               </>
             ) : (
-              "Create Account"
+              "Tạo Tài Khoản"
             )}
           </button>
         </form>
 
         <div className={styles.divider}>
-          <span>or</span>
+          <span>hoặc</span>
         </div>
 
         <button
@@ -343,14 +343,14 @@ export default function RegisterForm() {
               d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
             />
           </svg>
-          Sign Up with Google
+          Đăng ký với Google
         </button>
 
         <div className={styles.footer}>
           <p>
-            Already have an account?{" "}
+            Đã có tài khoản?{" "}
             <Link href="/auth/login" className={styles.link}>
-              Sign in
+              Đăng nhập
             </Link>
           </p>
         </div>

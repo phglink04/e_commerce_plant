@@ -34,17 +34,17 @@ export default function HeroSection({ config }: { config?: HeroConfig }) {
 
   const displayStats = [
     {
-      label: "Products",
+      label: "Sản phẩm",
       value: stats ? `${stats.totalPlants}+` : "200+",
       emoji: "🌿",
     },
     {
-      label: "In Stock",
+      label: "Còn hàng",
       value: stats ? `${stats.inStock}` : "150+",
       emoji: "📦",
     },
     {
-      label: "Avg. Price",
+      label: "Giá TB",
       value: stats
         ? `${Math.round(stats.averagePrice / 1000)}K đ`
         : "...",
@@ -75,7 +75,7 @@ export default function HeroSection({ config }: { config?: HeroConfig }) {
           >
             <span className="inline-flex items-center gap-2 rounded-full border border-emerald-200/60 bg-white/80 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.15em] text-emerald-700 shadow-sm backdrop-blur">
               <Sparkles size={13} className="text-emerald-500" />
-              Seasonal picks live now
+              Bộ sưu tập theo mùa
             </span>
           </motion.div>
 
@@ -85,9 +85,9 @@ export default function HeroSection({ config }: { config?: HeroConfig }) {
               <span className="hp-gradient-text">{config.title}</span>
             ) : (
               <>
-                Grow Your Own
+                Xây Dựng
                 <br />
-                <span className="hp-gradient-text">Green Paradise</span>
+                <span className="hp-gradient-text">Khu Vườn Xanh</span>
               </>
             )}{" "}
             <span className="inline-block origin-bottom-right animate-[hp-float_3s_ease-in-out_infinite] text-4xl md:text-5xl">
@@ -96,7 +96,7 @@ export default function HeroSection({ config }: { config?: HeroConfig }) {
           </h1>
 
           <p className="mt-5 max-w-xl text-base leading-relaxed text-slate-500 md:text-[1.05rem]">
-            {config?.subtitle || "Premium indoor and outdoor plants delivered to your door with expert care guidance, secure plant-safe packaging, and a 30-day health guarantee."}
+            {config?.subtitle || "Cây cảnh nội thất & ngoại thất cao cấp giao tận nhà kèm hướng dẫn chăm sóc chuyên gia, đóng gói an toàn và bảo hành sức khỏe 30 ngày."}
           </p>
 
           {/* CTAs */}
@@ -105,7 +105,7 @@ export default function HeroSection({ config }: { config?: HeroConfig }) {
               href="/shop"
               className="group relative inline-flex h-12 items-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 px-7 text-sm font-semibold text-white shadow-[0_8px_30px_rgba(16,185,129,0.35)] transition-all duration-300 hover:scale-[1.03] hover:shadow-[0_12px_40px_rgba(16,185,129,0.45)]"
             >
-              <span className="relative z-10">Shop Now</span>
+              <span className="relative z-10">Mua Ngay</span>
               <ArrowRight
                 size={16}
                 className="relative z-10 transition-transform group-hover:translate-x-1"
@@ -116,7 +116,7 @@ export default function HeroSection({ config }: { config?: HeroConfig }) {
               href="#categories"
               className="inline-flex h-12 items-center rounded-xl border border-slate-200 bg-white px-6 text-sm font-semibold text-slate-700 shadow-sm transition-all duration-300 hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700"
             >
-              Explore Categories
+              Khám Phá Danh Mục
             </Link>
           </div>
 
@@ -173,7 +173,7 @@ export default function HeroSection({ config }: { config?: HeroConfig }) {
               className="absolute -left-6 top-10 rounded-2xl border border-white/80 bg-white/90 px-4 py-3 shadow-xl backdrop-blur"
             >
               <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">
-                Starting from
+                Giá từ
               </p>
               <p className="mt-0.5 text-xl font-bold text-slate-900">
                 {stats
@@ -193,7 +193,7 @@ export default function HeroSection({ config }: { config?: HeroConfig }) {
               className="absolute -right-4 bottom-24 rounded-2xl border border-white/80 bg-white/90 px-4 py-3 shadow-xl backdrop-blur md:-right-6"
             >
               <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">
-                Customer rating
+                Đánh giá khách hàng
               </p>
               <div className="mt-1 flex items-center gap-1">
                 <span className="text-lg font-bold text-amber-500">
@@ -213,7 +213,7 @@ export default function HeroSection({ config }: { config?: HeroConfig }) {
               }}
               className="absolute right-6 top-5 rounded-full bg-gradient-to-r from-rose-500 to-pink-500 px-3.5 py-1.5 text-xs font-bold text-white shadow-lg shadow-rose-500/30"
             >
-              -30% TODAY
+              -30% HÔM NAY
             </motion.div>
           </div>
 

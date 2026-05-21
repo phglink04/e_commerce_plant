@@ -10,6 +10,7 @@ import {
 } from "./types/order.type";
 import { Order } from "./schemas/order.schema";
 import { DiscountsService } from "../discounts/discounts.service";
+import { PlantsService } from "../plants/plants.service";
 
 const toIsoString = (value: unknown): string => {
   if (value instanceof Date) {
@@ -35,6 +36,7 @@ export class OrdersService implements OnModuleInit {
   constructor(
     @InjectModel(Order.name) private readonly orderModel: Model<Order>,
     private readonly discountsService: DiscountsService,
+    private readonly plantsService: PlantsService,
   ) {}
 
   // ─── Data Migration ────────────────────────────────────────
@@ -94,6 +96,34 @@ export class OrdersService implements OnModuleInit {
   // ─── CRUD ──────────────────────────────────────────────────
 
   async create(userId: string, dto: CreateOrderDto) {
+    // Validate stock availability for all items
+    const stockValidationErrors: { plantId: string; available: number; requested: number }[] = [];
+    
+    for (const item of dto.items) {
+      const plant = await this.plantsService.getById(item.plantId);
+      const availableStock = plant?.data?.plant?.stock ?? 0;
+      
+      if (item.quantity > availableStock) {
+        stockValidationErrors.push({
+          plantId: item.plantId,
+          available: availableStock,
+          requested: item.quantity,
+        });
+      }
+    }
+    
+    // Return error if any item has insufficient stock
+    if (stockValidationErrors.length > 0) {
+      return {
+        message: "Không đủ hàng để tạo đơn hàng",
+        data: null,
+        errors: stockValidationErrors.map(err => ({
+          plantId: err.plantId,
+          message: `Kho hàng chỉ còn ${err.available} sản phẩm, bạn yêu cầu ${err.requested}`,
+        })),
+      };
+    }
+
     const subtotal = dto.items.reduce(
       (sum, item) => sum + item.price * item.quantity,
       0,
@@ -129,6 +159,11 @@ export class OrdersService implements OnModuleInit {
       discount: discountInfo ?? undefined,
       paymentMethod: dto.paymentMethod ?? null,
     });
+
+    // Decrement stock for each ordered item
+    for (const item of dto.items) {
+      await this.plantsService.decrementStock(item.plantId, item.quantity);
+    }
 
     return {
       message: "Order created",

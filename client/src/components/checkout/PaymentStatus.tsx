@@ -15,12 +15,12 @@ const statusConfig: Record<
 > = {
   idle: {
     icon: <Clock size={18} />,
-    label: "Waiting for payment",
+    label: "Đang chờ thanh toán",
     className: "border-slate-200 bg-slate-50 text-slate-600",
   },
   checking: {
     icon: <Loader2 size={18} className="animate-spin" />,
-    label: "Verifying payment...",
+    label: "Đang kiểm tra thanh toán...",
     className: "border-amber-200 bg-amber-50 text-amber-700",
   },
   pending: {
@@ -30,22 +30,22 @@ const statusConfig: Record<
         <span className="relative inline-flex h-3 w-3 rounded-full bg-amber-500" />
       </span>
     ),
-    label: "Auto-checking payment every 5 seconds",
+    label: "Tự động kiểm tra thanh toán mỗi 5 giây",
     className: "border-amber-200 bg-amber-50 text-amber-700",
   },
   success: {
     icon: <CheckCircle2 size={18} />,
-    label: "Payment confirmed!",
+    label: "Thanh toán được xác nhận!",
     className: "border-emerald-200 bg-emerald-50 text-emerald-700",
   },
   failed: {
     icon: <AlertTriangle size={18} />,
-    label: "Payment not found",
+    label: "Không tìm thấy thanh toán",
     className: "border-rose-200 bg-rose-50 text-rose-600",
   },
   expired: {
     icon: <AlertTriangle size={18} />,
-    label: "Payment time expired",
+    label: "Hết thời gian thanh toán",
     className: "border-rose-200 bg-rose-50 text-rose-600",
   },
 };

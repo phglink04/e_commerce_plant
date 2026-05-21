@@ -579,13 +579,13 @@ export default function AddressPage() {
         </section>
 
         <aside className="pw-summary-panel pw-checkout-panel">
-          <h2>Shipping Address</h2>
+          <h2>Địa chỉ giao hàng</h2>
 
           <form
             className="pw-address-form"
             onSubmit={(event) => event.preventDefault()}
           >
-            <label htmlFor="fullName">Full Name</label>
+            <label htmlFor="fullName">Họ và tên</label>
             <input
               id="fullName"
               value={address.fullName}
@@ -595,7 +595,7 @@ export default function AddressPage() {
               required
             />
 
-            <label htmlFor="phone">Phone</label>
+            <label htmlFor="phone">Số điện thoại</label>
             <input
               id="phone"
               value={address.phone}
@@ -605,7 +605,7 @@ export default function AddressPage() {
               required
             />
 
-            <label htmlFor="addressLine">Address</label>
+            <label htmlFor="addressLine">Địa chỉ</label>
             <input
               id="addressLine"
               value={address.addressLine}
@@ -615,7 +615,7 @@ export default function AddressPage() {
               required
             />
 
-            <label htmlFor="city">City</label>
+            <label htmlFor="city">Thành phố</label>
             <input
               id="city"
               value={address.city}
@@ -625,7 +625,7 @@ export default function AddressPage() {
               required
             />
 
-            <label htmlFor="postalCode">Postal Code</label>
+            <label htmlFor="postalCode">Mã bưu điện</label>
             <input
               id="postalCode"
               value={address.postalCode}
@@ -635,7 +635,7 @@ export default function AddressPage() {
               required
             />
 
-            <label htmlFor="note">Note</label>
+            <label htmlFor="note">Ghi chú</label>
             <textarea
               id="note"
               rows={3}
@@ -646,7 +646,7 @@ export default function AddressPage() {
             />
           </form>
 
-          <h2>Payment Method</h2>
+          <h2>Phương thức thanh toán</h2>
           <div className="pw-payment-methods">
             <label>
               <input
@@ -655,7 +655,7 @@ export default function AddressPage() {
                 checked={paymentMethod === "cash"}
                 onChange={() => setPaymentMethod("cash")}
               />
-              CASH
+              Tiền mặt
             </label>
             <label>
               <input
@@ -664,21 +664,21 @@ export default function AddressPage() {
                 checked={paymentMethod === "qr"}
                 onChange={() => setPaymentMethod("qr")}
               />
-              QR TRANSFER
+              Chuyển khoản QR
             </label>
           </div>
 
-          <h2>Order Summary</h2>
+          <h2>Tóm tắt đơn hàng</h2>
           <div className="pw-summary-line">
-            <span>Subtotal</span>
+            <span>Tổng cộng</span>
             <strong>{subtotal} VND</strong>
           </div>
           <div className="pw-summary-line">
-            <span>Shipping Fee</span>
+            <span>Phí vận chuyển</span>
             <strong>{shippingFee} VND</strong>
           </div>
           <div className="pw-summary-line total">
-            <span>Total</span>
+            <span>Thành tiền</span>
             <strong>{totalPrice} VND</strong>
           </div>
 
@@ -694,10 +694,10 @@ export default function AddressPage() {
               }
             >
               {processingOrder
-                ? "Processing..."
+                ? "Đang xử lý..."
                 : paymentMethod === "cash"
-                  ? "Place Order"
-                  : "Generate QR"}
+                  ? "Đặt hàng"
+                  : "Tạo mã QR"}
             </button>
 
             {paymentMethod === "qr" && paymentSession ? (
@@ -707,7 +707,7 @@ export default function AddressPage() {
                 onClick={() => void confirmPayment({ silent: false })}
                 disabled={checkingPayment}
               >
-                {checkingPayment ? "Checking Payment..." : "I Have Paid"}
+                {checkingPayment ? "Đang kiểm tra thanh toán..." : "Tôi đã thanh toán"}
               </button>
             ) : null}
           </div>

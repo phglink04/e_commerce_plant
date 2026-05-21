@@ -21,17 +21,17 @@ export default function ResetPasswordForm() {
     clearMessages();
 
     if (newPassword !== confirmPassword) {
-      setError("Passwords do not match.");
+      setError("Mật khẩu không khớp.");
       return;
     }
 
     if (newPassword.length < 8) {
-      setError("Password must be at least 8 characters long.");
+      setError("Mật khẩu phải có ít nhất 8 ký tự.");
       return;
     }
 
     if (!token) {
-      setError("Reset link is invalid or missing token.");
+      setError("Liên kết đặt lại không hợp lệ hoặc thiếu token.");
       return;
     }
 
@@ -45,17 +45,17 @@ export default function ResetPasswordForm() {
     <div className={styles.formContainer}>
       <div className={styles.formCard}>
         <div className={styles.formHeader}>
-          <h1 className={styles.formTitle}>Set New Password</h1>
+          <h1 className={styles.formTitle}>Đặt Mật Khẩu Mới</h1>
           <p className={styles.formSubtitle}>
-            Create a strong password for your account
+            Tạo mật khẩu mạnh cho tài khoản của bạn
           </p>
         </div>
 
         {!token && (
           <div className={styles.alertError}>
             <span className={styles.alertIcon}>⚠️</span>
-            Reset link is invalid. Please request a new reset link from the
-            forgot password page.
+            Liên kết đặt lại không hợp lệ. Vui lòng yêu cầu liên kết mới từ
+            trang quên mật khẩu.
           </div>
         )}
 
@@ -75,7 +75,7 @@ export default function ResetPasswordForm() {
         <form onSubmit={onSubmit} className={styles.form}>
           <div className={styles.formGroup}>
             <label htmlFor="newPassword" className={styles.label}>
-              New Password
+              Mật khẩu mới
             </label>
             <div className={styles.passwordWrapper}>
               <input
@@ -93,15 +93,15 @@ export default function ResetPasswordForm() {
                 onClick={() => setShowNewPassword(!showNewPassword)}
                 tabIndex={-1}
               >
-                {showNewPassword ? "Hide" : "Show"}
+                {showNewPassword ? "Ẩn" : "Hiện"}
               </button>
             </div>
-            <p className={styles.inputHint}>At least 8 characters</p>
+            <p className={styles.inputHint}>Tối thiểu 8 ký tự</p>
           </div>
 
           <div className={styles.formGroup}>
             <label htmlFor="confirmPassword" className={styles.label}>
-              Confirm Password
+              Xác nhận mật khẩu
             </label>
             <div className={styles.passwordWrapper}>
               <input
@@ -119,7 +119,7 @@ export default function ResetPasswordForm() {
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 tabIndex={-1}
               >
-                {showConfirmPassword ? "Hide" : "Show"}
+                {showConfirmPassword ? "Ẩn" : "Hiện"}
               </button>
             </div>
           </div>
@@ -132,17 +132,17 @@ export default function ResetPasswordForm() {
             {loading ? (
               <>
                 <span className={styles.spinner}></span>
-                Updating...
+                Đang cập nhật...
               </>
             ) : (
-              "Reset Password"
+              "Đặt Lại Mật Khẩu"
             )}
           </button>
         </form>
 
         <div className={styles.footer}>
           <Link href="/auth/login" className={styles.link}>
-            Back to sign in
+            Quay lại đăng nhập
           </Link>
         </div>
       </div>

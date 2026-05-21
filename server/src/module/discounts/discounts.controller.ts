@@ -42,6 +42,12 @@ export class DiscountsController {
     });
   }
 
+  @Get("visible")
+  @UseGuards(JwtAuthGuard)
+  getVisible() {
+    return this.discountsService.getVisible();
+  }
+
   @Get(":id")
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles("admin", "owner")

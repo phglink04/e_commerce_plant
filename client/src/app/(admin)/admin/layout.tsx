@@ -6,15 +6,15 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const menus = [
-    { href: "/admin", label: "Dashboard" },
-    { href: "/admin/plants", label: "Products" },
-    { href: "/admin/orders", label: "Orders" },
-    { href: "/admin/users", label: "Users" },
-    { href: "/admin/deliveryPartner", label: "Delivery Partners" },
-    { href: "/admin/home-settings", label: "Home Page Builder" },
-    { href: "/admin/blogs", label: "Blogs" },
-    { href: "/admin/discounts", label: "Discounts" },
-    { href: "/admin/reviews", label: "Reviews" },
+    { href: "/admin", label: "Thống kê" },
+    { href: "/admin/plants", label: "Sản phẩm" },
+    { href: "/admin/orders", label: "Đơn hàng" },
+    { href: "/admin/users", label: "Người dùng" },
+    { href: "/admin/deliveryPartner", label: "Đối tác giao hàng" },
+    { href: "/admin/home-settings", label: "Cài đặt trang chủ" },
+    { href: "/admin/blogs", label: "Blog" },
+    { href: "/admin/discounts", label: "Khuyến mãi" },
+    { href: "/admin/reviews", label: "Đánh giá" },
     { href: "/admin/chat", label: "Chat Support" }
   ];
 

@@ -1,25 +1,33 @@
 import type { Metadata } from "next";
-import { Inter, Poppins } from "next/font/google";
+import { Montserrat, Lexend, Be_Vietnam_Pro } from "next/font/google";
 import "./globals.css";
 import "./chat.css";
 import AppLayout from "@/components/layouts/app-layout";
 
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
+const beVietnamPro = Be_Vietnam_Pro({
+  subsets: ["latin", "vietnamese"],
+  variable: "--font-body",
+  weight: ["300", "400", "500", "600", "700"],
   display: "swap",
 });
 
-const poppins = Poppins({
-  subsets: ["latin"],
-  variable: "--font-poppins",
-  weight: ["500", "600", "700"],
+const montserrat = Montserrat({
+  subsets: ["latin", "vietnamese"],
+  variable: "--font-heading",
+  weight: ["500", "600", "700", "800", "900"],
+  display: "swap",
+});
+
+const lexend = Lexend({
+  subsets: ["latin", "vietnamese"],
+  variable: "--font-heading-alt",
+  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "PlantWorld Next",
-  description: "PlantWorld frontend migrated to Next.js with auth module",
+  title: "PlantWorld — Cây Cảnh Cao Cấp",
+  description: "PlantWorld — Mua sắm cây cảnh cao cấp trực tuyến, giao hàng toàn quốc.",
 };
 
 export default function RootLayout({
@@ -28,8 +36,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} ${poppins.variable}`}>
+    <html lang="vi" suppressHydrationWarning>
+      <body className={`${beVietnamPro.variable} ${montserrat.variable} ${lexend.variable}`}>
         <AppLayout>{children}</AppLayout>
       </body>
     </html>

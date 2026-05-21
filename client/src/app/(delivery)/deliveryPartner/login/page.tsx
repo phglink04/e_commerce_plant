@@ -57,7 +57,7 @@ export default function DeliveryPartnerLoginPage() {
           required
         />
 
-        <label htmlFor="delivery-password">Password</label>
+        <label htmlFor="delivery-password">Mật khẩu</label>
         <input
           id="delivery-password"
           type="password"

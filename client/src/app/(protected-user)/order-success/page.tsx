@@ -4,15 +4,15 @@ export default function OrderSuccessPage() {
   return (
     <main className="container pw-account-page">
       <section className="pw-order-success">
-        <h1>Order Placed Successfully</h1>
-        <p>Your order is confirmed. We will notify you when it is shipped.</p>
+        <h1>Đơn hàng đăng ký thành công</h1>
+        <p>Đơn hàng đã được xác nhận. Chúng tôi sẽ thông báo bạn khi hàng vận chuyển.</p>
 
         <div className="pw-cart-actions">
-          <Link href="/my-orders" className="pw-btn">
-            View My Orders
+          <Link href="/profile/orders" className="pw-btn">
+            Xem đơn hàng của tôi
           </Link>
           <Link href="/shop" className="pw-btn ghost">
-            Continue Shopping
+            Tiếp tục mua sắm
           </Link>
         </div>
       </section>

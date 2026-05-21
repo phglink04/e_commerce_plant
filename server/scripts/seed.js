@@ -122,6 +122,140 @@ const REVIEW_CONTENTS = [
   "Giá hợp lý, cây đẹp hơn mong đợi.",
 ];
 
+// ── Blogs (10) ───────────────────────────────────────────────────────────────
+const BLOGS = [
+  {
+    title: "7 Loại Cây Cảnh Dễ Chăm Sóc Cho Người Bận Rộn",
+    slug: "7-loai-cay-canh-de-cham-soc-cho-nguoi-ban-rong",
+    excerpt: "Bạn bận rộn với công việc nhưng muốn có cây cảnh xanh trong nhà? Dưới đây là 7 loại cây rất dễ chăm sóc, chỉ cần tưới nước vài lần một tuần là khỏe mạnh.",
+    content: "<h2>Cây Dễ Chăm Sóc Cho Người Bận Rộn</h2><p>Nếu bạn yêu thích cây cảnh nhưng không có nhiều thời gian để chăm sóc, đây là những gợi ý tuyệt vời cho bạn:</p><h3>1. Lưỡi Hổ (Snake Plant)</h3><p>Cây lưỡi hổ là vua của các cây chịu hạn. Bạn có thể để nó mấy tuần không tưới nước vẫn sống tốt. Nó chỉ cần ánh sáng gián tiếp và giữ độ ẩm vừa phải.</p><h3>2. Cây Kim Tiền (Pothos)</h3><p>Pothos rất thích hợp cho những người mới bắt đầu trồng cây. Nó phát triển nhanh, có thể sống trong ánh sáng yếu và chỉ cần tưới khi đất khô.</p><h3>3. Xương Rồng (Cactus)</h3><p>Xương rồng là loại cây chịu hạn tuyệt vời. Chúng có thể sống trong những điều kiện khô hạn nhất. Chỉ cần tưới nước ít lần một tháng và để nơi ánh sáng sáng.</p><h3>4. Trầu Bà (Philodendron)</h3><p>Trầu bà rất linh hoạt với ánh sáng và không quá khó tính về độ ẩm. Nó phát triển tốt cả trong ánh sáng yếu lẫn sáng.</p>",
+    category: "Chăm Sóc Cây",
+    tags: ["beginner", "easy-care", "indoor", "tips"],
+    author: "Nguyễn Văn A",
+    coverImage: "https://images.unsplash.com/photo-1576624471613-7ec5a8cfb637?w=800",
+    status: "published",
+    isFeatured: true,
+    viewCount: 2450,
+  },
+  {
+    title: "Cách Chữa Lành Cây Bị Vàng Lá Và Yếu Dần",
+    slug: "cach-chua-lanh-cay-bi-vang-la-va-yeu-dan",
+    excerpt: "Cây bị vàng lá là tín hiệu cảnh báo rằng cây của bạn có vấn đề. Tìm hiểu các nguyên nhân và cách khắc phục để cây lại xanh tươi.",
+    content: "<h2>Tại Sao Cây Bị Vàng Lá?</h2><p>Cây bị vàng lá là một vấn đề phổ biến mà nhiều người gặp phải. Dưới đây là các nguyên nhân chính:</p><h3>1. Tưới Nước Quá Nhiều</h3><p>Đây là nguyên nhân hàng đầu gây vàng lá. Khi đất quá ẩm, rễ cây sẽ thối rễ và không thể hấp thụ dinh dưỡng. Luôn kiểm tra độ ẩm của đất trước khi tưới.</p><h3>2. Thiếu Ánh Sáng</h3><p>Nếu cây không nhận đủ ánh sáng, lá sẽ bắt đầu vàng và rơi. Hãy đặt cây ở vị trí nhận ánh sáng gián tiếp ít nhất 4-6 giờ mỗi ngày.</p><h3>3. Sâu Bệnh</h3><p>Các loại sâu và bệnh nấm cũng có thể gây vàng lá. Kiểm tra kỹ lưỡng mặt dưới các lá để phát hiện sâu bệnh.</p><h3>Cách Khắc Phục</h3><p>- Giảm tần suất tưới nước<br/>- Di chuyển cây đến vị trí sáng hơn<br/>- Bổ sung phân hữu cơ<br/>- Xử lý sâu bệnh bằng thuốc trừ sâu an toàn</p>",
+    category: "Chăm Sóc Cây",
+    tags: ["troubleshooting", "plant-care", "yellowing", "health"],
+    author: "Trần Thị B",
+    coverImage: "https://images.unsplash.com/photo-1530598394637-d3fc14007d53?w=800",
+    status: "published",
+    isFeatured: true,
+    viewCount: 3120,
+  },
+  {
+    title: "Cây Phong Thủy May Mắn Cho Nhà Bạn",
+    slug: "cay-phong-thuy-may-man-cho-nha-ban",
+    excerpt: "Theo phong thủy phương Đông, những loại cây này mang lại may mắn, tài lộc và sức khỏe cho gia chủ.",
+    content: "<h2>Cây Phong Thủy May Mắn</h2><p>Trong văn hóa Á Đông, cây cảnh không chỉ trang trí mà còn mang ý nghĩa phong thủy sâu sắc.</p><h3>Kim Ngân Lộc</h3><p>Đây là cây được coi là biểu tượng của tài lộc và thịnh vượng. Theo phong thủy, cây kim ngân nên được đặt gần cửa chính hoặc gần bàn làm việc để hút tài lộc.</p><h3>Phát Tài</h3><p>Cây phát tài với những chiếc lá xanh bóng mượt được cho là mang lại may mắn và tài vận. Nó phù hợp đặt trong phòng khách hoặc nơi làm việc.</p><h3>Cây Bạch Tuyết</h3><p>Với hoa trắng tinh khiết, cây bạch tuyết được coi là biểu tượng của sạch sẽ và may mắn. Nó rất thích hợp đặt trong phòng ngủ.</p><h3>Hướng Dẫn Đặt Cây Phong Thủy</h3><p>- Đặt ở vị trí nhận ánh sáng tốt<br/>- Tránh đặt cây bị héo úi hoặc chết khô<br/>- Luôn giữ cây xanh tươi và sạch sẽ<br/>- Đặt trong những vị trí được xem là đem lại may mắn theo phong thủy</p>",
+    category: "Phong Thủy",
+    tags: ["feng-shui", "lucky", "prosperity", "indoor"],
+    author: "Lê Văn C",
+    coverImage: "https://images.unsplash.com/photo-1604242680892-0b8e5ca7d3a8?w=800",
+    status: "published",
+    isFeatured: false,
+    viewCount: 1850,
+  },
+  {
+    title: "Hướng Dẫn Tưới Nước Đúng Cách Cho Cây Cảnh",
+    slug: "huong-dan-tuoi-nuoc-dung-cach-cho-cay-canh",
+    excerpt: "Tưới nước là yếu tố quan trọng nhất trong chăm sóc cây. Bài viết này sẽ giúp bạn hiểu rõ cách tưới nước đúng cho từng loại cây.",
+    content: "<h2>Cách Tưới Nước Đúng Cho Cây Cảnh</h2><p>Một trong những sai lầm phổ biến nhất của những người trồng cây là tưới nước không đúng cách.</p><h3>Kiểm Tra Độ Ẩm Của Đất</h3><p>Trước khi tưới, luôn kiểm tra độ ẩm của đất bằng cách nhúng ngón tay vào sâu khoảng 2-3cm. Nếu cảm thấy đất khô, bạn có thể tưới nước.</p><h3>Tần Suất Tưới Nước</h3><p>- Cây trong nhà: 1-2 lần một tuần<br/>- Cây ngoài trời: 3-4 lần một tuần (phụ thuộc vào thời tiết)<br/>- Cây chịu hạn như xương rồng: 1 lần 2-3 tuần<br/>- Cây yêu ẩm: 2-3 lần một tuần</p><h3>Loại Nước Nên Dùng</h3><p>Nước lạnh thường tốt nhất. Nếu dùng nước máy, để nó 24 giờ trước khi tưới để chlorine thoát ra. Nước mưa là lựa chọn tốt nhất cho cây.</p><h3>Các Lỗi Thường Gặp</h3><p>- Tưới nước quá sáng sớm khi không cần<br/>- Để cây ngồi trong nước đọng<br/>- Tưới nước vào lúc quá nóng<br/>- Không kiểm tra độ ẩm trước khi tưới</p>",
+    category: "Chăm Sóc Cây",
+    tags: ["watering", "tips", "care", "basics"],
+    author: "Phạm Văn D",
+    coverImage: "https://images.unsplash.com/photo-1540220527546-75ee89f6f503?w=800",
+    status: "published",
+    isFeatured: true,
+    viewCount: 2890,
+  },
+  {
+    title: "Cách Nhân Giống Cây Cảnh Bằng Cách Cắt Cành",
+    slug: "cach-nhan-giong-cay-canh-bang-cach-cat-canh",
+    excerpt: "Muốn có thêm cây mà không cần mua? Tìm hiểu cách nhân giống cây bằng cách cắt cành đơn giản.",
+    content: "<h2>Nhân Giống Cây Bằng Cách Cắt Cành</h2><p>Đây là một cách tiết kiệm để có thêm cây và cũng là cách tuyệt vời để làm mới cây cũ.</p><h3>Các Loại Cây Phù Hợp Để Cắt Cành</h3><p>- Trầu bà<br/>- Cây kim tiền<br/>- Cây ray nắng<br/>- Cây hóp lá<br/>- Cây lòi lan</p><h3>Các Bước Nhân Giống</h3><p><strong>Bước 1:</strong> Chọn cành khỏe mạnh, dài khoảng 10-15cm với 2-3 lá<br/><strong>Bước 2:</strong> Cắt cành bằng dao sạch, cắt ngay dưới nút lá<br/><strong>Bước 3:</strong> Loại bỏ lá dưới cùng, chỉ giữ 1-2 lá trên cùng<br/><strong>Bước 4:</strong> Nhúng phần cắt vào hormôn rễ (nếu có)<br/><strong>Bước 5:</strong> Cắm cành vào đất ẩm hoặc nước<br/><strong>Bước 6:</strong> Đặt ở nơi sáng, tránh nắng trực tiếp<br/><strong>Bước 7:</strong> Rễ thường mọc sau 1-2 tuần</p><h3>Chăm Sóc Cây Con</h3><p>Sau khi rễ mọc, tiếp tục giữ đất ẩm nhưng không quá ướt. Chỉ bắt đầu bón phân sau 3-4 tuần.</p>",
+    category: "Chăm Sóc Cây",
+    tags: ["propagation", "multiplying", "cuttings", "tips"],
+    author: "Võ Thị E",
+    coverImage: "https://images.unsplash.com/photo-1535673519555-de43abb2e10c?w=800",
+    status: "published",
+    isFeatured: false,
+    viewCount: 1620,
+  },
+  {
+    title: "Tạo Vườn Cây Xanh Trên Ban Công Nhỏ Hẹp",
+    slug: "tao-vuon-cay-xanh-tren-ban-cong-nho-hep",
+    excerpt: "Không có sân vườn lớn? Bạn vẫn có thể tạo một khu vườn xanh tuyệt đẹp trên ban công nhỏ hẹp của mình.",
+    content: "<h2>Tạo Vườn Trên Ban Công Nhỏ</h2><p>Ban công là không gian hoàn hảo để trồng cây nếu bạn biết cách sử dụng nó.</p><h3>Chọn Cây Thích Hợp Cho Ban Công</h3><p>- Cây chịu nắng: cây hoa hồng, đâu kiểng, hoa bóp<br/>- Cây bán chịu nắng: trầu bà, phát tài<br/>- Cây rủi: cây trầu bà rủi, cây thịt man</p><h3>Hệ Thống Chậu Trồng</h3><p>Sử dụng các chậu nhỏ để tiết kiệm không gian. Chọn chậu có lỗ thoát nước để tránh tích tụ nước.</p><h3>Sắp Xếp Hợp Lý</h3><p>- Đặt cây cao hơn ở phía sau<br/>- Cây thấp ở phía trước<br/>- Sử dụng kệ để tăng chiều cao<br/>- Tạo lớp xanh đa tầng</p><h3>Chăm Sóc Cây Trên Ban Công</h3><p>Ban công thường có nắng mạnh, nên cây cần tưới nước thường xuyên hơn. Che phủ 20-30% ánh sáng trong những ngày nắng gắt bằng vải che hoặc rèm.</p>",
+    category: "Trang Trí",
+    tags: ["balcony", "small-space", "design", "decoration"],
+    author: "Đỗ Văn F",
+    coverImage: "https://images.unsplash.com/photo-1585741537191-ebc2d128ce8c?w=800",
+    status: "published",
+    isFeatured: true,
+    viewCount: 2340,
+  },
+  {
+    title: "Cây Cảnh Thanh Lọc Không Khí Tốt Nhất Cho Nhà",
+    slug: "cay-canh-thanh-loc-khong-khi-tot-nhat-cho-nha",
+    excerpt: "Những loại cây này không chỉ đẹp mà còn giúp thanh lọc không khí, tạo môi trường sống lành mạnh hơn.",
+    content: "<h2>Cây Thanh Lọc Không Khí Trong Nhà</h2><p>Theo nghiên cứu, nhiều loại cây cảnh có khả năng hấp thụ các chất độc hại trong không khí.</p><h3>Cây Lưỡi Hổ</h3><p>Lưỡi hổ được NASA công nhận là một trong những loại cây thanh lọc không khí tốt nhất. Nó hấp thụ formaldehyde và benzene.</p><h3>Cây Kim Tiền</h3><p>Cây kim tiền lọc được xylene và formaldehyde khỏi không khí, đồng thời tăng độ ẩm.</p><h3>Cây Dành Dạ</h3><p>Loài hoa dành dạ màu trắng này hấp thụ xylene, benzene và formaldehyde rất tốt.</p><h3>Cây Bạch Tuyết</h3><p>Cây bạch tuyết lọc được ammonia, xylene, toluene và nhiều khí độc hại khác.</p><h3>Cây Cúc Hoa Dại</h3><p>Có khả năng lọc benzene, trichloroethylene, và formaldehyde.</p>",
+    category: "Sức Khỏe",
+    tags: ["air-purifying", "health", "indoor", "benefits"],
+    author: "Ngô Thị G",
+    coverImage: "https://images.unsplash.com/photo-1518895949257-7621c3c786d7?w=800",
+    status: "published",
+    isFeatured: true,
+    viewCount: 3450,
+  },
+  {
+    title: "Những Sai Lầm Phổ Biến Khi Trồng Cây Trong Chậu",
+    slug: "nhung-sai-lam-pho-bien-khi-trong-cay-trong-chau",
+    excerpt: "Để tránh những sai lầm phổ biến, bạn cần biết những lỗi mà hầu hết những người trồng cây mắc phải.",
+    content: "<h2>Những Sai Lầm Phổ Biến Trong Trồng Cây</h2><p>Dưới đây là những lỗi mà hầu hết mọi người đều mắc phải khi bắt đầu trồng cây.</p><h3>1. Chọn Chậu Quá Lớn</h3><p>Chậu quá lớn khiến đất quá ẩm, dẫn đến thối rễ. Chọn chậu vừa phải, chỉ lớn hơn cây 1-2cm.</p><h3>2. Đất Không Thoát Nước</h3><p>Sử dụng đất vườn thường khiến nước đọng. Hãy dùng đất trồng cây chuyên dụng hoặc trộn thêm cát, than nén để cải thiện thoát nước.</p><h3>3. Tưới Nước Quá Nhiều</h3><p>Đây là nguyên nhân chính gây chết cây. Luôn kiểm tra độ ẩm trước khi tưới.</p><h3>4. Không Bón Phân</h3><p>Cây trong chậu hết dinh dưỡng nhanh. Bón phân mỗi 2-3 tuần trong mùa sinh trưởng.</p><h3>5. Đặt Cây Ở Vị Trí Sai</h3><p>Mỗi loại cây cần nhu cầu ánh sáng khác nhau. Tìm hiểu yêu cầu của cây trước khi đặt vị trí.</p><h3>6. Không Kiểm Tra Sâu Bệnh</h3><p>Sâu bệnh phát triển nhanh trong chậu. Kiểm tra cây thường xuyên để phát hiện sớm.</p>",
+    category: "Chăm Sóc Cây",
+    tags: ["mistakes", "beginners", "tips", "care"],
+    author: "Hạ Vĩ H",
+    coverImage: "https://images.unsplash.com/photo-1600411652283-4b94f8dd3e47?w=800",
+    status: "published",
+    isFeatured: false,
+    viewCount: 1950,
+  },
+  {
+    title: "Hướng Dẫn Chọn Cây Cảnh Phù Hợp Với Phòng Của Bạn",
+    slug: "huong-dan-chon-cay-canh-phu-hop-voi-phong-cua-ban",
+    excerpt: "Mỗi phòng có đặc điểm ánh sáng và độ ẩm khác nhau. Hãy chọn cây phù hợp để chúng phát triển tốt nhất.",
+    content: "<h2>Chọn Cây Cảnh Cho Từng Phòng</h2><p>Việc chọn cây phù hợp với từng không gian là chìa khóa thành công.</p><h3>Phòng Ngủ</h3><p>- Nên chọn cây thanh lọc không khí<br/>- Cây lưỡi hổ, cây bạch tuyết<br/>- Tránh cây có mùi quá nồng nặc</p><h3>Phòng Khách</h3><p>- Cây lớn để trang trí: kim ngân, phát tài<br/>- Cây có hoa để thêm màu sắc<br/>- Cây rủi trang trí góc</p><h3>Phòng Làm Việc</h3><p>- Cây để bàn dáng nhỏ<br/>- Cây kim tiền, xương rồng mini<br/>- Giúp tập trung và tạo không gian sạch</p><h3>Nhà Bếp</h3><p>- Cây kháng khuẩn tốt<br/>- Cây lưỡi hổ, cây bạch tuyết<br/>- Cây được đặt ở vị trí an toàn, tránh mỡ bắn</p><h3>Phòng Tắm</h3><p>- Cây yêu ẩm: trầu bà, cây hóp lá<br/>- Cây chịu độ ẩm cao<br/>- Đặt gần cửa sổ nếu có</p>",
+    category: "Trang Trí",
+    tags: ["room-selection", "placement", "tips", "design"],
+    author: "Tâm Văn I",
+    coverImage: "https://images.unsplash.com/photo-1599599810694-b5ac4dd64e58?w=800",
+    status: "published",
+    isFeatured: false,
+    viewCount: 2120,
+  },
+  {
+    title: "Quy Trình Trồng Cây Từ Hạt Giống - Từ A Đến Z",
+    slug: "quy-trinh-trong-cay-tu-hat-giong-tu-a-den-z",
+    excerpt: "Muốn trồng cây từ đầu bằng hạt giống? Bài viết này sẽ hướng dẫn bạn toàn bộ quy trình chi tiết.",
+    content: "<h2>Trồng Cây Từ Hạt Giống</h2><p>Trồng cây từ hạt giống là trải nghiệm rất thú vị và bổ ích.</p><h3>Chuẩn Bị Dụng Cụ Và Vật Liệu</h3><p>- Chậu trồng với lỗ thoát nước<br/>- Đất trồng hạt giống (đất tơi nhẹ)<br/>- Hạt giống<br/>- Bình xịt nước<br/>- Giấy báo hoặc màng nhựa<br/>- Ánh sáng và nhiệt độ ổn định</p><h3>Bước 1: Chuẩn Bị Đất</h3><p>Trộn đất trồng cây với cát hoặc xơ dừa để tăng độ tơi và thoát nước. Đất phải ẩm nhưng không quá ướt.</p><h3>Bước 2: Gieo Hạt</h3><p>Rải hạt lên mặt đất, sau đó nhẹ nhàng ấn xuống. Một số loại hạt cần phủ lên một lớp đất mỏng.</p><h3>Bước 3: Tạo Độ Ẩm</h3><p>Phủ giấy báo hoặc màng nhựa lên chậu để giữ độ ẩm. Mỗi ngày xịt nước nhẹ để giữ đất ẩm.</p><h3>Bước 4: Chờ Nảy Mầm</h3><p>Đặt ở nơi ấm, nhưng không cần ánh sáng. Hạt thường nảy mầm trong 1-2 tuần.</p><h3>Bước 5: Di Chuyển Ánh Sáng</h3><p>Khi cây mọc, loại bỏ màng nhựa và đặt ở vị trí sáng để cây không bị徒長.</p>",
+    category: "Chăm Sóc Cây",
+    tags: ["seeds", "growing", "from-seeds", "guide"],
+    author: "Nam Việt J",
+    coverImage: "https://images.unsplash.com/photo-1574943320219-553eb2f72b84?w=800",
+    status: "published",
+    isFeatured: false,
+    viewCount: 1540,
+  },
+];
+
 // ── Main ────────────────────────────────────────────────────────────────────
 async function main() {
   console.log("🌱 Connecting to MongoDB...");
@@ -270,6 +404,28 @@ async function main() {
     await db.collection("reviews").insertMany(reviewDocs);
   }
 
+  // 8. Blogs
+  console.log("📝 Seeding blogs...");
+  const blogDocs = BLOGS.map((b, i) => ({
+    title: b.title,
+    slug: b.slug,
+    content: b.content,
+    excerpt: b.excerpt,
+    coverImage: b.coverImage,
+    category: b.category,
+    tags: b.tags || [],
+    status: b.status || "published",
+    author: b.author || "PlantWorld Admin",
+    isFeatured: b.isFeatured || false,
+    viewCount: b.viewCount || 0,
+    createdAt: daysAgo(rand(5, 60)),
+    updatedAt: now,
+  }));
+
+  if (blogDocs.length > 0) {
+    await db.collection("blogs").insertMany(blogDocs);
+  }
+
   // ── Summary ──
   const totalRevenue = orderDocs.reduce((s, o) => s + o.total, 0);
   console.log("\n" + "═".repeat(50));
@@ -281,6 +437,7 @@ async function main() {
   console.log(`   Addresses:   ${addressDocs.length}`);
   console.log(`   Orders:      ${orderDocs.length} (all delivered & paid)`);
   console.log(`   Reviews:     ${reviewDocs.length}`);
+  console.log(`   Blogs:       ${blogDocs.length}`);
   console.log(`   Revenue:     ${totalRevenue.toLocaleString("vi-VN")}đ`);
   console.log("═".repeat(50));
   console.log("   🔑 All passwords: 123456");

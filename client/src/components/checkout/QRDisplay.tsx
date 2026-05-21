@@ -120,14 +120,14 @@ export default function QRDisplay({
           <span className="flex h-5 w-5 flex-none items-center justify-center rounded-full bg-emerald-100 text-[10px] font-bold text-emerald-700">
             1
           </span>
-          <span>Open your banking app and scan the QR code</span>
+          <span>Mở ứng dụng ngân hàng của bạn và quét mã QR</span>
         </li>
         <li className="flex gap-2">
           <span className="flex h-5 w-5 flex-none items-center justify-center rounded-full bg-emerald-100 text-[10px] font-bold text-emerald-700">
             2
           </span>
           <span>
-            Transfer exactly{" "}
+            Chuyển đúng {" "}
             <strong>{amount.toLocaleString("vi-VN")} VND</strong>
           </span>
         </li>
@@ -135,13 +135,13 @@ export default function QRDisplay({
           <span className="flex h-5 w-5 flex-none items-center justify-center rounded-full bg-emerald-100 text-[10px] font-bold text-emerald-700">
             3
           </span>
-          <span>Keep the transfer note unchanged</span>
+          <span>Giữ nội dung chuyển khoản không thay đổi</span>
         </li>
         <li className="flex gap-2">
           <span className="flex h-5 w-5 flex-none items-center justify-center rounded-full bg-emerald-100 text-[10px] font-bold text-emerald-700">
             4
           </span>
-          <span>Wait for auto-verification or tap &quot;I have paid&quot;</span>
+          <span>Đợi xác minh tự động hoặc nhấn &quot;Tôi đã thanh toán&quot;</span>
         </li>
       </ol>
     </div>

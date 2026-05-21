@@ -69,7 +69,7 @@ export default function PlantDetailPage({ params }: PlantDetailPageProps) {
         const plantData = response.data?.data?.plant || response.data?.data;
 
         if (!plantData || !plantData._id) {
-          setError("Plant not found");
+          setError("Cây xanh không tồn tại");
           setTimeout(() => router.push("/shop"), 2000);
           return;
         }
@@ -158,9 +158,9 @@ export default function PlantDetailPage({ params }: PlantDetailPageProps) {
         <div className="flex justify-center items-center h-screen">
           <div className="text-center">
             <p className="text-red-600 font-semibold">
-              {error || "Product not found"}
+              {error || "Sản phẩm không tồn tại"}
             </p>
-            <p className="text-gray-600 mt-2">Redirecting to shop...</p>
+            <p className="text-gray-600 mt-2">Đang chuyển hướng sang cửa hàng...</p>
           </div>
         </div>
       </main>
@@ -192,7 +192,7 @@ export default function PlantDetailPage({ params }: PlantDetailPageProps) {
             )}
             {plant.isFeatured && (
               <div className="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded font-bold">
-                Featured
+                Nổi bật
               </div>
             )}
             {outOfStock && (

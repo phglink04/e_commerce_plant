@@ -190,14 +190,14 @@ export default function AdminBlogForm({
       <div className="grid gap-4 sm:grid-cols-2">
         <FormInput
           id="blog-title"
-          label="Title"
+          label="Tiêu đề"
           value={form.title}
           onChange={(value) => handleInputChange("title", value)}
           required
         />
         <FormInput
           id="blog-category"
-          label="Category"
+          label="Danh mục"
           value={form.category}
           onChange={(value) => handleInputChange("category", value)}
         />
@@ -207,16 +207,16 @@ export default function AdminBlogForm({
       <div className="grid gap-4 sm:grid-cols-2">
         <FormInput
           id="blog-author"
-          label="Author"
+          label="Tác giả"
           value={form.author}
           onChange={(value) => handleInputChange("author", value)}
         />
         <FormInput
           id="blog-tags"
-          label="Tags (comma separated)"
+          label="Nhãn (ðởia chỉ ngăn cách bằng dấu phảy)"
           value={form.tags}
           onChange={(value) => handleInputChange("tags", value)}
-          placeholder="e.g. plants, tips, care"
+          placeholder="vd: cây xanh, mẫo dùm, chăm sóc"
         />
       </div>
 
@@ -251,7 +251,7 @@ export default function AdminBlogForm({
           onChange={(e) => handleInputChange("excerpt", e.target.value)}
           className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
           rows={3}
-          placeholder="A brief summary of the blog post..."
+          placeholder="Một tóm tắt ngắn của bài viết..."
         />
       </div>
 
@@ -263,7 +263,7 @@ export default function AdminBlogForm({
           onChange={(e) => handleInputChange("content", e.target.value)}
           className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-mono"
           rows={10}
-          placeholder="Write your blog content here... (HTML supported)"
+          placeholder="Viết nội dung bài viết tại đây... (hỗ trợ HTML)"
           required
         />
       </div>
@@ -271,7 +271,7 @@ export default function AdminBlogForm({
       {/* Toggles */}
       <div className="space-y-3">
         <ToggleSwitch
-          label="Featured Blog"
+          label="Bài viết nổi bật"
           checked={form.isFeatured}
           onChange={(checked) => handleInputChange("isFeatured", checked)}
           color="amber"

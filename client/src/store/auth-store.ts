@@ -17,7 +17,10 @@ type AuthState = {
   loading: boolean;
   error: string;
   success: string;
+  hasHydrated: boolean;
   setError: (value: string) => void;
+  setUser: (user: User | null) => void;
+  hydrateFromStorage: () => void;
   clearMessages: () => void;
   login: (payload: LoginPayload) => Promise<"ok" | "2fa" | false>;
   register: (payload: RegisterPayload) => Promise<boolean>;
@@ -39,18 +42,42 @@ const parseError = (err: unknown, fallback: string): string => {
 };
 
 export const useAuthStore = create<AuthState>((set) => ({
-  user:
-    typeof window !== "undefined" && localStorage.getItem("auth_user")
-      ? (JSON.parse(localStorage.getItem("auth_user") as string) as User)
-      : null,
-  token:
-    typeof window !== "undefined" ? localStorage.getItem("auth_token") : null,
+  user: null,
+  token: null,
   twoFactorUserId: null,
   loading: false,
   error: "",
   success: "",
+  hasHydrated: false,
 
   setError: (value) => set({ error: value }),
+
+  setUser: (user) => {
+    if (typeof window !== "undefined") {
+      if (user) {
+        localStorage.setItem("auth_user", JSON.stringify(user));
+      } else {
+        localStorage.removeItem("auth_user");
+      }
+    }
+
+    set({ user });
+  },
+
+  hydrateFromStorage: () => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const storedUser = localStorage.getItem("auth_user");
+    const storedToken = localStorage.getItem("auth_token");
+
+    set({
+      user: storedUser ? (JSON.parse(storedUser) as User) : null,
+      token: storedToken,
+      hasHydrated: true,
+    });
+  },
 
   clearMessages: () => set({ error: "", success: "" }),
 

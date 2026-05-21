@@ -6,32 +6,32 @@ import { ShieldCheck, Leaf, Truck, Headphones } from "lucide-react";
 const features = [
   {
     id: "shipping",
-    title: "Free Shipping",
-    text: "On all orders above $49 with secure plant-safe packaging and real-time tracking.",
+    title: "Miễn phí vận chuyển",
+    text: "Đơn hàng trên 500k được miễn phí vận chuyển toàn quốc, giao nhanh trong 2-3 ngày.",
     icon: Truck,
     gradient: "from-emerald-500 to-teal-400",
     bgLight: "bg-emerald-50",
   },
   {
     id: "guarantee",
-    title: "Health Guarantee",
-    text: "Every plant is hand-checked before dispatch with a 30-day replacement guarantee.",
+    title: "Bảo hành sức khỏe",
+    text: "Mỗi cây đều được kiểm tra thủ công trước khi giao hàng với cam kết thay thế trong 30 ngày.",
     icon: Leaf,
     gradient: "from-lime-500 to-green-400",
     bgLight: "bg-lime-50",
   },
   {
     id: "payment",
-    title: "Secure Payment",
-    text: "Bank-grade encrypted checkout with trusted payment gateways and fraud protection.",
+    title: "Thanh toán an toàn",
+    text: "Checkout được mã hóa cấp ngân hàng với các cổng thanh toán đáng tin cậy và bảo vệ chống gian lận.",
     icon: ShieldCheck,
     gradient: "from-blue-500 to-cyan-400",
     bgLight: "bg-blue-50",
   },
   {
     id: "support",
-    title: "24/7 Support",
-    text: "Expert plant care tips and instant assistance from our dedicated support team.",
+    title: "Hỗ trợ 24/7",
+    text: "Mẹo chăm sóc cây cảnh chuyên gia và sự hỗ trợ tức thì từ đội ngũ hỗ trợ tận tâm của chúng tôi.",
     icon: Headphones,
     gradient: "from-violet-500 to-purple-400",
     bgLight: "bg-violet-50",
@@ -71,12 +71,12 @@ export default function WhyChooseUs() {
           className="mb-10 text-center"
         >
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-600">
-            Why Choose Us
+            Tại sao chọn chúng tôi
           </p>
           <h2 className="mt-2 text-3xl font-bold text-slate-900 md:text-4xl">
-            Built For Plant Lovers Who
+            Dành cho những người yêu 
             <br className="hidden sm:block" />
-            <span className="hp-gradient-text"> Expect More</span>
+            <span className="hp-gradient-text"> cây cảnh</span>
           </h2>
           <div className="hp-section-divider mx-auto" />
         </motion.div>

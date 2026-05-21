@@ -109,12 +109,12 @@ export default function ShopPage() {
           <main className="flex-1">
             {/* Search Bar */}
             <div className="mb-8">
-              <SearchBar onSearch={setSearch} placeholder="Search plants..." />
+              <SearchBar onSearch={setSearch} placeholder="Tìm kiếm cây xanh..." />
             </div>
 
             {/* Results Info */}
             <div className="mb-6 text-sm text-gray-600">
-              Found {pagination.totalResults} products
+              Tìm thấy {pagination.totalResults} sản phẩm
               {search && ` matching "${search}"`}
             </div>
 

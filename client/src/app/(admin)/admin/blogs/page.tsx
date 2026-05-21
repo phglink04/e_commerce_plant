@@ -158,7 +158,7 @@ export default function AdminBlogsPage() {
               setSearch(val);
               setPage(1);
             }}
-            placeholder="Search blogs…"
+            placeholder="Tìm kiếm bài viết…"
             debounceDelay={500}
           />
         </div>
@@ -318,10 +318,10 @@ export default function AdminBlogsPage() {
       {/* Delete Confirmation */}
       {deleteTarget && (
         <ConfirmDialog
-          title="Delete Blog Post"
-          description={`Are you sure you want to delete "${deleteTarget.title}"? This action cannot be undone.`}
-          confirmLabel="Delete"
-          cancelLabel="Cancel"
+          title="Xóa bài viết"
+          description={`Bạn có chắc chắn muốn xóa "${deleteTarget.title}"? Hành động này không thể được hoàn tác.`}
+          confirmLabel="Xóa"
+          cancelLabel="Hủy"
           open={!!deleteTarget}
           loading={deleting}
           onConfirm={handleDelete}

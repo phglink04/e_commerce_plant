@@ -8,6 +8,9 @@ import api from "@/lib/api";
 import { useAuthStore } from "@/store/auth-store";
 import CheckoutOrderSummary from "@/components/checkout/OrderSummary";
 
+// Mark this page as dynamic to avoid prerendering issues with useSearchParams
+export const dynamic = 'force-dynamic';
+
 type OrderData = {
   id: string;
   userId: string;
@@ -39,7 +42,7 @@ export default function CheckoutSuccessPage() {
   useEffect(() => {
     if (!orderId || !token) {
       setLoading(false);
-      setError("Missing order information.");
+      setError("Đằt thông tin đơn hàng");
       return;
     }
 
@@ -52,7 +55,7 @@ export default function CheckoutSuccessPage() {
         if (!data) throw new Error("Order not found");
         setOrder(data);
       } catch {
-        setError("Unable to load order details.");
+        setError("Đã xáy ra lỗi khi tải chi tiết đơn hàng.");
       } finally {
         setLoading(false);
       }
@@ -66,7 +69,7 @@ export default function CheckoutSuccessPage() {
       <main className="flex min-h-screen items-center justify-center bg-gradient-to-b from-emerald-50 via-white to-white">
         <div className="flex flex-col items-center gap-3">
           <div className="h-10 w-10 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600" />
-          <p className="text-sm text-slate-500">Loading order...</p>
+          <p className="text-sm text-slate-500">Đang tải đơn hàng...</p>
         </div>
       </main>
     );
@@ -106,12 +109,12 @@ export default function CheckoutSuccessPage() {
           </div>
 
           <h1 className="text-2xl font-bold tracking-tight text-slate-900 md:text-3xl">
-            Order Placed Successfully!
+            Đơn hàng đăng ký thành công!
           </h1>
           <p className="mt-2 text-sm text-slate-600">
             {order.paymentMethod === "qr"
-              ? "Your payment has been confirmed. Thank you!"
-              : "Your order is confirmed. We will notify you when it ships."}
+              ? "Đã xác nhẫn thanh toán. Cảm ơn bạn!"
+              : "Đơn hàng đũĆ xác nhẫn. Chúng tôi sẽ thông báo bạn khi hàng giao đi."}
           </p>
         </div>
 

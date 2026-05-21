@@ -23,20 +23,20 @@ export default function AddressSelector({
     <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
       <div className="mb-3 flex items-center justify-between gap-2">
         <h3 className="text-base font-semibold text-slate-900">
-          Shipping Address
+          Địa Chỉ Giao Hàng
         </h3>
         <button
           type="button"
           onClick={onAdd}
           className="rounded-lg border border-emerald-200 px-3 py-1.5 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50"
         >
-          Add New Address
+          Thêm địa chỉ mới
         </button>
       </div>
 
       {addresses.length === 0 ? (
         <p className="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-3 py-4 text-sm text-slate-500">
-          No saved addresses yet. Add your first shipping address.
+          Chưa có địa chỉ nào. Thêm địa chỉ giao hàng đầu tiên của bạn.
         </p>
       ) : (
         <div className="space-y-2">
@@ -81,7 +81,7 @@ export default function AddressSelector({
                     }}
                     className="rounded-lg px-2 py-1 text-xs font-medium text-emerald-700 transition hover:bg-emerald-100"
                   >
-                    Edit
+                    Sửa
                   </button>
 
                   <button
@@ -92,7 +92,7 @@ export default function AddressSelector({
                     }}
                     className="rounded-lg px-2 py-1 text-xs font-medium text-rose-600 transition hover:bg-rose-50"
                   >
-                    Delete
+                    Xóa
                   </button>
                 </span>
               </label>

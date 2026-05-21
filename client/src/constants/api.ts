@@ -86,6 +86,7 @@ export const API_ENDPOINTS = {
   discounts: {
     list: "/api/discounts",
     create: "/api/discounts",
+    visible: "/api/discounts/visible",
     getById: (id: string) => `/api/discounts/${id}`,
     update: (id: string) => `/api/discounts/${id}`,
     delete: (id: string) => `/api/discounts/${id}`,

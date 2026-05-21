@@ -103,7 +103,7 @@ export default function AdminReviewsPage() {
           <input
             type="text"
             className="admin-reviews__filter-input"
-            placeholder="Search reviews..."
+            placeholder="Tìm kiếm bài đánh giá..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -145,7 +145,7 @@ export default function AdminReviewsPage() {
       {loading ? (
         <div className="admin-reviews__empty">Loading reviews...</div>
       ) : reviews.length === 0 ? (
-        <div className="admin-reviews__empty">No reviews found</div>
+        <div className="admin-reviews__empty">Không tìm thấy đánh giá nào</div>
       ) : (
         <div className="admin-reviews__table-wrap">
           <table className="admin-reviews__table">
@@ -259,7 +259,7 @@ export default function AdminReviewsPage() {
             <textarea
               value={replyText}
               onChange={(e) => setReplyText(e.target.value)}
-              placeholder="Write your reply..."
+              placeholder="Viết trả lời của bạn..."
               maxLength={2000}
             />
             <div className="admin-reviews__reply-box-actions">

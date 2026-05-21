@@ -172,7 +172,7 @@ export default function AdminOrdersPage() {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by order ID, user, address…"
+            placeholder="Tìm kiếm theo mã đơn hàng, khách hàng, địa chỉ…"
             className="w-full rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
           />
         </div>

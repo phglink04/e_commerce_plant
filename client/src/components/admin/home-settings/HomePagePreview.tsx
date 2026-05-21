@@ -86,7 +86,7 @@ function PreviewSection({
       {sectionId === "categories" && (
         <div className="space-y-2">
           <p className="text-sm font-semibold text-slate-900">
-            Shop By Category
+            Khám phá theo danh mục
           </p>
           <div
             className="grid gap-2"
@@ -208,7 +208,7 @@ function PreviewSection({
           <div className="flex gap-2">
             <input
               type="text"
-              placeholder="Enter your email"
+              placeholder="Nhập email của bạn"
               disabled
               className="flex-1 h-8 px-2 border border-slate-200 rounded text-xs bg-white"
             />

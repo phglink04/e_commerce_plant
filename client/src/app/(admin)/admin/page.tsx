@@ -1,18 +1,27 @@
 "use client";
 import { useAdminDashboard } from "@/hooks/admin/useAdminDashboard";
 import { StatCard } from "@/components/admin/Cards/StatCard";
-import { LineChart } from "@/components/admin/Charts/LineChart";
-import { BarChart } from "@/components/admin/Charts/BarChart";
+import { MiniStatCard } from "@/components/admin/Cards/MiniStatCard";
+import { RevenueChart } from "@/components/admin/Charts/RevenueChart";
+import { OrderStatusChart } from "@/components/admin/Charts/OrderStatusChart";
 import {
   ShoppingCart,
   Package,
   Users,
   DollarSign,
   RefreshCw,
+  Clock,
+  AlertTriangle,
+  UserPlus,
+  CalendarDays,
+  ArrowUpRight,
+  Eye,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { dashboardService } from "@/services/admin/dashboard.service";
 import { RecentOrder } from "@/types/admin";
+import { motion } from "framer-motion";
+import Link from "next/link";
 
 export default function DashboardPage() {
   const { stats, loading, error, refetch } = useAdminDashboard();
@@ -40,176 +49,349 @@ export default function DashboardPage() {
   };
 
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat("vi-VN", {
       style: "currency",
-      currency: "USD",
+      currency: "VND",
     }).format(value);
   };
 
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Chào buổi sáng";
+    if (hour < 18) return "Chào buổi chiều";
+    return "Chào buổi tối";
+  };
+
+  const getStatusConfig = (status: string) => {
+    const configs: Record<
+      string,
+      { label: string; bg: string; color: string; dot: string }
+    > = {
+      pending: {
+        label: "Chờ xử lý",
+        bg: "rgba(245, 158, 11, 0.1)",
+        color: "#d97706",
+        dot: "#f59e0b",
+      },
+      processing: {
+        label: "Đang xử lý",
+        bg: "rgba(59, 130, 246, 0.1)",
+        color: "#2563eb",
+        dot: "#3b82f6",
+      },
+      shipped: {
+        label: "Đang giao",
+        bg: "rgba(139, 92, 246, 0.1)",
+        color: "#7c3aed",
+        dot: "#8b5cf6",
+      },
+      delivered: {
+        label: "Đã giao",
+        bg: "rgba(16, 185, 129, 0.1)",
+        color: "#059669",
+        dot: "#10b981",
+      },
+      completed: {
+        label: "Hoàn thành",
+        bg: "rgba(5, 150, 105, 0.1)",
+        color: "#047857",
+        dot: "#059669",
+      },
+      cancelled: {
+        label: "Đã hủy",
+        bg: "rgba(239, 68, 68, 0.1)",
+        color: "#dc2626",
+        dot: "#ef4444",
+      },
+    };
+    return (
+      configs[status] || {
+        label: status,
+        bg: "#f1f5f9",
+        color: "#64748b",
+        dot: "#94a3b8",
+      }
+    );
+  };
+
   return (
-      <div className="space-y-6">
-        {/* Page Title */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900">Dashboard</h1>
-            <p className="text-slate-600 mt-1">Welcome to admin panel</p>
+    <div className="admin-dashboard">
+      {/* ── Page Header ── */}
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="admin-dashboard__header"
+      >
+        <div>
+          <h1 className="admin-dashboard__title">{getGreeting()} 👋</h1>
+          <p className="admin-dashboard__subtitle">
+            Đây là tổng quan hoạt động cửa hàng hôm nay
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="admin-dashboard__date">
+            <CalendarDays size={14} />
+            <span>
+              {new Date().toLocaleDateString("vi-VN", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </span>
           </div>
           <button
             onClick={handleRefresh}
             disabled={loading}
-            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50"
+            className="admin-dashboard__refresh-btn"
           >
             <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
-            Refresh
+            Làm mới
           </button>
         </div>
+      </motion.div>
 
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg">
-            {error}
+      {error && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="admin-dashboard__error"
+        >
+          <AlertTriangle size={16} />
+          {error}
+        </motion.div>
+      )}
+
+      {/* ── Primary Stats ── */}
+      <div className="admin-dashboard__stats-grid">
+        <StatCard
+          label="Tổng doanh thu"
+          value={formatCurrency(stats?.revenue.total || 0)}
+          icon={<DollarSign size={24} />}
+          trend={{ value: 12, direction: "up" }}
+          color="emerald"
+          delay={0}
+        />
+        <StatCard
+          label="Tổng đơn hàng"
+          value={stats?.orders.total || 0}
+          icon={<ShoppingCart size={24} />}
+          trend={{ value: 8, direction: "up" }}
+          color="blue"
+          delay={1}
+        />
+        <StatCard
+          label="Sản phẩm"
+          value={stats?.products.total || 0}
+          icon={<Package size={24} />}
+          color="violet"
+          delay={2}
+        />
+        <StatCard
+          label="Người dùng"
+          value={stats?.users.total || 0}
+          icon={<Users size={24} />}
+          trend={{ value: 5, direction: "up" }}
+          color="amber"
+          delay={3}
+        />
+      </div>
+
+      {/* ── Secondary Stats ── */}
+      <div className="admin-dashboard__mini-stats-grid">
+        <MiniStatCard
+          label="Doanh thu tháng này"
+          value={formatCurrency(stats?.revenue.thisMonth || 0)}
+          icon={<CalendarDays size={18} />}
+          color="#059669"
+          bgColor="rgba(16, 185, 129, 0.1)"
+          delay={4}
+        />
+        <MiniStatCard
+          label="Đơn chờ xử lý"
+          value={stats?.orders.pending || 0}
+          icon={<Clock size={18} />}
+          color="#d97706"
+          bgColor="rgba(245, 158, 11, 0.1)"
+          delay={5}
+        />
+        <MiniStatCard
+          label="Hết hàng"
+          value={stats?.products.outOfStock || 0}
+          icon={<AlertTriangle size={18} />}
+          color="#ef4444"
+          bgColor="rgba(239, 68, 68, 0.1)"
+          delay={6}
+        />
+        <MiniStatCard
+          label="Người dùng mới (tháng)"
+          value={stats?.users.newThisMonth || 0}
+          icon={<UserPlus size={18} />}
+          color="#3b82f6"
+          bgColor="rgba(59, 130, 246, 0.1)"
+          delay={7}
+        />
+      </div>
+
+      {/* ── Charts ── */}
+      <div className="admin-dashboard__charts-grid">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="admin-dashboard__chart-card"
+        >
+          <RevenueChart />
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          className="admin-dashboard__chart-card"
+        >
+          <OrderStatusChart />
+        </motion.div>
+      </div>
+
+      {/* ── Recent Orders ── */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.5 }}
+        className="admin-dashboard__orders-card"
+      >
+        <div className="admin-dashboard__orders-header">
+          <div>
+            <h3 className="admin-dashboard__orders-title">
+              Đơn hàng gần đây
+            </h3>
+            <p className="admin-dashboard__orders-subtitle">
+              5 đơn hàng mới nhất
+            </p>
           </div>
-        )}
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatCard
-            label="Total Revenue"
-            value={formatCurrency(stats?.revenue.total || 0)}
-            icon={<DollarSign />}
-            trend={{ value: 12, direction: "up" }}
-            color="emerald"
-          />
-          <StatCard
-            label="Total Orders"
-            value={stats?.orders.total || 0}
-            icon={<ShoppingCart />}
-            trend={{ value: 8, direction: "up" }}
-            color="blue"
-          />
-          <StatCard
-            label="Total Products"
-            value={stats?.products.total || 0}
-            icon={<Package />}
-            color="orange"
-          />
-          <StatCard
-            label="Total Users"
-            value={stats?.users.total || 0}
-            icon={<Users />}
-            color="red"
-          />
+          <Link href="/admin/orders" className="admin-dashboard__view-all-btn">
+            Xem tất cả
+            <ArrowUpRight size={14} />
+          </Link>
         </div>
 
-        {/* Additional Stats Row */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-white rounded-lg border border-slate-200 p-4">
-            <p className="text-sm text-slate-600">This Month Revenue</p>
-            <p className="text-2xl font-bold mt-2">
-              {formatCurrency(stats?.revenue.thisMonth || 0)}
-            </p>
+        {ordersLoading ? (
+          <div className="admin-dashboard__orders-loader">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="admin-dashboard__skeleton-row">
+                <div className="admin-dashboard__skeleton admin-dashboard__skeleton--avatar" />
+                <div style={{ flex: 1 }}>
+                  <div className="admin-dashboard__skeleton admin-dashboard__skeleton--line" />
+                  <div className="admin-dashboard__skeleton admin-dashboard__skeleton--line-short" />
+                </div>
+                <div className="admin-dashboard__skeleton admin-dashboard__skeleton--badge" />
+              </div>
+            ))}
           </div>
-          <div className="bg-white rounded-lg border border-slate-200 p-4">
-            <p className="text-sm text-slate-600">Pending Orders</p>
-            <p className="text-2xl font-bold mt-2 text-yellow-600">
-              {stats?.orders.pending || 0}
-            </p>
+        ) : recentOrders.length === 0 ? (
+          <div className="admin-dashboard__orders-empty">
+            <ShoppingCart
+              size={40}
+              style={{ color: "#cbd5e1", marginBottom: "0.5rem" }}
+            />
+            <p>Chưa có đơn hàng nào</p>
           </div>
-          <div className="bg-white rounded-lg border border-slate-200 p-4">
-            <p className="text-sm text-slate-600">Out of Stock</p>
-            <p className="text-2xl font-bold mt-2 text-red-600">
-              {stats?.products.outOfStock || 0}
-            </p>
-          </div>
-          <div className="bg-white rounded-lg border border-slate-200 p-4">
-            <p className="text-sm text-slate-600">New Users This Month</p>
-            <p className="text-2xl font-bold mt-2 text-blue-600">
-              {stats?.users.newThisMonth || 0}
-            </p>
-          </div>
-        </div>
-
-        {/* Charts */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-white rounded-lg border border-slate-200 p-6">
-            <h3 className="text-lg font-semibold mb-4">Revenue This Week</h3>
-            <LineChart />
-          </div>
-          <div className="bg-white rounded-lg border border-slate-200 p-6">
-            <h3 className="text-lg font-semibold mb-4">Orders by Status</h3>
-            <BarChart />
-          </div>
-        </div>
-
-        {/* Recent Orders */}
-        <div className="bg-white rounded-lg border border-slate-200 p-6">
-          <h3 className="text-lg font-semibold mb-4">Recent Orders</h3>
-          {ordersLoading ? (
-            <div className="flex items-center justify-center h-64">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
-            </div>
-          ) : recentOrders.length === 0 ? (
-            <p className="text-center text-slate-500 py-8">No orders yet</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-slate-50 border-b">
-                  <tr>
-                    <th className="text-left px-4 py-3 text-sm font-semibold">
-                      Order ID
-                    </th>
-                    <th className="text-left px-4 py-3 text-sm font-semibold">
-                      Customer
-                    </th>
-                    <th className="text-left px-4 py-3 text-sm font-semibold">
-                      Amount
-                    </th>
-                    <th className="text-left px-4 py-3 text-sm font-semibold">
-                      Status
-                    </th>
-                    <th className="text-left px-4 py-3 text-sm font-semibold">
-                      Date
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y">
-                  {recentOrders.map((order) => (
-                    <tr key={order._id} className="hover:bg-slate-50">
-                      <td className="px-4 py-3 text-sm font-mono text-slate-600">
-                        {order._id.slice(-8)}
-                      </td>
-                      <td className="px-4 py-3 text-sm">
-                        {order.userId?.name || order.userId?.email || "Unknown"}
-                      </td>
-                      <td className="px-4 py-3 text-sm font-semibold">
-                        {formatCurrency(order.total || order.totalAmount)}
-                      </td>
-                      <td className="px-4 py-3 text-sm">
-                        <span
-                          className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                            order.orderStatus === "delivered"
-                              ? "bg-green-100 text-green-800"
-                              : order.orderStatus === "pending"
-                                ? "bg-yellow-100 text-yellow-800"
-                                : order.orderStatus === "processing"
-                                  ? "bg-blue-100 text-blue-800"
-                                  : order.orderStatus === "cancelled"
-                                    ? "bg-red-100 text-red-800"
-                                    : "bg-slate-100 text-slate-800"
-                          }`}
-                        >
-                          {order.orderStatus}
+        ) : (
+          <div className="admin-dashboard__orders-table-wrap">
+            <table className="admin-dashboard__orders-table">
+              <thead>
+                <tr>
+                  <th>Mã đơn</th>
+                  <th>Khách hàng</th>
+                  <th>Tổng tiền</th>
+                  <th>Trạng thái</th>
+                  <th>Ngày tạo</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentOrders.map((order, index) => {
+                  const statusCfg = getStatusConfig(order.orderStatus);
+                  return (
+                    <motion.tr
+                      key={order._id}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.3, delay: index * 0.06 }}
+                    >
+                      <td>
+                        <span className="admin-dashboard__order-id">
+                          #{order._id.slice(-6).toUpperCase()}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-sm text-slate-600">
-                        {new Date(order.createdAt).toLocaleDateString()}
+                      <td>
+                        <div className="admin-dashboard__customer-cell">
+                          <div className="admin-dashboard__customer-avatar">
+                            {(
+                              order.userId?.name?.[0] ||
+                              order.userId?.email?.[0] ||
+                              "?"
+                            ).toUpperCase()}
+                          </div>
+                          <div>
+                            <span className="admin-dashboard__customer-name">
+                              {order.userId?.name || "Ẩn danh"}
+                            </span>
+                            <span className="admin-dashboard__customer-email">
+                              {order.userId?.email || ""}
+                            </span>
+                          </div>
+                        </div>
                       </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      </div>
+                      <td>
+                        <span className="admin-dashboard__amount">
+                          {formatCurrency(order.total || order.totalAmount)}
+                        </span>
+                      </td>
+                      <td>
+                        <span
+                          className="admin-dashboard__status-badge"
+                          style={{
+                            background: statusCfg.bg,
+                            color: statusCfg.color,
+                          }}
+                        >
+                          <span
+                            className="admin-dashboard__status-dot"
+                            style={{ background: statusCfg.dot }}
+                          />
+                          {statusCfg.label}
+                        </span>
+                      </td>
+                      <td>
+                        <span className="admin-dashboard__date-cell">
+                          {new Date(order.createdAt).toLocaleDateString(
+                            "vi-VN",
+                            {
+                              day: "2-digit",
+                              month: "2-digit",
+                              year: "numeric",
+                            }
+                          )}
+                        </span>
+                      </td>
+                      <td>
+                        <Link
+                          href={`/admin/orders`}
+                          className="admin-dashboard__order-view-btn"
+                        >
+                          <Eye size={14} />
+                        </Link>
+                      </td>
+                    </motion.tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </motion.div>
+    </div>
   );
 }

@@ -18,13 +18,13 @@ import { useMyOrders } from "@/hooks/useProfile";
 import type { Order, OrderStatus } from "@/types";
 
 const STATUS_TABS: { label: string; value: string }[] = [
-  { label: "All", value: "" },
-  { label: "Pending", value: "pending" },
-  { label: "Confirmed", value: "confirmed" },
-  { label: "Processing", value: "processing" },
-  { label: "Shipped", value: "shipped" },
-  { label: "Delivered", value: "delivered" },
-  { label: "Cancelled", value: "cancelled" },
+  { label: "Tất cả", value: "" },
+  { label: "Chờ xử lý", value: "pending" },
+  { label: "Đã xác nhận", value: "confirmed" },
+  { label: "Đang xử lý", value: "processing" },
+  { label: "Đang giao", value: "shipped" },
+  { label: "Đã giao", value: "delivered" },
+  { label: "Đã hủy", value: "cancelled" },
 ];
 
 const STATUS_CONFIG: Record<
@@ -44,20 +44,20 @@ const PAYMENT_STATUS_CONFIG: Record<
   string,
   { label: string; color: string; bg: string }
 > = {
-  unpaid: { label: "Unpaid", color: "#d97706", bg: "#fef3c7" },
-  paid: { label: "Paid", color: "#16a34a", bg: "#dcfce7" },
-  failed: { label: "Failed", color: "#dc2626", bg: "#fee2e2" },
-  refunded: { label: "Refunded", color: "#7c3aed", bg: "#ede9fe" },
+  unpaid: { label: "Chưa thanh toán", color: "#d97706", bg: "#fef3c7" },
+  paid: { label: "Đã thanh toán", color: "#16a34a", bg: "#dcfce7" },
+  failed: { label: "Thất bại", color: "#dc2626", bg: "#fee2e2" },
+  refunded: { label: "Hoàn tiền", color: "#7c3aed", bg: "#ede9fe" },
 };
 
 const STATUS_LABEL: Record<string, string> = {
-  pending: "Pending",
-  confirmed: "Confirmed",
-  processing: "Processing",
-  shipped: "Shipped",
-  delivered: "Delivered",
-  cancelled: "Cancelled",
-  returned: "Returned",
+  pending: "Chờ xử lý",
+  confirmed: "Đã xác nhận",
+  processing: "Đang xử lý",
+  shipped: "Đang giao",
+  delivered: "Đã giao",
+  cancelled: "Đã hủy",
+  returned: "Trả hàng",
 };
 
 function OrderStatusBadge({ status }: { status: OrderStatus }) {
@@ -117,20 +117,20 @@ function OrderItem({ order }: { order: Order }) {
             </div>
           ))}
           {itemCount > 3 && (
-            <p className="pf-order__card-more">+{itemCount - 3} more items</p>
+            <p className="pf-order__card-more">+{itemCount - 3} sản phẩm khác</p>
           )}
         </div>
       </div>
 
       <div className="pf-order__card-footer">
         <div className="pf-order__card-total">
-          <span className="pf-order__card-total-label">Total</span>
+          <span className="pf-order__card-total-label">Tổng</span>
           <span className="pf-order__card-total-value">
             {total.toLocaleString("vi-VN")}₫
           </span>
         </div>
         <div className="pf-order__card-date">
-          {new Date(order.createdAt).toLocaleDateString("en-US", {
+          {new Date(order.createdAt).toLocaleDateString("vi-VN", {
             month: "short",
             day: "numeric",
             year: "numeric",
@@ -160,7 +160,7 @@ export default function OrderList() {
     return (
       <div className="pf-empty">
         <AlertTriangle size={48} />
-        <h3>Unable to load orders</h3>
+        <h3>Không thể tải đơn hàng</h3>
         <p>{error.message}</p>
       </div>
     );
@@ -186,14 +186,14 @@ export default function OrderList() {
       {orders.length === 0 ? (
         <div className="pf-empty">
           <Package size={48} />
-          <h3>No orders found</h3>
+          <h3>Không có đơn hàng</h3>
           <p>
             {activeTab
-              ? `You don't have any ${activeTab} orders yet.`
-              : "You haven't placed any orders yet."}
+              ? `Bạn chưa có đơn hàng nào ở trạng thái này.`
+              : "Bạn chưa đặt đơn hàng nào."}
           </p>
           <Link href="/shop" className="pf-btn pf-btn--primary">
-            Start Shopping
+            Bắt Đầu Mua Sắm
           </Link>
         </div>
       ) : (

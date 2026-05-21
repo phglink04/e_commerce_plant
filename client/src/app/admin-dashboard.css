@@ -1,0 +1,465 @@
+/* ══════════════════════════════════════════════════
+   ADMIN DASHBOARD — Premium Design System
+   ══════════════════════════════════════════════════ */
+
+/* ── Dashboard Layout ── */
+.admin-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ── Header ── */
+.admin-dashboard__header {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .admin-dashboard__header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.admin-dashboard__title {
+  font-size: 1.65rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.admin-dashboard__subtitle {
+  font-size: 0.88rem;
+  color: #94a3b8;
+  margin: 0.3rem 0 0;
+}
+
+.admin-dashboard__date {
+  display: none;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #64748b;
+}
+
+@media (min-width: 640px) {
+  .admin-dashboard__date {
+    display: flex;
+  }
+}
+
+.admin-dashboard__refresh-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 1.15rem;
+  background: linear-gradient(135deg, #059669, #10b981);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);
+}
+
+.admin-dashboard__refresh-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+}
+
+.admin-dashboard__refresh-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.admin-dashboard__error {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 1rem 1.25rem;
+  background: rgba(239, 68, 68, 0.05);
+  border: 1px solid rgba(239, 68, 68, 0.15);
+  border-radius: 14px;
+  color: #dc2626;
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
+/* ── Stats Grid ── */
+.admin-dashboard__stats-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .admin-dashboard__stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .admin-dashboard__stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.admin-stat-card {
+  transition: all 0.3s ease !important;
+}
+
+.admin-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.06);
+}
+
+.admin-stat-card__value {
+  font-size: clamp(1.1rem, 3.5vw, 1.85rem);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Mini Stats Grid ── */
+.admin-dashboard__mini-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .admin-dashboard__mini-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .admin-dashboard__mini-stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.admin-mini-stat {
+  transition: all 0.25s ease !important;
+}
+
+.admin-mini-stat:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.04);
+}
+
+/* ── Charts Grid ── */
+.admin-dashboard__charts-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 1024px) {
+  .admin-dashboard__charts-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.admin-dashboard__chart-card {
+  background: #fff;
+  border-radius: 20px;
+  border: 1px solid #f1f5f9;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.admin-dashboard__chart-card:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+}
+
+/* Chart loading animation */
+.admin-chart-loader {
+  width: 36px;
+  height: 36px;
+  border: 3px solid #f1f5f9;
+  border-top-color: #10b981;
+  border-radius: 50%;
+  animation: admin-spin 0.8s linear infinite;
+}
+
+@keyframes admin-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── Orders Card ── */
+.admin-dashboard__orders-card {
+  background: #fff;
+  border-radius: 20px;
+  border: 1px solid #f1f5f9;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.admin-dashboard__orders-card:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+}
+
+.admin-dashboard__orders-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.admin-dashboard__orders-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.admin-dashboard__orders-subtitle {
+  margin: 0.2rem 0 0;
+  font-size: 0.82rem;
+  color: #94a3b8;
+}
+
+.admin-dashboard__view-all-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.9rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #475569;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.admin-dashboard__view-all-btn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+/* ── Skeleton Loading ── */
+.admin-dashboard__orders-loader {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.admin-dashboard__skeleton-row {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.6rem 0;
+}
+
+.admin-dashboard__skeleton {
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  animation: admin-shimmer 1.5s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+.admin-dashboard__skeleton--avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.admin-dashboard__skeleton--line {
+  height: 12px;
+  width: 60%;
+  margin-bottom: 6px;
+}
+
+.admin-dashboard__skeleton--line-short {
+  height: 10px;
+  width: 40%;
+}
+
+.admin-dashboard__skeleton--badge {
+  width: 80px;
+  height: 28px;
+  border-radius: 20px;
+  margin-left: auto;
+}
+
+@keyframes admin-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ── Empty State ── */
+.admin-dashboard__orders-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  color: #94a3b8;
+  font-size: 0.88rem;
+}
+
+/* ── Orders Table ── */
+.admin-dashboard__orders-table-wrap {
+  overflow-x: auto;
+  margin: 0 -1.5rem -1.5rem;
+  padding: 0 1.5rem 1.5rem;
+}
+
+.admin-dashboard__orders-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.admin-dashboard__orders-table thead tr {
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.admin-dashboard__orders-table th {
+  text-align: left;
+  padding: 0 1rem 0.85rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  white-space: nowrap;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.admin-dashboard__orders-table td {
+  padding: 1rem;
+  font-size: 0.88rem;
+  white-space: nowrap;
+  border-bottom: 1px solid #fafbfc;
+}
+
+.admin-dashboard__orders-table tbody tr {
+  transition: all 0.15s ease;
+}
+
+.admin-dashboard__orders-table tbody tr:hover {
+  background: #fafbfc;
+}
+
+.admin-dashboard__orders-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Order ID */
+.admin-dashboard__order-id {
+  font-family: "SF Mono", "Fira Code", "Fira Mono", monospace;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #475569;
+  padding: 0.25rem 0.6rem;
+  background: #f8fafc;
+  border-radius: 8px;
+}
+
+/* Customer cell */
+.admin-dashboard__customer-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.admin-dashboard__customer-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #059669, #10b981);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.admin-dashboard__customer-name {
+  display: block;
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 0.85rem;
+}
+
+.admin-dashboard__customer-email {
+  display: block;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-top: 1px;
+}
+
+/* Amount */
+.admin-dashboard__amount {
+  font-weight: 700;
+  color: #0f172a;
+  font-size: 0.88rem;
+}
+
+/* Status Badge */
+.admin-dashboard__status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+
+.admin-dashboard__status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* Date cell */
+.admin-dashboard__date-cell {
+  color: #64748b;
+  font-size: 0.82rem;
+}
+
+/* View button */
+.admin-dashboard__order-view-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  color: #94a3b8;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.admin-dashboard__order-view-btn:hover {
+  background: #f1f5f9;
+  color: #475569;
+}

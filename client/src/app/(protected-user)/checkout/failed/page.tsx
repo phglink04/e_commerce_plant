@@ -23,7 +23,7 @@ export default function CheckoutFailedPage() {
           </div>
 
           <h1 className="text-2xl font-bold tracking-tight text-slate-900 md:text-3xl">
-            Payment Failed
+            Thanh toán thất bại
           </h1>
           <p className="mt-2 max-w-sm text-sm text-slate-600">
             We couldn&apos;t verify your payment within the time limit. Your
@@ -59,7 +59,7 @@ export default function CheckoutFailedPage() {
               className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700"
             >
               <RotateCcw size={16} />
-              Retry Payment
+              Thử lại thanh toán
             </Link>
           )}
 
@@ -68,7 +68,7 @@ export default function CheckoutFailedPage() {
             className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
           >
             <ShoppingCart size={16} />
-            Back to Cart
+            Quay lại giỏ hàng
           </Link>
 
           <Link
@@ -76,7 +76,7 @@ export default function CheckoutFailedPage() {
             className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
           >
             <CreditCard size={16} />
-            View My Orders
+            Xem đơn hàng của tôi
           </Link>
         </div>
 

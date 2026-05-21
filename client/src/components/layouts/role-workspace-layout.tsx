@@ -6,6 +6,7 @@ import RoleGuard from "@/components/auth/role-guard";
 import type { AppRole } from "@/lib/role-routing";
 import { useAuthStore } from "@/store/auth-store";
 import { LayoutDashboard, Package, Users, Settings, LogOut, Truck, ChevronRight } from "lucide-react";
+import { TopBar } from "@/components/admin/Layout/TopBar";
 
 type MenuItem = {
   href: string;
@@ -81,16 +82,7 @@ export default function RoleWorkspaceLayout({
             </aside>
 
             <section className="min-w-0">
-              <header className="sticky top-0 z-20 flex items-center justify-between border-b border-slate-200 bg-white/80 px-6 py-4 backdrop-blur">
-                <h1 className="text-xl font-bold text-slate-900">{heading}</h1>
-                <button
-                  onClick={logout}
-                  className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100"
-                >
-                  <LogOut className="h-4 w-4" />
-                  Logout
-                </button>
-              </header>
+              <TopBar />
               <div className="p-6">{children}</div>
             </section>
           </div>

@@ -62,7 +62,7 @@ export const ProductList = memo(function ProductList({
   if (products.length === 0) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-500 text-lg">No products found</p>
+        <p className="text-gray-500 text-lg">Không tìm thấy sản phẩm nào</p>
       </div>
     );
   }

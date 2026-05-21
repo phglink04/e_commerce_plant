@@ -32,10 +32,10 @@ export default function RatingSummaryHeader({ summary, canReview, onWriteReview,
       <div className="rating-summary__left">
         <div className="rating-summary__average">{averageRating.toFixed(1)}</div>
         <StarDisplay rating={averageRating} size={24} />
-        <p className="rating-summary__total">{totalReviews} review{totalReviews !== 1 ? "s" : ""}</p>
+        <p className="rating-summary__total">{totalReviews} đánh giá</p>
         {isLoggedIn && canReview && (
           <button className="rating-summary__write-btn" onClick={onWriteReview}>
-            ✍️ Write a Review
+            ✍️ Viết Đánh Giá
           </button>
         )}
       </div>

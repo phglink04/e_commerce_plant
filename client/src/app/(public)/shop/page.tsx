@@ -77,7 +77,24 @@ export default function ShopPage() {
   const [availability, setAvailability] = useState<string[]>([]);
 
   const [dbCategories, setDbCategories] = useState<string[]>([]);
+  const [mounted, setMounted] = useState(false);
   const gridRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  /* Sync URL query params → filter state */
+  useEffect(() => {
+    const catParam = searchParams.get("category");
+    const searchParam = searchParams.get("search");
+    if (catParam) {
+      setSelectedCategories([catParam]);
+    }
+    if (searchParam) {
+      setSearchTerm(searchParam);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -119,7 +136,7 @@ export default function ShopPage() {
       setTotalPages(Math.max(1, pages));
       setTotalResults(total);
     } catch {
-      setError("Unable to fetch plants. Please try again later.");
+      setError("Không thể tải sản phẩm. Vui lòng thử lại sau.");
     } finally {
       setIsLoading(false);
     }
@@ -154,17 +171,17 @@ export default function ShopPage() {
     setCartMessage("");
     if (!token) {
       setCartMessageType("error");
-      setCartMessage("Please login first to add products to cart.");
+      setCartMessage("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.");
       return;
     }
     try {
       await api.post("/api/users/addtocart", { plantId: plant._id, quantity: 1, price: plant.salePrice ?? plant.price }, { headers: { Authorization: `Bearer ${token}` } });
       setCartMessageType("success");
-      setCartMessage(`Added "${plant.name}" to cart!`);
+      setCartMessage(`Đã thêm "${plant.name}" vào giỏ hàng!`);
     } catch (err) {
       const message = typeof err === "object" && err && "response" in err
-        ? ((err as { response?: { data?: { message?: string } } }).response?.data?.message ?? "Failed to add to cart.")
-        : "Failed to add to cart.";
+        ? ((err as { response?: { data?: { message?: string } } }).response?.data?.message ?? "Thêm vào giỏ thất bại.")
+        : "Thêm vào giỏ thất bại.";
       setCartMessageType("error");
       setCartMessage(message);
     }
@@ -200,9 +217,9 @@ export default function ShopPage() {
           ))}
         </div>
         <motion.div className="sp-hero__content" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: "easeOut" }}>
-          <span className="sp-hero__badge"><Leaf size={14} />{isDealMode ? " Hot Deals" : " Plant Collection"}</span>
-          <h1 className="sp-hero__title">{isDealMode ? "Deals & Discounts" : "Explore Our Plants"}</h1>
-          <p className="sp-hero__sub">{isDealMode ? "Sản phẩm đang giảm giá — Nhanh tay kẻo hết!" : "Discover nature\u0027s finest — curated with love for your home & garden."}</p>
+          <span className="sp-hero__badge"><Leaf size={14} />{isDealMode ? " Khuyến Mãi" : " Bộ Sưu Tập"}</span>
+          <h1 className="sp-hero__title">{isDealMode ? "Khuyến Mãi & Giảm Giá" : "Khám Phá Cây Xanh"}</h1>
+          <p className="sp-hero__sub">{isDealMode ? "Sản phẩm đang giảm giá — Nhanh tay kẻ hết!" : "Những loài cây tốt nhất — được chọn lọc cho ngôi nhà & khu vườn của bạn."}</p>
         </motion.div>
       </section>
 
@@ -226,14 +243,14 @@ export default function ShopPage() {
         {/* Mobile filter toggle */}
         <button className="sp-filter-toggle" onClick={() => setShowFilter((p) => !p)} type="button">
           <SlidersHorizontal size={16} />
-          Filters
+          Bộ lọc
           {activeFilterCount > 0 && <span className="sp-filter-toggle__badge">{activeFilterCount}</span>}
         </button>
 
         <div className="sp-layout">
           {/* ── Sidebar ── */}
           <AnimatePresence>
-            {(showFilter || typeof window !== "undefined") && (
+            {(showFilter || mounted) && (
               <motion.aside
                 className={`sp-sidebar ${showFilter ? "sp-sidebar--open" : ""}`}
                 variants={sidebarVariants}
@@ -241,10 +258,10 @@ export default function ShopPage() {
                 animate="visible"
               >
                 <div className="sp-sidebar__head">
-                  <h3><SlidersHorizontal size={16} /> Filters</h3>
+                  <h3><SlidersHorizontal size={16} /> Bộ lọc</h3>
                   <div className="sp-sidebar__head-actions">
                     {hasActiveFilters && (
-                      <button type="button" onClick={clearAllFilters} className="sp-sidebar__clear">Clear all</button>
+                      <button type="button" onClick={clearAllFilters} className="sp-sidebar__clear">Xóa tất cả</button>
                     )}
                     <button type="button" className="sp-sidebar__close-mobile" onClick={() => setShowFilter(false)}>
                       <X size={18} />
@@ -254,27 +271,27 @@ export default function ShopPage() {
 
                 {/* Search */}
                 <div className="sp-filter-group">
-                  <label className="sp-filter-label" htmlFor="sp-search">Search</label>
+                  <label className="sp-filter-label" htmlFor="sp-search">Tìm kiếm</label>
                   <div className="sp-search-wrap">
                     <Search className="sp-search-icon" size={15} />
-                    <input id="sp-search" type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search plants..." className="sp-search-input" />
+                    <input id="sp-search" type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Tìm cây xanh..." className="sp-search-input" />
                   </div>
                 </div>
 
                 {/* Price */}
                 <div className="sp-filter-group">
-                  <label className="sp-filter-label">Price Range (VND)</label>
+                  <label className="sp-filter-label">Khoảng giá (VND)</label>
                   <div className="sp-price-row">
-                    <input type="number" aria-label="Minimum price" min={0} max={maxPrice} step={10000} value={minPrice} onChange={(e) => setMinPrice(Number(e.target.value || 0))} className="sp-price-input" placeholder="Min" />
+                    <input type="number" aria-label="Giá tối thiểu" min={0} max={maxPrice} step={10000} value={minPrice} onChange={(e) => setMinPrice(Number(e.target.value || 0))} className="sp-price-input" placeholder="Tối thiểu" />
                     <span className="sp-price-sep">–</span>
-                    <input type="number" aria-label="Maximum price" min={minPrice} max={1000000} step={10000} value={maxPrice} onChange={(e) => setMaxPrice(Number(e.target.value || 1000000))} className="sp-price-input" placeholder="Max" />
+                    <input type="number" aria-label="Giá tối đa" min={minPrice} max={1000000} step={10000} value={maxPrice} onChange={(e) => setMaxPrice(Number(e.target.value || 1000000))} className="sp-price-input" placeholder="Tối đa" />
                   </div>
                 </div>
 
                 {/* Tags */}
                 <div className="sp-filter-group">
                   <label className="sp-filter-label">🌞 Môi trường</label>
-                  {[{ label: "All", value: "All" }, { label: "🏠 Indoor", value: "indoor" }, { label: "🏡 Outdoor", value: "outdoor" }, { label: "🌿 Shade-loving", value: "shade-loving" }, { label: "☀️ Sunlight", value: "sunlight" }].map((item) => (
+                  {[{ label: "Tất cả", value: "All" }, { label: "🏠 Trong nhà", value: "indoor" }, { label: "🏡 Ngoài trời", value: "outdoor" }, { label: "🌿 ƪa bóng", value: "shade-loving" }, { label: "☀️ Ưa nắng", value: "sunlight" }].map((item) => (
                     <label key={item.value} className="sp-checkbox">
                       <input type="checkbox" checked={item.value === "All" ? tags.length === 0 : tags.includes(item.value)} onChange={() => toggleTag(item.value)} />
                       <span className="sp-checkbox__box" />
@@ -284,7 +301,7 @@ export default function ShopPage() {
                 </div>
                 <div className="sp-filter-group">
                   <label className="sp-filter-label">💧 Chăm sóc</label>
-                  {[{ label: "Easy-care", value: "easy-care" }, { label: "Low-water", value: "low-water" }, { label: "Pet-friendly", value: "pet-friendly" }].map((item) => (
+                  {[{ label: "Dễ chăm", value: "easy-care" }, { label: "Ít nước", value: "low-water" }, { label: "An toàn vật nuôi", value: "pet-friendly" }].map((item) => (
                     <label key={item.value} className="sp-checkbox">
                       <input type="checkbox" checked={tags.includes(item.value)} onChange={() => toggleTag(item.value)} />
                       <span className="sp-checkbox__box" />
@@ -294,7 +311,7 @@ export default function ShopPage() {
                 </div>
                 <div className="sp-filter-group">
                   <label className="sp-filter-label">💼 Mục đích</label>
-                  {[{ label: "Office", value: "office" }, { label: "Desktop", value: "desktop" }, { label: "Living-room", value: "living-room" }, { label: "Bedroom", value: "bedroom" }, { label: "Balcony", value: "balcony" }].map((item) => (
+                  {[{ label: "Văn phòng", value: "office" }, { label: "Bàn làm việc", value: "desktop" }, { label: "Phòng khách", value: "living-room" }, { label: "Phòng ngủ", value: "bedroom" }, { label: "Ban công", value: "balcony" }].map((item) => (
                     <label key={item.value} className="sp-checkbox">
                       <input type="checkbox" checked={tags.includes(item.value)} onChange={() => toggleTag(item.value)} />
                       <span className="sp-checkbox__box" />
@@ -305,7 +322,7 @@ export default function ShopPage() {
 
                 {/* Categories */}
                 <div className="sp-filter-group">
-                  <label className="sp-filter-label">Categories</label>
+                  <label className="sp-filter-label">Danh mục</label>
                   {dbCategories.length > 0
                     ? dbCategories.map((item) => (
                         <label key={item} className="sp-checkbox">
@@ -321,7 +338,7 @@ export default function ShopPage() {
 
                 {/* Availability */}
                 <div className="sp-filter-group">
-                  <label className="sp-filter-label">Availability</label>
+                  <label className="sp-filter-label">Tình trạng</label>
                   {AVAILABILITY.map((item) => (
                     <label key={item} className="sp-checkbox">
                       <input type="checkbox" checked={availability.includes(item)} onChange={() => toggleMultiValue(item, availability, setAvailability)} />
@@ -341,15 +358,15 @@ export default function ShopPage() {
               <div className="sp-toolbar">
                 <p className="sp-toolbar__count">
                   <Sparkles size={14} />
-                  <strong>{totalResults}</strong> product{totalResults !== 1 ? "s" : ""} found
-                  {searchTerm ? <> for &quot;<em>{searchTerm}</em>&quot;</> : ""}
+                  <strong>{totalResults}</strong> sản phẩm
+                  {searchTerm ? <> cho &quot;<em>{searchTerm}</em>&quot;</> : ""}
                 </p>
                 <div className="sp-toolbar__actions">
                   <div className="sp-view-toggle">
-                    <button type="button" className={`sp-view-btn ${viewMode === "grid" ? "sp-view-btn--active" : ""}`} onClick={() => setViewMode("grid")} aria-label="Grid view">
-                      <Grid3X3 size={16} />
+                    <button type="button" className={`sp-view-btn ${viewMode === "grid" ? "sp-view-btn--active" : ""}`} onClick={() => setViewMode("grid")} aria-label="Xem lưới">
+                      <Grid3X3 size={18} />
                     </button>
-                    <button type="button" className={`sp-view-btn ${viewMode === "list" ? "sp-view-btn--active" : ""}`} onClick={() => setViewMode("list")} aria-label="List view">
+                    <button type="button" className={`sp-view-btn ${viewMode === "list" ? "sp-view-btn--active" : ""}`} onClick={() => setViewMode("list")} aria-label="Xem danh sách">
                       <List size={16} />
                     </button>
                   </div>
@@ -386,7 +403,7 @@ export default function ShopPage() {
               <div className="sp-empty">
                 <div className="sp-empty__icon">⚠️</div>
                 <p>{error}</p>
-                <button type="button" onClick={() => void fetchPlants()} className="sp-btn sp-btn--primary">Try Again</button>
+                <button type="button" onClick={() => void fetchPlants()} className="sp-btn sp-btn--primary">Thử Lại</button>
               </div>
             )}
 
@@ -394,10 +411,10 @@ export default function ShopPage() {
             {!isLoading && !error && plants.length === 0 && (
               <div className="sp-empty">
                 <div className="sp-empty__icon">🌱</div>
-                <h3>No plants found</h3>
-                <p>Try adjusting your filters to find what you&apos;re looking for.</p>
+                <h3>Không tìm thấy sản phẩm</h3>
+                <p>Thử điều chỉnh bộ lọc để tìm kiếm sản phẩm bạn muốn.</p>
                 {hasActiveFilters && (
-                  <button type="button" onClick={clearAllFilters} className="sp-btn sp-btn--outline">Clear all filters</button>
+                  <button type="button" onClick={clearAllFilters} className="sp-btn sp-btn--outline">Xóa tất cả bộ lọc</button>
                 )}
               </div>
             )}
@@ -410,7 +427,7 @@ export default function ShopPage() {
                     <Link href={`/plant/${buildSlugAndId(plant.slug, plant._id)}`} className="sp-card__img-wrap">
                       <Image src={normalizeImageSrc(plant.imageCover)} alt={plant.name} width={460} height={320} loading="lazy" className="sp-card__img" />
                       <div className="sp-card__img-overlay">
-                        <span className="sp-card__view-btn"><Eye size={16} /> View</span>
+                        <span className="sp-card__view-btn"><Eye size={16} /> Xem</span>
                       </div>
                       <div className="sp-card__badges">
                         {plant.availability && (
@@ -444,7 +461,7 @@ export default function ShopPage() {
                           type="button"
                           disabled={plant.availability === "Out Of Stock"}
                           onClick={() => void handleAddToCart(plant)}
-                          title={plant.availability === "Out Of Stock" ? "Sold Out" : "Add to cart"}
+                          title={plant.availability === "Out Of Stock" ? "Hết hàng" : "Thêm vào giỏ"}
                         >
                           {plant.availability === "Out Of Stock" ? <Ban size={16} /> : <ShoppingCart size={16} />}
                         </button>
