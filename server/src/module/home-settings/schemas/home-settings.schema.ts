@@ -41,6 +41,14 @@ const FooterInfoSchema = SchemaFactory.createForClass(FooterInfo);
 export class HomeSettings {
   @Prop({
     type: String,
+    required: false,
+    trim: true,
+    default: "/frontend/logo/logo.png",
+  })
+  logo?: string;
+
+  @Prop({
+    type: String,
     required: true,
     trim: true,
     default: "Featured Plants",

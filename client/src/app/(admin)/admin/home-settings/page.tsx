@@ -16,6 +16,7 @@ import { DEFAULT_HOME_TEMPLATE } from "@/lib/default-home-template";
 import SectionConfigEditor from "@/components/admin/home-settings/SectionConfigEditor";
 import HomePagePreview from "@/components/admin/home-settings/HomePagePreview";
 import Toast from "@/components/admin/ui/admin-toast";
+import { normalizeImageSrc } from "@/utils/utils";
 
 type Toast = {
   type: "success" | "error" | "info";
@@ -31,6 +32,47 @@ export default function AdminHomeSettingsPage() {
     new Set(),
   );
   const [editingSectionId, setEditingSectionId] = useState<string | null>(null);
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      setIsUploadingLogo(true);
+      const res = await api.post("/api/home-settings/upload-banner", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      const url = res.data?.url;
+      if (url) {
+        setSettings((prev) => {
+          if (!prev) return null;
+          return {
+            ...prev,
+            logo: url,
+          };
+        });
+        setToast({
+          type: "success",
+          message: "✓ Logo uploaded successfully! Click 'Save Changes' to save.",
+        });
+      }
+    } catch (err: any) {
+      console.error(err);
+      setToast({
+        type: "error",
+        message: err.response?.data?.message || "Failed to upload logo image.",
+      });
+    } finally {
+      setIsUploadingLogo(false);
+    }
+  };
 
   // Fetch current settings
   useEffect(() => {
@@ -323,6 +365,57 @@ export default function AdminHomeSettingsPage() {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Website Logo Config Section */}
+      <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-6">
+        <div>
+          <h3 className="font-bold text-lg text-slate-900">
+            Logo Website
+          </h3>
+          <p className="text-xs text-slate-500 mt-1">
+            Tải lên và thay đổi logo thương hiệu hiển thị trên tất cả các trang của khách hàng, admin, và đối tác vận chuyển.
+          </p>
+        </div>
+
+        <div className="mt-6 flex flex-col sm:flex-row items-center gap-6">
+          <div className="flex-shrink-0 flex flex-col items-center gap-2">
+            <span className="text-xs font-semibold text-slate-500 uppercase">Logo Hiện Tại</span>
+            <div className="h-16 w-32 border border-slate-200 rounded-lg flex items-center justify-center bg-slate-900 p-2">
+              <img
+                src={settings.logo ? normalizeImageSrc(settings.logo) : "/frontend/logo/logo.png"}
+                alt="Logo website"
+                className="max-h-full max-w-full object-contain"
+              />
+            </div>
+          </div>
+
+          <div className="flex-1 w-full space-y-2">
+            <label className="block text-sm font-medium text-slate-700">
+              Chọn File Logo Mới
+            </label>
+            <div className="flex items-center gap-3">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleLogoUpload}
+                disabled={isUploadingLogo}
+                className="block w-full text-sm text-slate-500
+                  file:mr-4 file:py-2 file:px-4
+                  file:rounded-full file:border-0
+                  file:text-sm file:font-semibold
+                  file:bg-emerald-50 file:text-emerald-700
+                  hover:file:bg-emerald-100 disabled:opacity-50"
+              />
+              {isUploadingLogo && (
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-emerald-600 shrink-0" />
+              )}
+            </div>
+            <p className="text-xs text-slate-400">
+              Hỗ trợ file ảnh định dạng PNG, JPEG, SVG hoặc WebP. Khuyến nghị tỷ lệ ngang (ví dụ: 240x80px).
+            </p>
           </div>
         </div>
       </div>

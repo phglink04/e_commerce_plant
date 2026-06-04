@@ -269,6 +269,10 @@ export class UpdateSectionConfigsDto {
 export class UpdateHomeSettingsDto {
   @IsOptional()
   @IsString()
+  logo?: string;
+
+  @IsOptional()
+  @IsString()
   heroTitle?: string;
 
   @IsOptional()

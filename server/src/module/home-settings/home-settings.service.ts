@@ -182,6 +182,7 @@ export class HomeSettingsService {
 
   private toResponse(settings: any) {
     return {
+      logo: settings.logo ?? "/frontend/logo/logo.png",
       heroTitle: settings.heroTitle,
       heroBanner: settings.heroBanner,
       sections: settings.sections,

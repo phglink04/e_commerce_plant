@@ -5,18 +5,22 @@ type HomeUiState = {
   cartCount: number;
   wishlistIds: string[];
   recentSearches: string[];
+  logo: string;
   setCartCount: (value: number) => void;
   incrementCart: (step?: number) => void;
   decrementCart: (step?: number) => void;
   syncCartCount: (token: string | null) => Promise<void>;
   toggleWishlist: (id: string) => void;
   pushRecentSearch: (keyword: string) => void;
+  setLogo: (url: string) => void;
+  fetchLogo: () => Promise<void>;
 };
 
 export const useHomeUiStore = create<HomeUiState>((set) => ({
   cartCount: 0,
   wishlistIds: [],
   recentSearches: [],
+  logo: "/frontend/logo/logo.png",
 
   setCartCount: (value) => set({ cartCount: Math.max(0, value) }),
 
@@ -56,5 +60,17 @@ export const useHomeUiStore = create<HomeUiState>((set) => ({
       ];
       return { recentSearches: next.slice(0, 6) };
     });
+  },
+
+  setLogo: (url) => set({ logo: url }),
+
+  fetchLogo: async () => {
+    try {
+      const res = await api.get("/api/home-settings");
+      const url = res.data?.data?.settings?.logo;
+      if (url) {
+        set({ logo: url });
+      }
+    } catch { /* silent */ }
   },
 }));

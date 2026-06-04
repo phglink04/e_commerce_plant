@@ -1,8 +1,11 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth-store";
+import { useHomeUiStore } from "@/store/home-ui-store";
+import { normalizeImageSrc } from "@/utils/utils";
 import {
   LayoutDashboard,
   Package,
@@ -79,8 +82,13 @@ export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { logout } = useAuthStore();
+  const { logo, fetchLogo } = useHomeUiStore();
   const [isOpen, setIsOpen] = useState(true);
   const [expandedMenu, setExpandedMenu] = useState<string | null>(null);
+
+  useEffect(() => {
+    void fetchLogo();
+  }, [fetchLogo]);
 
   const handleLogout = () => {
     logout();
@@ -101,8 +109,15 @@ export function Sidebar() {
           isOpen ? "w-64" : "w-0"
         } bg-white border-r border-slate-200 flex flex-col overflow-hidden transition-all duration-300 md:w-64 md:relative`}
       >
-        <div className="p-6 border-b border-slate-200">
-          <h1 className="text-2xl font-bold text-emerald-600">🌱 Admin</h1>
+        <div className="p-6 border-b border-slate-200 flex items-center gap-3">
+          <Image
+            src={normalizeImageSrc(logo)}
+            alt="Logo"
+            width={32}
+            height={32}
+            className="rounded-lg object-contain"
+          />
+          <h1 className="text-2xl font-bold text-emerald-600">Admin</h1>
         </div>
 
         <nav className="flex-1 overflow-y-auto px-4 py-6 space-y-2">

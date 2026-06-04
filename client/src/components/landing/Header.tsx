@@ -46,7 +46,7 @@ const navItems = [
 
 export default function Header() {
   const router = useRouter();
-  const { cartCount, syncCartCount } = useHomeUiStore();
+  const { cartCount, syncCartCount, logo, fetchLogo } = useHomeUiStore();
   const { token, user, logout } = useAuthStore();
 
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -77,7 +77,7 @@ export default function Header() {
     }
   }, []);
 
-  useEffect(() => { void fetchData(); }, [fetchData]);
+  useEffect(() => { void fetchData(); void fetchLogo(); }, [fetchData, fetchLogo]);
 
   /* ── Sync cart count from API ── */
   useEffect(() => {
@@ -213,12 +213,12 @@ export default function Header() {
           <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
             <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <Image
-                src="/frontend/logo/logo.png"
+                src={normalizeImageSrc(logo)}
                 alt="PlantWorld"
                 width={scrolled ? 100 : 118}
                 height={scrolled ? 40 : 46}
                 priority
-                style={{ transition: "all 0.3s ease" }}
+                style={{ transition: "all 0.3s ease", maxHeight: "100%", objectFit: "contain" }}
               />
             </Link>
           </motion.div>

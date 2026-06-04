@@ -67,6 +67,7 @@ export interface FooterInfo {
 
 /** The complete homepage settings document */
 export interface HomeSettingsData {
+  logo?: string;
   heroTitle: string;
   heroBanner: string;
   sections: SectionConfig[];

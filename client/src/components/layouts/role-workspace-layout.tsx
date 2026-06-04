@@ -1,11 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import RoleGuard from "@/components/auth/role-guard";
 import type { AppRole } from "@/lib/role-routing";
 import { useAuthStore } from "@/store/auth-store";
+import { useHomeUiStore } from "@/store/home-ui-store";
+import { normalizeImageSrc } from "@/utils/utils";
 import { LayoutDashboard, Package, Users, Settings, LogOut, Truck, ChevronRight, Menu, X, User } from "lucide-react";
 
 type MenuItem = {
@@ -33,8 +36,13 @@ export default function RoleWorkspaceLayout({
 }: RoleWorkspaceLayoutProps) {
   const pathname = usePathname();
   const { user, logout } = useAuthStore();
+  const { logo, fetchLogo } = useHomeUiStore();
 
   const [isOpen, setIsOpen] = useState(true);
+
+  useEffect(() => {
+    void fetchLogo();
+  }, [fetchLogo]);
 
   const isLoginPage = pathname
     ? pathname.replace(/\/$/, "").toLowerCase() === loginPath.replace(/\/$/, "").toLowerCase()
@@ -51,9 +59,13 @@ export default function RoleWorkspaceLayout({
           <div className="grid min-h-screen grid-cols-1 lg:grid-cols-[280px_minmax(0,1fr)]">
             <aside className="hidden border-r border-slate-200 bg-slate-900 p-6 text-white lg:flex lg:flex-col">
               <div className="mb-10 flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500">
-                  <span className="font-bold text-white">P</span>
-                </div>
+                <Image
+                  src={normalizeImageSrc(logo)}
+                  alt="Logo"
+                  width={32}
+                  height={32}
+                  className="rounded-lg object-contain bg-white p-1"
+                />
                 <span className="text-lg font-bold tracking-tight">PlantWorld</span>
               </div>
 
@@ -120,9 +132,13 @@ export default function RoleWorkspaceLayout({
             >
               {/* Branding Header */}
               <div className="p-6 border-b border-slate-200 flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-600 text-white">
-                  <Truck size={18} />
-                </div>
+                <Image
+                  src={normalizeImageSrc(logo)}
+                  alt="Logo"
+                  width={32}
+                  height={32}
+                  className="rounded-lg object-contain"
+                />
                 <span className="text-lg font-bold tracking-tight text-emerald-600">🌱 Logistics</span>
               </div>
 

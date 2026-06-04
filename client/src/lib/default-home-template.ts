@@ -14,6 +14,7 @@ import type {
 } from "@/types/home-settings";
 
 export const DEFAULT_HOME_TEMPLATE: HomeSettingsData = {
+  logo: "/frontend/logo/logo.png",
   heroTitle: "Plant Paradise",
   heroBanner: "/frontend/Home%20Page/landingImage.webp",
 
