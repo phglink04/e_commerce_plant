@@ -20,7 +20,7 @@ type Plant = {
   imageCover: string;
   category: string;
   tags: string[];
-  availability: "In Stock" | "Out Of Stock" | "Up Coming";
+  availability: "In Stock" | "Out Of Stock" | "Discontinued";
   description: string;
   stock: number;
   discountPercentage?: number;
@@ -255,10 +255,10 @@ export default function PlantDetailPage({ params }: PlantDetailPageProps) {
                   ? "bg-green-100 text-green-700"
                   : plant.availability === "Out Of Stock"
                     ? "bg-red-100 text-red-700"
-                    : "bg-yellow-100 text-yellow-700"
+                    : "bg-rose-100 text-rose-700"
               }`}
             >
-              {plant.availability}
+              {plant.availability === "Discontinued" ? "Tạm ngừng bán" : plant.availability}
             </span>
           </div>
 

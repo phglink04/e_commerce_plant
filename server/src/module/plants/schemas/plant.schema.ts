@@ -42,8 +42,8 @@ export class Plant {
   @Prop({ type: [String], default: [] })
   tags!: string[];
 
-  @Prop({ required: true, enum: ["In Stock", "Out Of Stock", "Up Coming", "Discontinued"] })
-  availability!: "In Stock" | "Out Of Stock" | "Up Coming" | "Discontinued";
+  @Prop({ required: true, enum: ["In Stock", "Out Of Stock", "Discontinued"] })
+  availability!: "In Stock" | "Out Of Stock" | "Discontinued";
 
   @Prop({ default: 0 })
   stock!: number;

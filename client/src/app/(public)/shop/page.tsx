@@ -37,7 +37,7 @@ type ApiCategory = {
   slug: string;
 };
 
-const AVAILABILITY = ["In Stock", "Out Of Stock", "Up Coming"];
+const AVAILABILITY = ["In Stock", "Out Of Stock"];
 const LIMIT = 12;
 
 const cardVariants = {
@@ -466,7 +466,7 @@ function ShopPageContent() {
                       </div>
                       <div className="sp-card__badges">
                         {plant.availability && (
-                          <span className={`sp-badge ${plant.availability === "In Stock" ? "sp-badge--green" : plant.availability === "Out Of Stock" ? "sp-badge--red" : "sp-badge--yellow"}`}>
+                          <span className={`sp-badge ${plant.availability === "In Stock" ? "sp-badge--green" : "sp-badge--red"}`}>
                             {plant.availability}
                           </span>
                         )}

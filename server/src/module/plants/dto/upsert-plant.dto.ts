@@ -37,8 +37,8 @@ export class UpsertPlantDto {
   tags?: string[];
 
   @IsString()
-  @IsIn(["In Stock", "Out Of Stock", "Up Coming", "Discontinued"])
-  availability!: "In Stock" | "Out Of Stock" | "Up Coming" | "Discontinued";
+  @IsIn(["In Stock", "Out Of Stock", "Discontinued"])
+  availability!: "In Stock" | "Out Of Stock" | "Discontinued";
 
   @IsOptional()
   @IsString()

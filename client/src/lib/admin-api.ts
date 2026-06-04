@@ -7,7 +7,7 @@ export type AdminPlant = {
   imageCover: string;
   category: string;
   price: number;
-  availability: "In Stock" | "Out Of Stock" | "Up Coming";
+  availability: "In Stock" | "Out Of Stock" | "Discontinued";
   tag: "Indoor" | "Outdoor";
   tags: string[];
   description?: string;

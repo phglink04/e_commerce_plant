@@ -39,7 +39,7 @@ const initialForm = {
   price: 0,
   costPrice: 0,
   imageCover: "",
-  availability: "In Stock" as "In Stock" | "Out Of Stock" | "Up Coming" | "Discontinued",
+  availability: "In Stock" as "In Stock" | "Out Of Stock" | "Discontinued",
   tag: "" as string,
   tags: [] as string[],
   description: "",
@@ -125,7 +125,7 @@ export default function AdminProductForm({
         costPrice: product.costPrice ?? 0,
         imageCover: product.imageCover || "",
         availability:
-          (product.availability as "In Stock" | "Out Of Stock" | "Up Coming" | "Discontinued") ||
+          (product.availability as "In Stock" | "Out Of Stock" | "Discontinued") ||
           "In Stock",
         tag: product.tag || "",
         tags: product.tags ?? [],
@@ -573,7 +573,6 @@ export default function AdminProductForm({
           >
             <option value="In Stock">Còn hàng (In Stock)</option>
             <option value="Out Of Stock">Hết hàng (Out Of Stock)</option>
-            <option value="Up Coming">Sắp về (Up Coming)</option>
             <option value="Discontinued">Ngừng kinh doanh (Discontinued)</option>
           </select>
         </div>

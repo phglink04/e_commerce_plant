@@ -20,7 +20,6 @@ const variantMap: Record<string, string> = {
   inactive: "bg-slate-100 text-slate-600 border-slate-200",
   "In Stock": "bg-emerald-100 text-emerald-800 border-emerald-200",
   "Out Of Stock": "bg-rose-100 text-rose-800 border-rose-200",
-  "Up Coming": "bg-violet-100 text-violet-800 border-violet-200",
   admin: "bg-red-100 text-red-800 border-red-200",
   user: "bg-blue-100 text-blue-800 border-blue-200",
   deliverypartner: "bg-amber-100 text-amber-800 border-amber-200",
@@ -38,7 +37,6 @@ const dotMap: Record<string, string> = {
   Failed: "bg-rose-500",
   inactive: "bg-slate-400",
   "Out Of Stock": "bg-rose-500",
-  "Up Coming": "bg-violet-500",
 };
 
 type StatusBadgeProps = {

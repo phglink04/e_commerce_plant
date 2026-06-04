@@ -5,7 +5,7 @@ export type PlantItem = {
   imageCover: string;
   category: string;
   tags: string[];
-  availability: "In Stock" | "Out Of Stock" | "Up Coming";
+  availability: "In Stock" | "Out Of Stock" | "Discontinued";
   description: string;
   createdAt: string;
   updatedAt: string;

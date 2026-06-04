@@ -108,7 +108,6 @@ export default function AdminPlantsPage() {
           { value: "all", label: "Tất cả", count: statusFilter === "all" ? pagination?.totalResults : undefined },
           { value: "In Stock", label: "Còn hàng", count: statusFilter === "In Stock" ? pagination?.totalResults : undefined },
           { value: "Out Of Stock", label: "Hết hàng", count: statusFilter === "Out Of Stock" ? pagination?.totalResults : undefined },
-          { value: "Up Coming", label: "Sắp về", count: statusFilter === "Up Coming" ? pagination?.totalResults : undefined },
           { value: "Discontinued", label: "Ngừng kinh doanh", count: statusFilter === "Discontinued" ? pagination?.totalResults : undefined },
         ]}
         value={statusFilter}

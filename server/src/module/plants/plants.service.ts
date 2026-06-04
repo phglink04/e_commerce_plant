@@ -16,7 +16,7 @@ type PlantResponseInput = {
   imageCover: string;
   category: string;
   tags?: string[];
-  availability: "In Stock" | "Out Of Stock" | "Up Coming" | "Discontinued";
+  availability: "In Stock" | "Out Of Stock" | "Discontinued";
   stock?: number;
   isFeatured?: boolean;
   isFlashSale?: boolean;
@@ -237,7 +237,7 @@ export class PlantsService {
     if (availability === 'Discontinued') {
       stock = 0;
     } else {
-      if (stock === 0 && availability !== 'Up Coming') {
+      if (stock === 0) {
         availability = 'Out Of Stock';
       } else if (stock > 0 && availability === 'Out Of Stock') {
         availability = 'In Stock';
@@ -279,7 +279,7 @@ export class PlantsService {
     if (availability === 'Discontinued') {
       stock = 0;
     } else {
-      if (stock === 0 && availability !== 'Up Coming') {
+      if (stock === 0) {
         availability = 'Out Of Stock';
       } else if (stock > 0 && availability === 'Out Of Stock') {
         availability = 'In Stock';
@@ -471,7 +471,7 @@ export class PlantsService {
         imageCover: "/frontend/Featured Products/image8.jpg",
         category: "Flowering Plants",
         tags: ["indoor", "shade-loving", "bedroom"],
-        availability: "Up Coming",
+        availability: "Out Of Stock",
         stock: 0,
         discountPercentage: 0,
         isFeatured: false,

@@ -12,7 +12,7 @@ export interface Product {
   price: number;
   costPrice?: number;
   salePrice?: number;
-  availability: "In Stock" | "Out Of Stock" | "Up Coming" | "Discontinued";
+  availability: "In Stock" | "Out Of Stock" | "Discontinued";
   tag?: string;
   tags: string[];
   description?: string;
@@ -32,7 +32,7 @@ export interface CreateProductPayload {
   category: string;
   price: number;
   costPrice?: number;
-  availability: "In Stock" | "Out Of Stock" | "Up Coming" | "Discontinued";
+  availability: "In Stock" | "Out Of Stock" | "Discontinued";
   tags?: string[];
   description?: string;
   stock?: number;

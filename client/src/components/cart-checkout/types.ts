@@ -12,7 +12,7 @@ export type Plant = {
   salePrice?: number;
   discountPercentage?: number;
   stock?: number;
-  availability?: "In Stock" | "Out Of Stock" | "Up Coming" | "Discontinued";
+  availability?: "In Stock" | "Out Of Stock" | "Discontinued";
 };
 
 export type Address = {

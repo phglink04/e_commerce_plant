@@ -154,7 +154,6 @@ export const PRODUCT_TAG = {
 export const PRODUCT_AVAILABILITY = {
   IN_STOCK: "In Stock",
   OUT_OF_STOCK: "Out Of Stock",
-  UP_COMING: "Up Coming",
 } as const;
 
 // API configuration

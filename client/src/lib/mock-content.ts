@@ -42,7 +42,7 @@ export type MockPlant = {
   price: number;
   category: string;
   tags: string[];
-  availability: "In Stock" | "Out Of Stock" | "Up Coming";
+  availability: "In Stock" | "Out Of Stock" | "Discontinued";
   shortDescription: string;
   description: string;
 };
@@ -304,7 +304,7 @@ export const mockPlants: MockPlant[] = [
     price: 600,
     category: "Flowering Plants",
     tags: ["indoor", "shade-loving", "bedroom"],
-    availability: "Up Coming",
+    availability: "Out Of Stock",
     shortDescription: "Elegant flowering indoor plant with glossy leaves.",
     description:
       "Peace Lily prefers filtered light and slightly moist soil. Avoid direct harsh sun exposure.",
