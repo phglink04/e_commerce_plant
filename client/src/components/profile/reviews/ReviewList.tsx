@@ -56,11 +56,13 @@ function ReviewCard({
   onEdit,
   onDelete,
   deleting,
+  onDiscontinuedClick,
 }: {
   review: Review;
   onEdit: (r: Review) => void;
   onDelete: (id: string) => void;
   deleting: boolean;
+  onDiscontinuedClick?: () => void;
 }) {
   return (
     <div className="pf-review-card" id={`review-${review.id}`}>
@@ -135,17 +137,18 @@ function ReviewCard({
           </span>
         </div>
         <div className="pf-review-card__actions" style={{ display: "flex", gap: "8px" }}>
-          {review.product && (
-            review.product.availability === "Discontinued" ? (
-              <span 
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-200 rounded-lg shadow-sm"
-                style={{ fontSize: "12px" }}
-              >
-                ⚠️ Sản phẩm đang tạm ngừng bán
-              </span>
-            ) : (
+          {(() => {
+            const product = review.product;
+            if (!product) return null;
+            return (
               <Link
-                href={`/plant/${buildSlugAndId(review.product.slug, review.product.id)}`}
+                href={`/plant/${buildSlugAndId(product.slug, product.id)}`}
+                onClick={(e) => {
+                  if (product.availability === "Discontinued") {
+                    e.preventDefault();
+                    onDiscontinuedClick?.();
+                  }
+                }}
                 className="pf-btn pf-btn--ghost pf-btn--sm"
                 style={{
                   borderColor: "#10b981",
@@ -158,8 +161,8 @@ function ReviewCard({
                 <ShoppingCart size={14} />
                 Mua lại
               </Link>
-            )
-          )}
+            );
+          })()}
           <button
             onClick={() => onEdit(review)}
             className="pf-btn pf-btn--ghost pf-btn--sm"
@@ -913,6 +916,7 @@ export default function ReviewList() {
                   onEdit={handleEdit}
                   onDelete={handleDelete}
                   deleting={deletingId === review.id}
+                  onDiscontinuedClick={() => showToast("Sản phẩm tạm ngừng bán", "error")}
                 />
               ))}
             </div>
