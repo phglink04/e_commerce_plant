@@ -12,6 +12,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { useAuthStore } from "@/store/auth-store";
+import { normalizeImageSrc } from "@/utils/utils";
 
 const MENU_ITEMS = [
   {
@@ -67,7 +68,7 @@ export default function ProfileSidebar({
       <div className="pf-sidebar__user">
         <div className="pf-sidebar__avatar">
           {user?.avatar ? (
-            <img src={user.avatar} alt={user.name} />
+            <img src={normalizeImageSrc(user.avatar)} alt={user.name} />
           ) : (
             <span>{user?.name?.charAt(0)?.toUpperCase() || "U"}</span>
           )}

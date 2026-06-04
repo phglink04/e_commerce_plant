@@ -18,9 +18,6 @@ export class BaseApiService {
 
     this.client = axios.create({
       baseURL: this.baseURL,
-      headers: {
-        "Content-Type": "application/json",
-      },
     });
 
     // Request interceptor: Thêm Authorization header
@@ -32,6 +29,20 @@ export class BaseApiService {
 
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
+      }
+
+      if (config.data instanceof FormData) {
+        if (config.headers) {
+          delete config.headers["Content-Type"];
+        }
+      } else {
+        if (config.headers) {
+          if (!config.headers["Content-Type"]) {
+            config.headers["Content-Type"] = "application/json";
+          }
+        } else {
+          config.headers = { "Content-Type": "application/json" } as any;
+        }
       }
 
       return config;

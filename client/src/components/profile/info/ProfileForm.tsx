@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { Camera, Save, Loader2, CheckCircle2 } from "lucide-react";
 import { useProfileInfo } from "@/hooks/useProfile";
+import { normalizeImageSrc } from "@/utils/utils";
 
 export default function ProfileForm() {
   const {
@@ -109,7 +110,7 @@ export default function ProfileForm() {
           <div className="pf-form__avatar-wrap">
             <div className="pf-form__avatar">
               {profile?.avatar ? (
-                <img src={profile.avatar} alt={profile.name} />
+                <img src={normalizeImageSrc(profile.avatar)} alt={profile.name} />
               ) : (
                 <span className="pf-form__avatar-initial">
                   {profile?.name?.charAt(0)?.toUpperCase() || "U"}

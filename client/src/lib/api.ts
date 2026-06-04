@@ -7,9 +7,6 @@ const resolvedBaseURL =
 
 const api = axios.create({
   baseURL: resolvedBaseURL,
-  headers: {
-    "Content-Type": "application/json",
-  },
 });
 
 // Tự động gắn Authorization header cho mọi request
@@ -27,6 +24,21 @@ api.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
+  if (config.data instanceof FormData) {
+    if (config.headers) {
+      delete config.headers["Content-Type"];
+    }
+  } else {
+    if (config.headers) {
+      if (!config.headers["Content-Type"]) {
+        config.headers["Content-Type"] = "application/json";
+      }
+    } else {
+      config.headers = { "Content-Type": "application/json" } as any;
+    }
+  }
+
   return config;
 });
 
