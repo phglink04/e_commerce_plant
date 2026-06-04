@@ -2,9 +2,12 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Globe, Leaf, Sprout, Mail, MapPin, Phone } from "lucide-react";
 import api from "@/lib/api";
+import { useHomeUiStore } from "@/store/home-ui-store";
+import { normalizeImageSrc } from "@/utils/utils";
 
 type FooterInfo = {
   address: string;
@@ -36,6 +39,11 @@ export default function Footer() {
   const router = useRouter();
   const [footerInfo, setFooterInfo] = useState<FooterInfo>(defaultFooter);
   const [categories, setCategories] = useState<ApiCategory[]>([]);
+  const { logo, fetchLogo } = useHomeUiStore();
+
+  useEffect(() => {
+    void fetchLogo();
+  }, [fetchLogo]);
 
   useEffect(() => {
     const fetchFooter = async () => {
@@ -80,7 +88,15 @@ export default function Footer() {
     <footer className="border-t border-emerald-100 bg-slate-950 text-slate-100">
       <div className="mx-auto grid w-full max-w-[1320px] gap-8 px-4 py-12 md:grid-cols-2 md:px-6 lg:grid-cols-4">
         <section>
-          <h3 className="text-xl font-semibold">PlantWorld</h3>
+          <div className="mb-3 flex items-center">
+            <Image
+              src={normalizeImageSrc(logo)}
+              alt="PlantWorld Logo"
+              width={120}
+              height={46}
+              style={{ objectFit: "contain", maxHeight: "46px" }}
+            />
+          </div>
           <p className="mt-3 text-sm text-slate-300">
             Lan tỏa phong cách sống xanh với cây cảnh chất lượng và trải nghiệm mua sắm hiện đại.
           </p>
