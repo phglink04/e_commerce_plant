@@ -232,12 +232,16 @@ export class PlantsService {
     const uniqueSlug = await ensureUniqueSlug(baseSlug, existingSlugsArray);
 
     // Auto-sync availability với stock
-    const stock = dto.stock ?? 0;
+    let stock = dto.stock ?? 0;
     let availability = dto.availability;
-    if (stock === 0 && availability !== 'Up Coming') {
-      availability = 'Out Of Stock';
-    } else if (stock > 0 && availability === 'Out Of Stock') {
-      availability = 'In Stock';
+    if (availability === 'Discontinued') {
+      stock = 0;
+    } else {
+      if (stock === 0 && availability !== 'Up Coming') {
+        availability = 'Out Of Stock';
+      } else if (stock > 0 && availability === 'Out Of Stock') {
+        availability = 'In Stock';
+      }
     }
 
     const newPlant = await this.plantModel.create({
@@ -270,16 +274,14 @@ export class PlantsService {
 
   async update(id: string, dto: UpsertPlantDto) {
     // Auto-sync availability với stock
-    const stock = dto.stock ?? 0;
+    let stock = dto.stock ?? 0;
     let availability = dto.availability;
-    if (availability !== 'Discontinued') {
+    if (availability === 'Discontinued') {
+      stock = 0;
+    } else {
       if (stock === 0 && availability !== 'Up Coming') {
         availability = 'Out Of Stock';
       } else if (stock > 0 && availability === 'Out Of Stock') {
-        availability = 'In Stock';
-      }
-    } else {
-      if (stock > 0) {
         availability = 'In Stock';
       }
     }
