@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { Loader2, X, Tag, Eye, EyeOff } from "lucide-react";
+import { Loader2, X, Tag, Eye, EyeOff, Infinity, Clock, Users } from "lucide-react";
 import { discountService } from "@/services/admin/discount.service";
 import { Discount, CreateDiscountPayload } from "@/types/discount";
 
@@ -11,17 +11,35 @@ type Props = {
   onSuccess: () => void;
 };
 
-const defaultForm: CreateDiscountPayload = {
+const defaultForm: CreateDiscountPayload & {
+  unlimitedUsage: boolean;
+  unlimitedTime: boolean;
+  unlimitedPerUser: boolean;
+} = {
   name: "",
   percentage: 0,
   minOrderValue: 0,
   maxDiscount: undefined,
   usageLimit: 100,
+  usageLimitPerUser: undefined,
   startDate: "",
   endDate: "",
   isActive: true,
   isVisible: true,
+  unlimitedUsage: false,
+  unlimitedTime: false,
+  unlimitedPerUser: true,
 };
+
+/**
+ * Get current datetime in local ISO format for datetime-local input min value.
+ */
+function getNowLocal(): string {
+  const now = new Date();
+  const offset = now.getTimezoneOffset();
+  const local = new Date(now.getTime() - offset * 60000);
+  return local.toISOString().slice(0, 16);
+}
 
 /**
  * Sanitise name for code preview: remove non-alphanumeric, uppercase.
@@ -35,24 +53,32 @@ export default function AdminDiscountForm({
   onClose,
   onSuccess,
 }: Props) {
-  const [form, setForm] = useState<CreateDiscountPayload>(defaultForm);
+  const [form, setForm] = useState(defaultForm);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
     if (discount) {
+      const isUnlimitedUsage = discount.usageLimit === null;
+      const isUnlimitedTime = discount.startDate === null && discount.endDate === null;
+      const isUnlimitedPerUser = discount.usageLimitPerUser === null;
+
       setForm({
         name: discount.name || "",
         percentage: discount.percentage,
         minOrderValue: discount.minOrderValue,
         maxDiscount: discount.maxDiscount ?? undefined,
-        usageLimit: discount.usageLimit,
+        usageLimit: discount.usageLimit ?? 100,
+        usageLimitPerUser: discount.usageLimitPerUser ?? undefined,
         startDate: discount.startDate
           ? discount.startDate.slice(0, 16)
           : "",
         endDate: discount.endDate ? discount.endDate.slice(0, 16) : "",
         isActive: discount.isActive,
         isVisible: discount.isVisible ?? true,
+        unlimitedUsage: isUnlimitedUsage,
+        unlimitedTime: isUnlimitedTime,
+        unlimitedPerUser: isUnlimitedPerUser,
       });
     } else {
       setForm(defaultForm);
@@ -95,28 +121,59 @@ export default function AdminDiscountForm({
       setError("Phần trăm giảm giá phải từ 1 đến 100");
       return;
     }
-    if (!form.startDate || !form.endDate) {
-      setError("Vui lòng chọn ngày bắt đầu và kết thúc");
+
+    // Validate usage limit (if not unlimited)
+    if (!form.unlimitedUsage && (!form.usageLimit || Number(form.usageLimit) < 1)) {
+      setError("Số lượt sử dụng phải lớn hơn 0");
       return;
     }
-    const start = new Date(form.startDate);
-    const end = new Date(form.endDate);
-    if (end <= start) {
-      setError("Ngày kết thúc phải lớn hơn ngày bắt đầu");
+
+    // Validate per-user limit (if not unlimited)
+    if (!form.unlimitedPerUser && (!form.usageLimitPerUser || Number(form.usageLimitPerUser) < 1)) {
+      setError("Giới hạn sử dụng mỗi user phải lớn hơn 0");
       return;
     }
-    if (!discount && end <= new Date()) {
-      setError("Không thể tạo mã đã hết hạn");
-      return;
+
+    // Validate dates (if not unlimited time)
+    if (!form.unlimitedTime) {
+      if (!form.startDate || !form.endDate) {
+        setError("Vui lòng chọn ngày bắt đầu và kết thúc");
+        return;
+      }
+      const start = new Date(form.startDate);
+      const end = new Date(form.endDate);
+      const now = new Date();
+      if (start < now) {
+        setError("Ngày bắt đầu không được nhỏ hơn thời gian hiện tại");
+        return;
+      }
+      if (end < now) {
+        setError("Ngày kết thúc không được nhỏ hơn thời gian hiện tại");
+        return;
+      }
+      if (end <= start) {
+        setError("Ngày kết thúc phải lớn hơn ngày bắt đầu");
+        return;
+      }
     }
 
     try {
       setSaving(true);
       const payload: CreateDiscountPayload = {
-        ...form,
         name: form.name.trim(),
-        startDate: new Date(form.startDate).toISOString(),
-        endDate: new Date(form.endDate).toISOString(),
+        percentage: form.percentage,
+        minOrderValue: form.minOrderValue ?? 0,
+        maxDiscount: form.maxDiscount || undefined,
+        usageLimit: form.unlimitedUsage ? null : Number(form.usageLimit),
+        usageLimitPerUser: form.unlimitedPerUser ? null : Number(form.usageLimitPerUser),
+        startDate: form.unlimitedTime
+          ? null
+          : new Date(form.startDate!).toISOString(),
+        endDate: form.unlimitedTime
+          ? null
+          : new Date(form.endDate!).toISOString(),
+        isActive: form.isActive,
+        isVisible: form.isVisible,
       };
 
       if (discount) {
@@ -137,6 +194,15 @@ export default function AdminDiscountForm({
 
   const inputClass =
     "w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100";
+
+  const toggleBtnClass = (active: boolean) =>
+    `inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition cursor-pointer border ${
+      active
+        ? "bg-emerald-50 text-emerald-700 border-emerald-200 ring-1 ring-emerald-100"
+        : "bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100"
+    }`;
+
+  const nowLocal = getNowLocal();
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -197,22 +263,24 @@ export default function AdminDiscountForm({
         </div>
       </div>
 
-      {/* Min Order Value & Max Discount & Usage Limit */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      {/* Min Order Value & Max Discount */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <label className="mb-1 block text-sm font-medium text-slate-700">
-            Đơn tối thiểu (₫) <span className="text-rose-400">*</span>
+            Đơn tối thiểu (₫)
           </label>
           <input
             name="minOrderValue"
             type="number"
-            value={form.minOrderValue || ""}
+            value={form.minOrderValue ?? ""}
             onChange={handleChange}
             min={0}
-            placeholder="0"
+            placeholder="0 = Không yêu cầu"
             className={inputClass}
-            required
           />
+          <p className="mt-1 text-xs text-slate-400">
+            Nhập 0 nếu không yêu cầu đơn tối thiểu
+          </p>
         </div>
 
         <div>
@@ -229,11 +297,30 @@ export default function AdminDiscountForm({
             className={inputClass}
           />
         </div>
+      </div>
 
-        <div>
-          <label className="mb-1 block text-sm font-medium text-slate-700">
-            Số lượt sử dụng <span className="text-rose-400">*</span>
+      {/* Usage Limit */}
+      <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+            <Tag size={14} className="text-emerald-500" />
+            Số lượt sử dụng
           </label>
+          <button
+            type="button"
+            onClick={() =>
+              setForm((prev) => ({
+                ...prev,
+                unlimitedUsage: !prev.unlimitedUsage,
+              }))
+            }
+            className={toggleBtnClass(form.unlimitedUsage)}
+          >
+            <Infinity size={14} />
+            {form.unlimitedUsage ? "Không giới hạn" : "Có giới hạn"}
+          </button>
+        </div>
+        {!form.unlimitedUsage && (
           <input
             name="usageLimit"
             type="number"
@@ -244,38 +331,112 @@ export default function AdminDiscountForm({
             className={inputClass}
             required
           />
-        </div>
+        )}
       </div>
 
-      {/* Dates */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div>
-          <label className="mb-1 block text-sm font-medium text-slate-700">
-            Ngày bắt đầu <span className="text-rose-400">*</span>
+      {/* Per-user Usage Limit */}
+      <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+            <Users size={14} className="text-blue-500" />
+            Giới hạn sử dụng mỗi user
           </label>
+          <button
+            type="button"
+            onClick={() =>
+              setForm((prev) => ({
+                ...prev,
+                unlimitedPerUser: !prev.unlimitedPerUser,
+              }))
+            }
+            className={toggleBtnClass(form.unlimitedPerUser)}
+          >
+            <Infinity size={14} />
+            {form.unlimitedPerUser ? "Không giới hạn" : "Có giới hạn"}
+          </button>
+        </div>
+        {!form.unlimitedPerUser && (
           <input
-            name="startDate"
-            type="datetime-local"
-            value={form.startDate}
+            name="usageLimitPerUser"
+            type="number"
+            value={form.usageLimitPerUser || ""}
             onChange={handleChange}
+            min={1}
+            placeholder="1"
             className={inputClass}
             required
           />
-        </div>
+        )}
+      </div>
 
-        <div>
-          <label className="mb-1 block text-sm font-medium text-slate-700">
-            Ngày kết thúc <span className="text-rose-400">*</span>
+      {/* Date/Time */}
+      <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+            <Clock size={14} className="text-amber-500" />
+            Thời gian hiệu lực
           </label>
-          <input
-            name="endDate"
-            type="datetime-local"
-            value={form.endDate}
-            onChange={handleChange}
-            className={inputClass}
-            required
-          />
+          <button
+            type="button"
+            onClick={() =>
+              setForm((prev) => ({
+                ...prev,
+                unlimitedTime: !prev.unlimitedTime,
+                // Reset dates when toggling
+                ...(prev.unlimitedTime
+                  ? { startDate: getNowLocal(), endDate: "" }
+                  : { startDate: "", endDate: "" }),
+              }))
+            }
+            className={toggleBtnClass(form.unlimitedTime)}
+          >
+            <Infinity size={14} />
+            {form.unlimitedTime ? "Không giới hạn" : "Có thời hạn"}
+          </button>
         </div>
+        {!form.unlimitedTime && (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <label className="mb-1 block text-xs font-medium text-slate-500">
+                Ngày bắt đầu <span className="text-rose-400">*</span>
+              </label>
+              <input
+                name="startDate"
+                type="datetime-local"
+                value={form.startDate || ""}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setForm((prev) => {
+                    const updated = { ...prev, startDate: val };
+                    // If end date is before start date, clear it
+                    if (prev.endDate && new Date(prev.endDate) <= new Date(val)) {
+                      updated.endDate = "";
+                    }
+                    return updated;
+                  });
+                }}
+                min={nowLocal}
+                className={inputClass}
+                required
+              />
+            </div>
+
+            <div>
+              <label className="mb-1 block text-xs font-medium text-slate-500">
+                Ngày kết thúc <span className="text-rose-400">*</span>
+              </label>
+              <input
+                name="endDate"
+                type="datetime-local"
+                value={form.endDate || ""}
+                onChange={handleChange}
+                min={form.startDate || nowLocal}
+                className={inputClass}
+                required
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Toggles */}

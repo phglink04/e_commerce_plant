@@ -39,7 +39,7 @@ const initialForm = {
   price: 0,
   costPrice: 0,
   imageCover: "",
-  availability: "In Stock" as "In Stock" | "Out Of Stock" | "Up Coming",
+  availability: "In Stock" as "In Stock" | "Out Of Stock" | "Up Coming" | "Discontinued",
   tag: "" as string,
   tags: [] as string[],
   description: "",
@@ -125,7 +125,7 @@ export default function AdminProductForm({
         costPrice: product.costPrice ?? 0,
         imageCover: product.imageCover || "",
         availability:
-          (product.availability as "In Stock" | "Out Of Stock" | "Up Coming") ||
+          (product.availability as "In Stock" | "Out Of Stock" | "Up Coming" | "Discontinued") ||
           "In Stock",
         tag: product.tag || "",
         tags: product.tags ?? [],
@@ -549,18 +549,34 @@ export default function AdminProductForm({
       </div>
 
       {/* ═══════════════════════════════════════════════════
-          SECTION 5: Stock
+          SECTION 5: Stock & Availability
           ═══════════════════════════════════════════════════ */}
-      <div>
-        <SectionLabel icon={<Package size={14} />} text="Số lượng tồn kho" />
-        <input
-          type="number"
-          min={0}
-          value={form.stock || ""}
-          onChange={(e) => updateField("stock", parseInt(e.target.value) || 0)}
-          placeholder="0"
-          className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 sm:w-1/3"
-        />
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div>
+          <SectionLabel icon={<Package size={14} />} text="Số lượng tồn kho" />
+          <input
+            type="number"
+            min={0}
+            value={form.stock || ""}
+            onChange={(e) => updateField("stock", parseInt(e.target.value) || 0)}
+            placeholder="0"
+            className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+          />
+        </div>
+
+        <div>
+          <SectionLabel icon={<Package size={14} />} text="Trạng thái kinh doanh" />
+          <select
+            value={form.availability}
+            onChange={(e) => updateField("availability", e.target.value)}
+            className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 bg-white"
+          >
+            <option value="In Stock">Còn hàng (In Stock)</option>
+            <option value="Out Of Stock">Hết hàng (Out Of Stock)</option>
+            <option value="Up Coming">Sắp về (Up Coming)</option>
+            <option value="Discontinued">Ngừng kinh doanh (Discontinued)</option>
+          </select>
+        </div>
       </div>
 
       {/* ═══════════════════════════════════════════════════
@@ -591,7 +607,7 @@ export default function AdminProductForm({
           <div className="flex items-center gap-1.5">
             <Flame size={15} className={form.isFlashSale ? "text-amber-500" : "text-slate-400"} />
             <span className={`text-sm font-medium ${form.isFlashSale ? "text-amber-700" : "text-slate-600"}`}>
-              Flash Sale
+              Khuyến mãi Flash
             </span>
           </div>
         </div>

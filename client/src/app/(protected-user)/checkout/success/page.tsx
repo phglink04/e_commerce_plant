@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle2, ShoppingBag, ClipboardList } from "lucide-react";
@@ -29,7 +29,7 @@ type OrderData = {
   createdAt: string;
 };
 
-export default function CheckoutSuccessPage() {
+function CheckoutSuccessPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { token } = useAuthStore();
@@ -42,7 +42,7 @@ export default function CheckoutSuccessPage() {
   useEffect(() => {
     if (!orderId || !token) {
       setLoading(false);
-      setError("Đằt thông tin đơn hàng");
+      setError("Không tìm thấy thông tin đơn hàng.");
       return;
     }
 
@@ -55,7 +55,7 @@ export default function CheckoutSuccessPage() {
         if (!data) throw new Error("Order not found");
         setOrder(data);
       } catch {
-        setError("Đã xáy ra lỗi khi tải chi tiết đơn hàng.");
+        setError("Đã xảy ra lỗi khi tải chi tiết đơn hàng.");
       } finally {
         setLoading(false);
       }
@@ -84,7 +84,7 @@ export default function CheckoutSuccessPage() {
             href="/cart"
             className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
           >
-            Back to Cart
+            Quay lại Giỏ hàng
           </Link>
         </div>
       </main>
@@ -109,12 +109,12 @@ export default function CheckoutSuccessPage() {
           </div>
 
           <h1 className="text-2xl font-bold tracking-tight text-slate-900 md:text-3xl">
-            Đơn hàng đăng ký thành công!
+            Đặt hàng thành công!
           </h1>
           <p className="mt-2 text-sm text-slate-600">
             {order.paymentMethod === "qr"
-              ? "Đã xác nhẫn thanh toán. Cảm ơn bạn!"
-              : "Đơn hàng đũĆ xác nhẫn. Chúng tôi sẽ thông báo bạn khi hàng giao đi."}
+              ? "Đã xác nhận thanh toán. Cảm ơn bạn!"
+              : "Đơn hàng đã được xác nhận. Chúng tôi sẽ thông báo cho bạn khi đơn hàng được vận chuyển."}
           </p>
         </div>
 
@@ -131,7 +131,7 @@ export default function CheckoutSuccessPage() {
 
         {/* Order date */}
         <p className="mt-4 text-center text-xs text-slate-400">
-          Placed on{" "}
+          Đặt ngày{" "}
           {new Date(order.createdAt).toLocaleDateString("vi-VN", {
             day: "2-digit",
             month: "2-digit",
@@ -144,21 +144,29 @@ export default function CheckoutSuccessPage() {
         {/* Action buttons */}
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
           <Link
-            href="/my-orders"
+            href="/profile/orders"
             className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700"
           >
             <ClipboardList size={16} />
-            View My Orders
+            Xem đơn hàng của tôi
           </Link>
           <Link
             href="/shop"
             className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
           >
             <ShoppingBag size={16} />
-            Continue Shopping
+            Tiếp tục mua sắm
           </Link>
         </div>
       </div>
     </main>
+  );
+}
+
+export default function CheckoutSuccessPage() {
+  return (
+    <Suspense fallback={<div className="container py-8 text-center text-slate-500">Đang tải thông tin thanh toán...</div>}>
+      <CheckoutSuccessPageContent />
+    </Suspense>
   );
 }

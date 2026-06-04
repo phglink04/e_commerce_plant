@@ -7,6 +7,7 @@ import {
   Min,
   Max,
   MaxLength,
+  ValidateIf,
 } from "class-validator";
 
 export class UpdateDiscountDto {
@@ -32,17 +33,26 @@ export class UpdateDiscountDto {
   maxDiscount?: number;
 
   @IsOptional()
+  @ValidateIf((o) => o.usageLimit !== null)
   @IsNumber()
   @Min(1)
-  usageLimit?: number;
+  usageLimit?: number | null;
 
   @IsOptional()
-  @IsDateString()
-  startDate?: string;
+  @ValidateIf((o) => o.usageLimitPerUser !== null)
+  @IsNumber()
+  @Min(1)
+  usageLimitPerUser?: number | null;
 
   @IsOptional()
+  @ValidateIf((o) => o.startDate !== null)
   @IsDateString()
-  endDate?: string;
+  startDate?: string | null;
+
+  @IsOptional()
+  @ValidateIf((o) => o.endDate !== null)
+  @IsDateString()
+  endDate?: string | null;
 
   @IsOptional()
   @IsBoolean()

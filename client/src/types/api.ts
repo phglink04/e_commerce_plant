@@ -27,6 +27,8 @@ export interface PaginationParams {
   minPrice?: number;
   maxPrice?: number;
   availability?: string;
+  admin?: boolean;
+  includeDiscontinued?: boolean;
 }
 
 export interface PaginatedResponse<T> {

@@ -5,6 +5,7 @@ import { ReviewsService } from "./reviews.service";
 import { Review, ReviewSchema } from "./schemas/review.schema";
 import { Order, OrderSchema } from "../orders/schemas/order.schema";
 import { Plant, PlantSchema } from "../plants/schemas/plant.schema";
+import { HelpersModule } from "../../helpers/helpers.module";
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { Plant, PlantSchema } from "../plants/schemas/plant.schema";
       { name: Order.name, schema: OrderSchema },
       { name: Plant.name, schema: PlantSchema },
     ]),
+    HelpersModule,
   ],
   controllers: [ReviewsController],
   providers: [ReviewsService],

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -13,6 +13,7 @@ import {
 import api from "@/lib/api";
 import { buildSlugAndId } from "@/lib/slug.utils";
 import { useAuthStore } from "@/store/auth-store";
+import { useHomeUiStore } from "@/store/home-ui-store";
 import { normalizeImageSrc } from "@/utils/utils";
 
 type Plant = {
@@ -52,7 +53,7 @@ const sidebarVariants = {
   visible: { x: 0, opacity: 1, transition: { duration: 0.35, ease: "easeOut" as const } },
 };
 
-export default function ShopPage() {
+function ShopPageContent() {
   const { token } = useAuthStore();
   const searchParams = useSearchParams();
   const isDealMode = searchParams.get("deal") === "true";
@@ -69,8 +70,8 @@ export default function ShopPage() {
   const [totalResults, setTotalResults] = useState(0);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
-  const [minPrice, setMinPrice] = useState(0);
-  const [maxPrice, setMaxPrice] = useState(1000000);
+  const [minPrice, setMinPrice] = useState<number | "">(0);
+  const [maxPrice, setMaxPrice] = useState<number | "">(50000000);
   const [searchTerm, setSearchTerm] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -78,13 +79,14 @@ export default function ShopPage() {
 
   const [dbCategories, setDbCategories] = useState<string[]>([]);
   const [mounted, setMounted] = useState(false);
+  const [urlSynced, setUrlSynced] = useState(false);
   const gridRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  /* Sync URL query params → filter state */
+  /* Sync URL query params → filter state (runs BEFORE first fetch) */
   useEffect(() => {
     const catParam = searchParams.get("category");
     const searchParam = searchParams.get("search");
@@ -94,6 +96,7 @@ export default function ShopPage() {
     if (searchParam) {
       setSearchTerm(searchParam);
     }
+    setUrlSynced(true);
   }, [searchParams]);
 
   useEffect(() => {
@@ -120,8 +123,8 @@ export default function ShopPage() {
       const query = new URLSearchParams();
       query.set("page", String(currentPage));
       query.set("limit", String(LIMIT));
-      query.set("price[gte]", String(minPrice));
-      query.set("price[lte]", String(maxPrice));
+      query.set("price[gte]", String(minPrice === "" ? 0 : minPrice));
+      query.set("price[lte]", String(maxPrice === "" ? 50000000 : maxPrice));
       if (searchTerm.trim()) query.set("search", searchTerm.trim());
       if (tags.length > 0) query.set("tag", tags.join(","));
       if (selectedCategories.length > 0) query.set("category", selectedCategories.join(","));
@@ -142,7 +145,8 @@ export default function ShopPage() {
     }
   }, [currentPage, minPrice, maxPrice, searchTerm, tags, selectedCategories, availability, isDealMode]);
 
-  useEffect(() => { void fetchPlants(); }, [fetchPlants]);
+  /* Only fetch after URL params have been synced to state */
+  useEffect(() => { if (urlSynced) void fetchPlants(); }, [fetchPlants, urlSynced]);
 
   useEffect(() => {
     if (!cartMessage) return;
@@ -175,7 +179,12 @@ export default function ShopPage() {
       return;
     }
     try {
-      await api.post("/api/users/addtocart", { plantId: plant._id, quantity: 1, price: plant.salePrice ?? plant.price }, { headers: { Authorization: `Bearer ${token}` } });
+      const response = await api.post("/api/users/addtocart", { plantId: plant._id, quantity: 1, price: plant.salePrice ?? plant.price }, { headers: { Authorization: `Bearer ${token}` } });
+      // Update cart count immediately from response
+      const cart = response.data?.data?.cart ?? [];
+      if (cart && Array.isArray(cart)) {
+        useHomeUiStore.getState().setCartCount(cart.length);
+      }
       setCartMessageType("success");
       setCartMessage(`Đã thêm "${plant.name}" vào giỏ hàng!`);
     } catch (err) {
@@ -188,12 +197,12 @@ export default function ShopPage() {
   };
 
   const clearAllFilters = () => {
-    setSearchTerm(""); setMinPrice(0); setMaxPrice(1000000);
+    setSearchTerm(""); setMinPrice(0); setMaxPrice(50000000);
     setTags([]); setSelectedCategories([]); setAvailability([]);
   };
 
-  const hasActiveFilters = searchTerm || minPrice > 0 || maxPrice < 1000000 || tags.length > 0 || selectedCategories.length > 0 || availability.length > 0;
-  const activeFilterCount = (searchTerm ? 1 : 0) + (minPrice > 0 || maxPrice < 1000000 ? 1 : 0) + tags.length + selectedCategories.length + availability.length;
+  const hasActiveFilters = searchTerm || (minPrice !== "" && minPrice > 0) || (maxPrice !== "" && maxPrice < 50000000) || tags.length > 0 || selectedCategories.length > 0 || availability.length > 0;
+  const activeFilterCount = (searchTerm ? 1 : 0) + ((minPrice !== "" && minPrice > 0) || (maxPrice !== "" && maxPrice < 50000000) ? 1 : 0) + tags.length + selectedCategories.length + availability.length;
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -282,9 +291,35 @@ export default function ShopPage() {
                 <div className="sp-filter-group">
                   <label className="sp-filter-label">Khoảng giá (VND)</label>
                   <div className="sp-price-row">
-                    <input type="number" aria-label="Giá tối thiểu" min={0} max={maxPrice} step={10000} value={minPrice} onChange={(e) => setMinPrice(Number(e.target.value || 0))} className="sp-price-input" placeholder="Tối thiểu" />
+                    <input
+                      type="number"
+                      aria-label="Giá tối thiểu"
+                      min={0}
+                      max={maxPrice === "" ? 50000000 : maxPrice}
+                      step={10000}
+                      value={minPrice}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setMinPrice(val === "" ? "" : Number(val));
+                      }}
+                      className="sp-price-input"
+                      placeholder="Tối thiểu"
+                    />
                     <span className="sp-price-sep">–</span>
-                    <input type="number" aria-label="Giá tối đa" min={minPrice} max={1000000} step={10000} value={maxPrice} onChange={(e) => setMaxPrice(Number(e.target.value || 1000000))} className="sp-price-input" placeholder="Tối đa" />
+                    <input
+                      type="number"
+                      aria-label="Giá tối đa"
+                      min={minPrice === "" ? 0 : minPrice}
+                      max={50000000}
+                      step={10000}
+                      value={maxPrice}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setMaxPrice(val === "" ? "" : Number(val));
+                      }}
+                      className="sp-price-input"
+                      placeholder="Tối đa"
+                    />
                   </div>
                 </div>
 
@@ -488,5 +523,13 @@ export default function ShopPage() {
         </div>
       </section>
     </main>
+  );
+}
+
+export default function ShopPage() {
+  return (
+    <Suspense fallback={<div className="container py-8 text-center text-slate-500">Đang tải cửa hàng...</div>}>
+      <ShopPageContent />
+    </Suspense>
   );
 }

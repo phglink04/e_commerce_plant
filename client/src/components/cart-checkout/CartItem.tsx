@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import type { CartItem as CartItemType, Plant } from "./types";
 
@@ -13,6 +14,7 @@ type CartItemProps = {
   onIncrease: (plantId: string) => void;
   onDecrease: (plantId: string) => void;
   onRemove: (plantId: string) => void;
+  onChangeQty: (plantId: string, quantity: number) => void;
 };
 
 const normalizeImageSrc = (src?: string): string => {
@@ -41,18 +43,28 @@ export default function CartItem({
   onIncrease,
   onDecrease,
   onRemove,
+  onChangeQty,
 }: CartItemProps) {
+  const [localQty, setLocalQty] = useState(String(item.quantity));
+
+  useEffect(() => {
+    setLocalQty(String(item.quantity));
+  }, [item.quantity]);
+
   const name = plant?.name ?? "Sản phẩm";
   const imageSrc = normalizeImageSrc(plant?.imageCover);
   const subtotal = item.price * item.quantity;
   const hasDiscount = plant && (plant.discountPercentage ?? 0) > 0;
-  const isOutOfStock = maxStock <= 0;
-  const isOverMaxStock = item.quantity > maxStock;
+  const isDiscontinued = plant?.availability === "Discontinued";
+  const isOutOfStock = maxStock <= 0 || isDiscontinued;
+  const isOverMaxStock = !isDiscontinued && item.quantity > maxStock;
   const canIncrease = !isOutOfStock && item.quantity < maxStock;
 
   return (
     <article className={`flex gap-3 rounded-2xl border p-3 shadow-sm transition hover:shadow-md md:gap-4 md:p-4 ${
-      isOutOfStock 
+      isDiscontinued
+        ? "border-rose-200 bg-rose-50/50 opacity-80"
+        : isOutOfStock 
         ? "border-rose-200 bg-rose-50" 
         : isOverMaxStock
         ? "border-amber-200 bg-amber-50"
@@ -108,12 +120,16 @@ export default function CartItem({
 
         {/* Stock information and warnings */}
         <div className="mt-2 space-y-1">
-          {isOutOfStock && (
+          {isDiscontinued ? (
+            <p className="text-xs font-medium text-rose-600">
+              ⚠️ Sản phẩm đã ngừng kinh doanh
+            </p>
+          ) : isOutOfStock ? (
             <p className="text-xs font-medium text-rose-600">
               ⚠️ Sản phẩm hết hàng
             </p>
-          )}
-          {isOverMaxStock && (
+          ) : null}
+          {isOverMaxStock && maxStock > 0 && (
             <p className="text-xs font-medium text-amber-600">
               ⚠️ Kho chỉ còn {maxStock} sản phẩm. Đã điều chỉnh số lượng.
             </p>
@@ -136,9 +152,36 @@ export default function CartItem({
             >
               −
             </button>
-            <span className="inline-flex h-8 min-w-10 items-center justify-center px-2 text-sm font-medium text-slate-700">
-              {item.quantity}
-            </span>
+            <input
+              type="number"
+              min={1}
+              max={maxStock}
+              value={localQty}
+              onChange={(e) => {
+                setLocalQty(e.target.value);
+              }}
+              onBlur={() => {
+                let val = parseInt(localQty, 10);
+                if (isNaN(val) || val <= 0) {
+                  val = 1;
+                } else if (val > maxStock) {
+                  val = maxStock;
+                }
+                setLocalQty(String(val));
+                if (val !== item.quantity) {
+                  onChangeQty(item.plantId, val);
+                }
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.currentTarget.blur();
+                }
+              }}
+              disabled={disabled || isOutOfStock}
+              className="w-12 text-center text-sm font-medium text-slate-700 bg-transparent border-0 focus:outline-none focus:ring-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              style={{ padding: 0 }}
+              aria-label="Quantity"
+            />
             <button
               type="button"
               onClick={() => onIncrease(item.plantId)}

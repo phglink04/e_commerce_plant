@@ -77,6 +77,16 @@ class ReviewService extends BaseApiService {
   }
 
   /**
+   * Get list of products user can review
+   */
+  async getPendingReviews(): Promise<any[]> {
+    const response = await this.get<{ pendingReviews: any[] }>(
+      API_ENDPOINTS.reviews.pending
+    );
+    return response.data?.pendingReviews || [];
+  }
+
+  /**
    * Create a new review
    */
   async createReview(payload: CreateReviewPayload): Promise<Review> {
@@ -108,6 +118,19 @@ class ReviewService extends BaseApiService {
       { content },
     );
     return response.data.review;
+  }
+
+  /**
+   * Upload an image file for reviews
+   */
+  async uploadImage(file: File): Promise<{ publicUrl: string }> {
+    const formData = new FormData();
+    formData.append("image", file);
+    const response = await this.uploadFile<{ publicUrl: string }>(
+      API_ENDPOINTS.reviews.uploadImage,
+      formData,
+    );
+    return response.data;
   }
 }
 

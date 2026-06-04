@@ -8,10 +8,10 @@ export default function ProfileSecurityPage() {
     <>
       <header className="pf-main__header">
         <h1 className="pf-main__title" id="profile-page-title">
-          Security
+          Bảo mật
         </h1>
         <p className="pf-main__subtitle">
-          Manage your password and two-factor authentication
+          Quản lý mật khẩu và xác thực hai lớp của bạn
         </p>
       </header>
       <div className="pf-main__content">

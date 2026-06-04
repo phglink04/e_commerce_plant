@@ -30,12 +30,52 @@ export class SupabaseStorageService {
     try {
       this.client = createClient(url, key);
       this.enabled = true;
+      this.initBucket();
     } catch {
       this.enabled = false;
       this.client = null;
       this.logger.warn(
         "Supabase client initialization failed. Check SUPABASE_URL and SUPABASE_KEY format.",
       );
+    }
+  }
+
+  private async initBucket() {
+    if (!this.enabled || !this.client) return;
+    try {
+      const { data: buckets, error: listError } = await this.client.storage.listBuckets();
+      if (listError) {
+        this.logger.warn(`Failed to list buckets: ${listError.message}`);
+        return;
+      }
+      
+      const bucketExists = buckets.some(b => b.name === this.bucket);
+      if (!bucketExists) {
+        this.logger.log(`Bucket "${this.bucket}" does not exist. Creating it as public...`);
+        const { error: createError } = await this.client.storage.createBucket(this.bucket, {
+          public: true,
+        });
+        if (createError) {
+          this.logger.error(`Failed to create bucket "${this.bucket}": ${createError.message}`);
+        } else {
+          this.logger.log(`Created public bucket "${this.bucket}" successfully.`);
+        }
+      } else {
+        const targetBucket = buckets.find(b => b.name === this.bucket);
+        if (targetBucket && !targetBucket.public) {
+          this.logger.log(`Bucket "${this.bucket}" is private. Updating it to public...`);
+          const { error: updateError } = await this.client.storage.updateBucket(this.bucket, {
+            public: true,
+          });
+          if (updateError) {
+            this.logger.error(`Failed to update bucket "${this.bucket}" to public: ${updateError.message}`);
+          } else {
+            this.logger.log(`Updated bucket "${this.bucket}" to public successfully.`);
+          }
+        }
+      }
+    } catch (err) {
+      this.logger.warn(`Error during bucket initialization: ${err}`);
     }
   }
 

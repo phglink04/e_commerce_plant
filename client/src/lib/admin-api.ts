@@ -51,6 +51,9 @@ export type AdminOrder = {
     quantity: number;
     price: number;
   }>;
+  deliveryPartnerId?: string | null;
+  deliveryPartnerName?: string | null;
+  returnReason?: string | null;
 };
 
 export type PagedResult<T> = {
@@ -260,6 +263,8 @@ export async function getOrders(
     limit?: number;
     search?: string;
     orderStatus?: string;
+    deliveryPartnerId?: string;
+    userId?: string;
   },
   token?: string | null,
 ): Promise<PagedResult<AdminOrder>> {
@@ -270,6 +275,8 @@ export async function getOrders(
       limit: query.limit,
       search: query.search?.trim() || undefined,
       orderStatus: query.orderStatus?.trim() || undefined,
+      deliveryPartnerId: query.deliveryPartnerId?.trim() || undefined,
+      userId: query.userId?.trim() || undefined,
     },
   });
 
@@ -285,11 +292,28 @@ export async function getOrders(
 export async function updateOrderStatus(
   orderId: string,
   orderStatus: AdminOrderStatus,
+  paymentStatus?: string,
   token?: string | null,
+  deliveryPartnerId?: string,
+  deliveryPartnerName?: string,
+  returnReason?: string,
 ) {
+  const payload: any = { orderStatus };
+  if (paymentStatus) {
+    payload.paymentStatus = paymentStatus;
+  }
+  if (deliveryPartnerId) {
+    payload.deliveryPartnerId = deliveryPartnerId;
+  }
+  if (deliveryPartnerName) {
+    payload.deliveryPartnerName = deliveryPartnerName;
+  }
+  if (returnReason) {
+    payload.returnReason = returnReason;
+  }
   const response = await api.patch(
     `/api/orders/${orderId}/status`,
-    { orderStatus },
+    payload,
     withAuth(token),
   );
   return response.data?.data?.order as AdminOrder | undefined;

@@ -18,24 +18,31 @@ export class Discount {
   @Prop({ required: true, min: 1, max: 100 })
   percentage!: number;
 
-  @Prop({ required: true, min: 0 })
+  @Prop({ required: true, min: 0, default: 0 })
   minOrderValue!: number;
 
   /** Maximum discount amount in VND (optional cap) */
   @Prop({ min: 0 })
   maxDiscount?: number;
 
-  @Prop({ required: true, min: 1 })
-  usageLimit!: number;
+  /** Total usage limit. null = unlimited */
+  @Prop({ type: Number, default: null, min: 1 })
+  usageLimit!: number | null;
 
   @Prop({ default: 0, min: 0 })
   usedCount!: number;
 
-  @Prop({ required: true })
-  startDate!: Date;
+  /** Per-user usage limit. null = unlimited */
+  @Prop({ type: Number, default: null, min: 1 })
+  usageLimitPerUser!: number | null;
 
-  @Prop({ required: true })
-  endDate!: Date;
+  /** Start date. null = no start date restriction */
+  @Prop({ type: Date, default: null })
+  startDate!: Date | null;
+
+  /** End date. null = no end date restriction (never expires) */
+  @Prop({ type: Date, default: null })
+  endDate!: Date | null;
 
   @Prop({ default: true })
   isActive!: boolean;

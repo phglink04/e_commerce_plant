@@ -7,10 +7,10 @@ export default function ProfileOrdersPage() {
     <>
       <header className="pf-main__header">
         <h1 className="pf-main__title" id="profile-page-title">
-          My Orders
+          Đơn hàng của tôi
         </h1>
         <p className="pf-main__subtitle">
-          Track and manage your order history
+          Theo dõi và quản lý lịch sử đơn hàng của bạn
         </p>
       </header>
       <div className="pf-main__content">

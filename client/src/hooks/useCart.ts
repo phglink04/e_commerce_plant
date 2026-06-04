@@ -5,6 +5,7 @@
 
 import { useState, useCallback } from "react";
 import { cartService } from "@/services";
+import { useHomeUiStore } from "@/store/home-ui-store";
 import { Cart, CartItem, ApiError } from "@/types";
 
 interface UseCartState {
@@ -43,6 +44,8 @@ export function useCart() {
       setState((prev) => ({ ...prev, loading: true, error: null }));
       const cart = await cartService.getCart();
       updateCartState(cart);
+      // Update global store to keep header in sync
+      useHomeUiStore.getState().setCartCount(cart.items.length);
     } catch (err) {
       setState((prev) => ({
         ...prev,
@@ -60,6 +63,8 @@ export function useCart() {
       const cart = response.data?.cart;
       if (cart) {
         updateCartState(cart);
+        // Update global store immediately
+        useHomeUiStore.getState().setCartCount(cart.items.length);
       }
       return true;
     } catch (err) {
@@ -78,6 +83,8 @@ export function useCart() {
       setState((prev) => ({ ...prev, loading: true, error: null }));
       const cart = await cartService.removeFromCart(plantId);
       updateCartState(cart);
+      // Update global store immediately
+      useHomeUiStore.getState().setCartCount(cart.items.length);
       return true;
     } catch (err) {
       setState((prev) => ({
@@ -98,6 +105,8 @@ export function useCart() {
         const cart = response.data?.cart;
         if (cart) {
           updateCartState(cart);
+          // Update global store immediately
+          useHomeUiStore.getState().setCartCount(cart.items.length);
         }
         return true;
       } catch (err) {
@@ -118,6 +127,8 @@ export function useCart() {
       setState((prev) => ({ ...prev, loading: true, error: null }));
       const cart = await cartService.clearCart();
       updateCartState(cart);
+      // Update global store immediately
+      useHomeUiStore.getState().setCartCount(0);
       return true;
     } catch (err) {
       setState((prev) => ({

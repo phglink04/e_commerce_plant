@@ -23,6 +23,17 @@ export class UpdateOrderStatusDto {
 
   @IsOptional()
   @IsString()
-  @IsIn(["unpaid", "paid", "failed", "refunded"])
   paymentStatus?: "unpaid" | "paid" | "failed" | "refunded";
+
+  @IsOptional()
+  @IsString()
+  deliveryPartnerId?: string;
+
+  @IsOptional()
+  @IsString()
+  deliveryPartnerName?: string;
+
+  @IsOptional()
+  @IsString()
+  returnReason?: string;
 }

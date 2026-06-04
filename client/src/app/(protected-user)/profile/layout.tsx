@@ -22,7 +22,7 @@ export default function ProfileLayoutRoute({
           id="profile-mobile-toggle"
         >
           {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
-          <span>Profile Menu</span>
+          <span>Menu tài khoản</span>
         </button>
       </div>
 

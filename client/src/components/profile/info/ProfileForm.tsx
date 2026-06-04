@@ -39,8 +39,27 @@ export default function ProfileForm() {
       showToast("Tên là bắt buộc", "error");
       return;
     }
+
+    if (/^\d/.test(name.trim())) {
+      showToast("Họ tên không được phép bắt đầu bằng chữ số", "error");
+      return;
+    }
+
+    let cleanPhone: string | null = null;
+    if (phone.trim()) {
+      cleanPhone = phone.trim().replace(/[\s.()-]/g, "");
+      const phoneRegex = /^(0|\+84)(3|5|7|8|9)[0-9]{8}$/;
+      if (!phoneRegex.test(cleanPhone)) {
+        showToast(
+          "Số điện thoại không hợp lệ (định dạng Việt Nam, ví dụ: 0912345678)",
+          "error",
+        );
+        return;
+      }
+    }
+
     try {
-      await updateProfile({ name: name.trim(), phone: phone.trim() || null });
+      await updateProfile({ name: name.trim(), phone: cleanPhone });
       showToast("Cập nhật hồ sơ thành công");
     } catch {
       showToast("Cập nhật hồ sơ thất bại", "error");

@@ -9,7 +9,9 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from "@nestjs/common";
 import { ReviewsService } from "./reviews.service";
 import { CreateReviewDto } from "./dto/create-review.dto";
@@ -19,10 +21,31 @@ import { RolesGuard } from "../../auth/guards/roles.guard";
 import { Roles } from "../../auth/decorators/roles.decorator";
 import { CurrentUser } from "../../auth/decorators/current-user.decorator";
 import { JwtPayload } from "../../auth/types/jwt-payload.type";
+import { UploadInterceptor } from "../../helpers/upload.interceptor";
+import { SupabaseStorageService } from "../../helpers/supabase-storage.service";
 
 @Controller("reviews")
 export class ReviewsController {
-  constructor(private readonly reviewsService: ReviewsService) {}
+  constructor(
+    private readonly reviewsService: ReviewsService,
+    private readonly supabaseStorageService: SupabaseStorageService,
+  ) {}
+
+  /**
+   * POST /reviews/upload-image → upload review image
+   */
+  @Post("upload-image")
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(UploadInterceptor("image"))
+  async uploadReviewImage(
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    if (!file) {
+      throw new BadRequestException("Image file is required");
+    }
+    const publicUrl = await this.supabaseStorageService.uploadFile(file, "reviews");
+    return { publicUrl };
+  }
 
   // ─── Public Endpoints ─────────────────────────────────────
 
@@ -71,6 +94,15 @@ export class ReviewsController {
       throw new BadRequestException("productId is required");
     }
     return this.reviewsService.canReview(user.sub, productId);
+  }
+
+  /**
+   * GET /reviews/pending → get list of products user can review
+   */
+  @Get("pending")
+  @UseGuards(JwtAuthGuard)
+  getPendingReviews(@CurrentUser() user: JwtPayload) {
+    return this.reviewsService.getPendingReviews(user.sub);
   }
 
   // ─── User Endpoints ──────────────────────────────────────

@@ -34,6 +34,15 @@ export default function RegisterForm() {
   const [googleReady, setGoogleReady] = useState(false);
 
   useEffect(() => {
+    if (success || error) {
+      const timer = setTimeout(() => {
+        clearMessages();
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [success, error, clearMessages]);
+
+  useEffect(() => {
     if (!googleClientId) {
       return;
     }
@@ -110,13 +119,21 @@ export default function RegisterForm() {
     e.preventDefault();
     clearMessages();
 
+    if (/^\d/.test(name.trim())) {
+      setError("Họ tên không được phép bắt đầu bằng chữ số.");
+      return;
+    }
+
     if (password !== confirmPassword) {
       setError("Mật khẩu không khớp.");
       return;
     }
 
-    if (password.length < 8) {
-      setError("Mật khẩu phải có ít nhất 8 ký tự.");
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+    if (!passwordRegex.test(password)) {
+      setError(
+        "Mật khẩu phải có ít nhất 8 ký tự, bao gồm ít nhất 1 chữ hoa, 1 chữ thường và 1 chữ số.",
+      );
       return;
     }
 

@@ -9,6 +9,8 @@ interface MiniStatProps {
   color: string;
   bgColor: string;
   delay?: number;
+  subValue?: string;
+  tooltip?: string;
 }
 
 export function MiniStatCard({
@@ -18,12 +20,15 @@ export function MiniStatCard({
   color,
   bgColor,
   delay = 0,
+  subValue,
+  tooltip,
 }: MiniStatProps) {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.4, delay: delay * 0.1 }}
+      title={tooltip || String(value)}
       style={{
         background: "#fff",
         borderRadius: "16px",
@@ -74,6 +79,18 @@ export function MiniStatCard({
         >
           {value}
         </p>
+        {subValue && (
+          <p
+            style={{
+              margin: "0.15rem 0 0",
+              fontSize: "0.72rem",
+              color: "#94a3b8",
+              fontWeight: 500,
+            }}
+          >
+            {subValue}
+          </p>
+        )}
       </div>
     </motion.div>
   );

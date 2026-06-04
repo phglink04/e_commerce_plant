@@ -7,6 +7,7 @@ import {
   Post,
   Req,
   UseGuards,
+  UnauthorizedException,
 } from "@nestjs/common";
 import { Request } from "express";
 import { AuthService } from "./auth.service";
@@ -26,6 +27,7 @@ import { Verify2faDto } from "./dto/2fa/verify-2fa.dto";
 import { Disable2faDto } from "./dto/2fa/disable-2fa.dto";
 import { TurnstileService } from "../helpers/turnstile.service";
 import { LoginDto } from "./dto/login.dto";
+import { StoredUser } from "../module/users/types/user.type";
 
 @Controller()
 export class AuthController {
@@ -52,9 +54,19 @@ export class AuthController {
       dto.captchaToken,
       isProduction,
     );
-    return this.authService.login(
-      req.user as Parameters<AuthService["login"]>[0],
-    );
+
+    const user = req.user as StoredUser;
+    if (dto.targetRole) {
+      if (dto.targetRole === "admin") {
+        if (user.role !== "admin" && user.role !== "owner") {
+          throw new UnauthorizedException("Tài khoản không hợp lệ");
+        }
+      } else if (user.role !== dto.targetRole) {
+        throw new UnauthorizedException("Tài khoản không hợp lệ");
+      }
+    }
+
+    return this.authService.login(user);
   }
 
   @Post("users/login")
@@ -65,9 +77,19 @@ export class AuthController {
       dto.captchaToken,
       isProduction,
     );
-    return this.authService.login(
-      req.user as Parameters<AuthService["login"]>[0],
-    );
+
+    const user = req.user as StoredUser;
+    if (dto.targetRole) {
+      if (dto.targetRole === "admin") {
+        if (user.role !== "admin" && user.role !== "owner") {
+          throw new UnauthorizedException("Tài khoản không hợp lệ");
+        }
+      } else if (user.role !== dto.targetRole) {
+        throw new UnauthorizedException("Tài khoản không hợp lệ");
+      }
+    }
+
+    return this.authService.login(user);
   }
 
   @Post("auth/send-activation")

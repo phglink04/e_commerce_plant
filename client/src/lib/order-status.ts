@@ -17,23 +17,23 @@ export const ORDER_STATUS_OPTIONS: Array<{
   value: UiOrderStatus;
   label: string;
 }> = [
-  { value: "pending", label: "Pending" },
-  { value: "confirmed", label: "Confirmed" },
-  { value: "processing", label: "Processing" },
-  { value: "shipped", label: "Shipped" },
-  { value: "delivered", label: "Delivered" },
-  { value: "cancelled", label: "Cancelled" },
-  { value: "returned", label: "Returned" },
+  { value: "pending", label: "Chờ xác nhận" },
+  { value: "confirmed", label: "Đã xác nhận" },
+  { value: "processing", label: "Đang chuẩn bị" },
+  { value: "shipped", label: "Đã gửi" },
+  { value: "delivered", label: "Đã nhận" },
+  { value: "cancelled", label: "Đã hủy" },
+  { value: "returned", label: "Hoàn trả" },
 ];
 
 export const PAYMENT_STATUS_OPTIONS: Array<{
   value: UiPaymentStatus;
   label: string;
 }> = [
-  { value: "unpaid", label: "Unpaid" },
-  { value: "paid", label: "Paid" },
-  { value: "failed", label: "Failed" },
-  { value: "refunded", label: "Refunded" },
+  { value: "unpaid", label: "Chưa thanh toán" },
+  { value: "paid", label: "Đã trả tiền" },
+  { value: "failed", label: "Thanh toán thất bại" },
+  { value: "refunded", label: "Đã hoàn tiền" },
 ];
 
 export const orderStatusLabel = (status: string): string => {

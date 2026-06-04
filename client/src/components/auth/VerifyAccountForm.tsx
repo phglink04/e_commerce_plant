@@ -14,6 +14,15 @@ export default function VerifyAccountForm() {
   const [verificationCode, setVerificationCode] = useState("");
 
   useEffect(() => {
+    if (success || error) {
+      const timer = setTimeout(() => {
+        clearMessages();
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [success, error, clearMessages]);
+
+  useEffect(() => {
     const pendingEmail = localStorage.getItem("pending_verification_email");
     const pendingCode = localStorage.getItem("pending_verification_code");
 

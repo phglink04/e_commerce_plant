@@ -13,6 +13,8 @@ import { DiscountsService } from "./discounts.service";
 import { JwtAuthGuard } from "../../auth/guards/jwt-auth.guard";
 import { RolesGuard } from "../../auth/guards/roles.guard";
 import { Roles } from "../../auth/decorators/roles.decorator";
+import { CurrentUser } from "../../auth/decorators/current-user.decorator";
+import { JwtPayload } from "../../auth/types/jwt-payload.type";
 import { CreateDiscountDto } from "./dto/create-discount.dto";
 import { UpdateDiscountDto } from "./dto/update-discount.dto";
 import { ApplyDiscountDto } from "./dto/apply-discount.dto";
@@ -73,7 +75,7 @@ export class DiscountsController {
 
   @Post("apply")
   @UseGuards(JwtAuthGuard)
-  apply(@Body() dto: ApplyDiscountDto) {
-    return this.discountsService.apply(dto);
+  apply(@Body() dto: ApplyDiscountDto, @CurrentUser() user: JwtPayload) {
+    return this.discountsService.apply(dto, user.sub);
   }
 }

@@ -1,9 +1,10 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Inject, forwardRef } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { UpsertPlantDto } from "./dto/upsert-plant.dto";
 import { Plant } from "./schemas/plant.schema";
-import { generateSlug, ensureUniqueSlug } from "../../helpers/slug.utils";
+import { Order } from "../orders/schemas/order.schema";
+import { generateSlug, ensureUniqueSlug, removeVietnameseTones } from "../../helpers/slug.utils";
 
 type PlantResponseInput = {
   _id: unknown;
@@ -15,7 +16,7 @@ type PlantResponseInput = {
   imageCover: string;
   category: string;
   tags?: string[];
-  availability: "In Stock" | "Out Of Stock" | "Up Coming";
+  availability: "In Stock" | "Out Of Stock" | "Up Coming" | "Discontinued";
   stock?: number;
   isFeatured?: boolean;
   isFlashSale?: boolean;
@@ -27,10 +28,34 @@ type PlantResponseInput = {
 export class PlantsService {
   constructor(
     @InjectModel(Plant.name) private readonly plantModel: Model<Plant>,
+    @InjectModel(Order.name) private readonly orderModel: Model<Order>,
+    @Inject(forwardRef(() => 'CHATBOT_EMBEDDING'))
+    private readonly embeddingFn: ((text: string) => Promise<number[]>) | null,
   ) {}
 
   async onModuleInit() {
     await this.seedPlantsIfEmpty();
+    await this.migrateNormalizedNames();
+  }
+
+  private async migrateNormalizedNames(): Promise<void> {
+    try {
+      const unmigrated = await this.plantModel.find({
+        $or: [{ normalizedName: { $exists: false } }, { normalizedName: "" }],
+      });
+      if (unmigrated.length > 0) {
+        console.log(`[Migration] Migrating ${unmigrated.length} plants for normalizedName...`);
+        for (const plant of unmigrated) {
+          const norm = removeVietnameseTones(plant.name).toLowerCase().trim();
+          await this.plantModel.findByIdAndUpdate(plant._id, {
+            $set: { normalizedName: norm },
+          });
+        }
+        console.log(`[Migration] Successfully migrated all plants.`);
+      }
+    } catch (err) {
+      console.error("[Migration] Error migrating plant normalizedName:", err);
+    }
   }
 
   async getTotalPlants(): Promise<number> {
@@ -54,7 +79,8 @@ export class PlantsService {
     };
 
     if (search) {
-      filter.name = { $regex: search, $options: "i" };
+      const searchNormalized = removeVietnameseTones(search).toLowerCase().trim();
+      filter.normalizedName = { $regex: searchNormalized, $options: "i" };
     }
     if (queryTags.length > 0) {
       filter.tags = { $in: queryTags };
@@ -62,8 +88,17 @@ export class PlantsService {
     if (categories.length > 0) {
       filter.category = { $in: categories };
     }
-    if (availabilities.length > 0) {
-      filter.availability = { $in: availabilities };
+    if (query.admin !== "true" && query.includeDiscontinued !== "true") {
+      if (availabilities.length > 0) {
+        const filteredAvailabilities = availabilities.filter((a) => a !== "Discontinued");
+        filter.availability = { $in: filteredAvailabilities };
+      } else {
+        filter.availability = { $ne: "Discontinued" };
+      }
+    } else {
+      if (availabilities.length > 0) {
+        filter.availability = { $in: availabilities };
+      }
     }
     // Filter for deals: products with active discounts
     if (query.deal === "true") {
@@ -75,8 +110,36 @@ export class PlantsService {
       .find(filter)
       .skip((page - 1) * limit)
       .limit(limit)
-      .sort({ createdAt: -1 })
+      .sort({ createdAt: -1, _id: -1 })
       .lean();
+
+    const plantIds = items.map((item) => String(item._id));
+    const soldCounts = await this.orderModel.aggregate([
+      {
+        $match: {
+          orderStatus: "delivered",
+          paymentStatus: "paid",
+          "items.plantId": { $in: plantIds },
+        },
+      },
+      { $unwind: "$items" },
+      {
+        $match: {
+          "items.plantId": { $in: plantIds },
+        },
+      },
+      {
+        $group: {
+          _id: "$items.plantId",
+          totalSold: { $sum: "$items.quantity" },
+        },
+      },
+    ]);
+
+    const soldMap = new Map<string, number>();
+    soldCounts.forEach((s) => {
+      soldMap.set(String(s._id), s.totalSold);
+    });
 
     return {
       results: items.length,
@@ -84,14 +147,17 @@ export class PlantsService {
       page,
       totalPages: Math.max(1, Math.ceil(totalResults / limit)),
       data: {
-        plants: items.map((item) => this.toPlantResponse(item)),
+        plants: items.map((item) => ({
+          ...this.toPlantResponse(item),
+          sold: soldMap.get(String(item._id)) || 0,
+        })),
       },
     };
   }
 
   async getFeatured() {
     const plants = await this.plantModel
-      .find({ isFeatured: true })
+      .find({ isFeatured: true, availability: { $ne: "Discontinued" } })
       .limit(8)
       .sort({ createdAt: -1 })
       .lean();
@@ -104,7 +170,7 @@ export class PlantsService {
   }
 
   async getFlashSale() {
-    const plants = await this.plantModel.find({ isFlashSale: true }).lean();
+    const plants = await this.plantModel.find({ isFlashSale: true, availability: { $ne: "Discontinued" } }).lean();
     return {
       data: {
         plants: plants.map((item) => this.toPlantResponse(item)),
@@ -165,21 +231,34 @@ export class PlantsService {
     const existingSlugsArray = existingSlugs.map((p) => p.slug);
     const uniqueSlug = await ensureUniqueSlug(baseSlug, existingSlugsArray);
 
+    // Auto-sync availability với stock
+    const stock = dto.stock ?? 0;
+    let availability = dto.availability;
+    if (stock === 0 && availability !== 'Up Coming') {
+      availability = 'Out Of Stock';
+    } else if (stock > 0 && availability === 'Out Of Stock') {
+      availability = 'In Stock';
+    }
+
     const newPlant = await this.plantModel.create({
       name: dto.name,
+      normalizedName: removeVietnameseTones(dto.name).toLowerCase().trim(),
       slug: uniqueSlug,
       price: dto.price,
       costPrice: dto.costPrice ?? 0,
       imageCover: dto.imageCover,
       category: dto.category,
       tags: dto.tags ?? [],
-      availability: dto.availability,
-      stock: dto.stock ?? 0,
+      availability,
+      stock,
       discountPercentage: dto.discountPercentage ?? 0,
       isFeatured: dto.isFeatured ?? false,
       isFlashSale: dto.isFlashSale ?? false,
       description: dto.description ?? "",
     });
+
+    // Auto-generate embedding cho sản phẩm mới (non-blocking)
+    this.generateAndSaveEmbedding(newPlant._id.toString(), dto);
 
     return {
       message: "Plant created",
@@ -190,18 +269,34 @@ export class PlantsService {
   }
 
   async update(id: string, dto: UpsertPlantDto) {
+    // Auto-sync availability với stock
+    const stock = dto.stock ?? 0;
+    let availability = dto.availability;
+    if (availability !== 'Discontinued') {
+      if (stock === 0 && availability !== 'Up Coming') {
+        availability = 'Out Of Stock';
+      } else if (stock > 0 && availability === 'Out Of Stock') {
+        availability = 'In Stock';
+      }
+    } else {
+      if (stock > 0) {
+        availability = 'In Stock';
+      }
+    }
+
     const target = await this.plantModel
       .findByIdAndUpdate(
         id,
         {
           name: dto.name,
+          normalizedName: removeVietnameseTones(dto.name).toLowerCase().trim(),
           price: dto.price,
           costPrice: dto.costPrice ?? 0,
           imageCover: dto.imageCover,
           category: dto.category,
           tags: dto.tags ?? [],
-          availability: dto.availability,
-          stock: dto.stock ?? 0,
+          availability,
+          stock,
           discountPercentage: dto.discountPercentage ?? 0,
           isFeatured: dto.isFeatured ?? false,
           isFlashSale: dto.isFlashSale ?? false,
@@ -215,6 +310,9 @@ export class PlantsService {
       return null;
     }
 
+    // Auto-generate embedding khi cập nhật sản phẩm (non-blocking)
+    this.generateAndSaveEmbedding(id, dto);
+
     return {
       message: "Plant updated",
       data: {
@@ -224,7 +322,11 @@ export class PlantsService {
   }
 
   async remove(id: string) {
-    const result = await this.plantModel.findByIdAndDelete(id);
+    const result = await this.plantModel.findByIdAndUpdate(
+      id,
+      { availability: "Discontinued", stock: 0 },
+      { new: true }
+    );
     return Boolean(result);
   }
 
@@ -247,6 +349,34 @@ export class PlantsService {
 
     await this.plantModel.findByIdAndUpdate(plantId, { $set: update });
   }
+
+  private async generateAndSaveEmbedding(plantId: string, dto: UpsertPlantDto): Promise<void> {
+    try {
+      if (!this.embeddingFn) return;
+
+      // Kiểm tra biến môi trường để tắt sinh Embedding chạy ngầm khi code
+      if (process.env.GEMINI_BYPASS_EMBEDDING === 'true') {
+        console.log(`[Gemini Optimization] Bypassed background embedding generation for: ${dto.name}`);
+        return;
+      }
+
+      const searchText = [
+        dto.name,
+        dto.category,
+        dto.description || '',
+        ...(dto.tags || []),
+      ].filter(Boolean).join(' ');
+
+      const embedding = await this.embeddingFn(searchText);
+      if (embedding && embedding.length > 0) {
+        await this.plantModel.findByIdAndUpdate(plantId, { $set: { embedding } });
+      }
+    } catch (error) {
+      // Non-blocking — log lỗi nhưng không ảnh hưởng CRUD
+      console.error(`Failed to generate embedding for plant ${plantId}:`, error);
+    }
+  }
+
 
   private splitCsv(value?: string): string[] {
     if (!value) return [];

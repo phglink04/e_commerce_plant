@@ -119,15 +119,13 @@ export class BaseApiService {
     formData: FormData,
     config?: AxiosRequestConfig,
   ): Promise<ApiResponse<T>> {
+    const { "Content-Type": _, ...headers } = config?.headers || {};
     return this.request({
       ...config,
       method: "POST",
       url,
       data: formData,
-      headers: {
-        ...config?.headers,
-        "Content-Type": "multipart/form-data",
-      },
+      headers,
     });
   }
 
@@ -139,15 +137,13 @@ export class BaseApiService {
     formData: FormData,
     config?: AxiosRequestConfig,
   ): Promise<ApiResponse<T>> {
+    const { "Content-Type": _, ...headers } = config?.headers || {};
     return this.request({
       ...config,
       method: "PATCH",
       url,
       data: formData,
-      headers: {
-        ...config?.headers,
-        "Content-Type": "multipart/form-data",
-      },
+      headers,
     });
   }
 }

@@ -11,6 +11,7 @@ import DataTable from "@/components/admin/ui/data-table";
 import {
   getOrders,
   updateOrderStatus,
+  getUsers,
   type AdminOrder,
   type AdminOrderStatus,
 } from "@/lib/admin-api";
@@ -25,19 +26,40 @@ import { useAuthStore } from "@/store/auth-store";
 type StatusFilter = "all" | AdminOrderStatus;
 
 const ORDER_STEPS = [
-  { label: "Pending", description: "Order received" },
-  { label: "Confirmed", description: "Payment confirmed" },
-  { label: "Processing", description: "Being prepared" },
-  { label: "Shipped", description: "On the way" },
-  { label: "Delivered", description: "Delivered to customer" },
+  { label: "Chờ xác nhận", description: "Đơn hàng được nhận" },
+  { label: "Đã xác nhận", description: "Thanh toán được xác nhận" },
+  { label: "Đang chuẩn bị", description: "Đang được chuẩn bị" },
+  { label: "Đã gửi", description: "Đang trên đường" },
+  { label: "Đã nhận", description: "Đã giao cho khách hàng" },
 ];
 
-const STATUS_ORDER = ["Pending", "Confirmed", "Processing", "Shipped", "Delivered"];
+const STATUS_ORDER = ["Chờ xác nhận", "Đã xác nhận", "Đang chuẩn bị", "Đã gửi", "Đã nhận"];
 
 function getStepIndex(status: string): number {
   const label = orderStatusLabel(status);
   return STATUS_ORDER.indexOf(label);
 }
+
+const STATUS_LEVEL: Record<string, number> = {
+  pending: 0,
+  confirmed: 1,
+  processing: 2,
+  shipped: 3,
+  delivered: 4,
+  returned: 4,
+  cancelled: 4,
+};
+
+const getAvailableStatuses = (currentStatus: string) => {
+  const currentLevel = STATUS_LEVEL[currentStatus] ?? 0;
+  if (currentLevel === 4) {
+    return ORDER_STATUS_OPTIONS.filter((o) => o.value === currentStatus);
+  }
+  return ORDER_STATUS_OPTIONS.filter((o) => {
+    const level = STATUS_LEVEL[o.value] ?? 0;
+    return level >= currentLevel;
+  });
+};
 
 export default function AdminOrdersPage() {
   const { token } = useAuthStore();
@@ -54,10 +76,25 @@ export default function AdminOrdersPage() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null);
   const [pendingStatus, setPendingStatus] = useState<Record<string, AdminOrderStatus>>({});
+  const [selectedPartner, setSelectedPartner] = useState<Record<string, string>>({});
+  const [deliveryPartners, setDeliveryPartners] = useState<{ id: string; name: string }[]>([]);
   const [toast, setToast] = useState<{
     type: "success" | "error";
     message: string;
   } | null>(null);
+
+  useEffect(() => {
+    const fetchCarriers = async () => {
+      if (!token) return;
+      try {
+        const response = await getUsers({ role: "deliverypartner", limit: 100 }, token);
+        setDeliveryPartners(response.items.map((u) => ({ id: u.id, name: u.name })));
+      } catch (err) {
+        console.error("Error loading delivery partners:", err);
+      }
+    };
+    void fetchCarriers();
+  }, [token]);
 
   // Debounce search
   useEffect(() => {
@@ -106,7 +143,7 @@ export default function AdminOrdersPage() {
   }, [totalResults]);
 
   const tabs = [
-    { value: "all" as const, label: "All", count: totalResults },
+    { value: "all" as const, label: "Tất cả", count: totalResults },
     ...ORDER_STATUS_OPTIONS.map((s) => ({
       value: s.value as StatusFilter,
       label: s.label,
@@ -117,23 +154,68 @@ export default function AdminOrdersPage() {
     if (!token) return;
     const newStatus = pendingStatus[orderId];
     if (!newStatus) return;
+
+    let partnerId: string | undefined;
+    let partnerName: string | undefined;
+
+    if (newStatus === "shipped") {
+      partnerId = selectedPartner[orderId];
+      if (!partnerId) {
+        setToast({ type: "error", message: "Vui lòng chọn đơn vị vận chuyển." });
+        return;
+      }
+      const partner = deliveryPartners.find((dp) => dp.id === partnerId);
+      partnerName = partner?.name;
+    }
+
     try {
       setUpdatingOrderId(orderId);
-      await updateOrderStatus(orderId, newStatus, token);
-      setToast({ type: "success", message: "Order status updated." });
+      // Auto-update payment status to "paid" when order is delivered
+      let paymentStatus: string | undefined;
+      if (newStatus === "delivered") {
+        paymentStatus = "paid";
+      }
+      await updateOrderStatus(
+        orderId,
+        newStatus,
+        paymentStatus,
+        token,
+        partnerId,
+        partnerName
+      );
+      setToast({ type: "success", message: "Trạng thái đơn hàng được cập nhật." });
       setOrders((prev) =>
-        prev.map((o) => (o.id === orderId ? { ...o, orderStatus: newStatus } : o)),
+        prev.map((o) => {
+          if (o.id === orderId) {
+            return {
+              ...o,
+              orderStatus: newStatus,
+              paymentStatus: paymentStatus || o.paymentStatus,
+              deliveryPartnerId: partnerId || o.deliveryPartnerId,
+              deliveryPartnerName: partnerName || o.deliveryPartnerName,
+            };
+          }
+          return o;
+        }),
       );
       // update drawer if open
       if (selectedOrder?.id === orderId) {
         setSelectedOrder((prev) =>
-          prev ? { ...prev, orderStatus: newStatus } : prev,
+          prev
+            ? {
+                ...prev,
+                orderStatus: newStatus,
+                paymentStatus: paymentStatus || prev.paymentStatus,
+                deliveryPartnerId: partnerId || prev.deliveryPartnerId,
+                deliveryPartnerName: partnerName || prev.deliveryPartnerName,
+              }
+            : prev,
         );
       }
     } catch (error) {
       setToast({
         type: "error",
-        message: error instanceof Error ? error.message : "Unable to update status.",
+        message: error instanceof Error ? error.message : "Không thể cập nhật trạng thái.",
       });
     } finally {
       setUpdatingOrderId(null);
@@ -152,9 +234,9 @@ export default function AdminOrdersPage() {
       {/* Header */}
       <header className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-slate-900">Orders</h2>
+          <h2 className="text-2xl font-bold tracking-tight text-slate-900">Đơn hàng</h2>
           <p className="mt-0.5 text-sm text-slate-500">
-            {totalResults.toLocaleString()} total orders
+            {totalResults.toLocaleString()} tổng đơn hàng
           </p>
         </div>
       </header>
@@ -179,7 +261,7 @@ export default function AdminOrdersPage() {
         {loading && (
           <span className="inline-flex items-center gap-1.5 text-xs text-slate-400">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
-            Loading…
+            Đang tải…
           </span>
         )}
       </div>
@@ -202,16 +284,28 @@ export default function AdminOrdersPage() {
           columns={[
             {
               key: "id",
-              title: "Order ID",
+              title: "Mã đơn hàng",
               render: (row) => (
-                <span className="font-mono text-xs text-slate-500">
-                  #{row.id.slice(-10).toUpperCase()}
-                </span>
+                <div className="flex flex-col gap-1">
+                  <span className="font-mono text-xs text-slate-500">
+                    #{row.id.slice(-10).toUpperCase()}
+                  </span>
+                  {row.deliveryPartnerName && (
+                    <span className="inline-flex items-center gap-1 text-[10px] text-slate-400 font-semibold">
+                      🚚 {row.deliveryPartnerName}
+                    </span>
+                  )}
+                  {row.returnReason && (
+                    <span className="inline-flex items-center gap-1 text-[10px] text-red-500 font-medium max-w-[150px] truncate" title={row.returnReason}>
+                      ⚠️ {row.returnReason}
+                    </span>
+                  )}
+                </div>
               ),
             },
             {
               key: "date",
-              title: "Date",
+              title: "Ngày",
               render: (row) => (
                 <span className="text-xs text-slate-500">
                   {new Date(row.createdAt).toLocaleDateString("vi-VN")}
@@ -220,16 +314,16 @@ export default function AdminOrdersPage() {
             },
             {
               key: "items",
-              title: "Items",
+              title: "Sản phẩm",
               render: (row) => (
                 <span className="text-xs text-slate-600">
-                  {row.items.length} item{row.items.length !== 1 ? "s" : ""}
+                  {row.items.length} sản phẩm
                 </span>
               ),
             },
             {
               key: "total",
-              title: "Total",
+              title: "Tổng tiền",
               render: (row) => (
                 <span className="text-sm font-semibold text-slate-800">
                   {Number(row.total).toLocaleString()} ₫
@@ -238,7 +332,7 @@ export default function AdminOrdersPage() {
             },
             {
               key: "orderStatus",
-              title: "Order Status",
+              title: "Trạng thái đơn",
               render: (row) => (
                 <StatusBadge
                   status={orderStatusLabel(row.orderStatus)}
@@ -248,7 +342,7 @@ export default function AdminOrdersPage() {
             },
             {
               key: "paymentStatus",
-              title: "Payment",
+              title: "Thanh toán",
               render: (row) => (
                 <StatusBadge
                   status={paymentStatusLabel(row.paymentStatus)}
@@ -258,41 +352,70 @@ export default function AdminOrdersPage() {
             },
             {
               key: "update",
-              title: "Change Status",
-              render: (row) => (
-                <div className="flex items-center gap-1.5">
-                  <select
-                    title="Change order status"
-                    aria-label="Change order status"
-                    value={pendingStatus[row.id] ?? row.orderStatus}
-                    onChange={(e) =>
-                      setPendingStatus((prev) => ({
-                        ...prev,
-                        [row.id]: e.target.value as AdminOrderStatus,
-                      }))
-                    }
-                    className="rounded-lg border border-slate-200 px-2 py-1 text-xs text-slate-700 outline-none focus:border-emerald-400"
-                  >
-                    {statusOptions.map((s) => (
-                      <option key={s} value={s}>
-                        {orderStatusLabel(s)}
-                      </option>
-                    ))}
-                  </select>
-                  <button
-                    type="button"
-                    onClick={() => void handleUpdateStatus(row.id)}
-                    disabled={
-                      updatingOrderId === row.id ||
-                      !pendingStatus[row.id] ||
-                      pendingStatus[row.id] === row.orderStatus
-                    }
-                    className="rounded-lg bg-emerald-600 px-2.5 py-1 text-xs font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-40"
-                  >
-                    {updatingOrderId === row.id ? "…" : "Save"}
-                  </button>
-                </div>
-              ),
+              title: "Cập nhật",
+              render: (row) => {
+                const isTerminal = STATUS_LEVEL[row.orderStatus] === 4;
+                return (
+                  <div className="flex flex-col gap-1.5">
+                    <div className="flex items-center gap-1.5">
+                      <select
+                        title="Thay đổi trạng thái đơn hàng"
+                        aria-label="Thay đổi trạng thái đơn hàng"
+                        value={pendingStatus[row.id] ?? row.orderStatus}
+                        disabled={isTerminal}
+                        onChange={(e) =>
+                          setPendingStatus((prev) => ({
+                            ...prev,
+                            [row.id]: e.target.value as AdminOrderStatus,
+                          }))
+                        }
+                        className="rounded-lg border border-slate-200 px-2 py-1 text-xs text-slate-700 outline-none focus:border-emerald-400 disabled:bg-slate-50 disabled:text-slate-400"
+                      >
+                        {getAvailableStatuses(row.orderStatus).map((s) => (
+                          <option key={s.value} value={s.value}>
+                            {s.label}
+                          </option>
+                        ))}
+                      </select>
+                      <button
+                        type="button"
+                        onClick={() => void handleUpdateStatus(row.id)}
+                        disabled={
+                          isTerminal ||
+                          updatingOrderId === row.id ||
+                          !pendingStatus[row.id] ||
+                          pendingStatus[row.id] === row.orderStatus ||
+                          (pendingStatus[row.id] === "shipped" && !selectedPartner[row.id])
+                        }
+                        className="rounded-lg bg-emerald-600 px-2.5 py-1 text-xs font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-40"
+                      >
+                        {updatingOrderId === row.id ? "…" : "Lưu"}
+                      </button>
+                    </div>
+                    {pendingStatus[row.id] === "shipped" && (
+                      <select
+                        title="Chọn bưu tá vận chuyển"
+                        aria-label="Chọn bưu tá vận chuyển"
+                        value={selectedPartner[row.id] ?? ""}
+                        onChange={(e) =>
+                          setSelectedPartner((prev) => ({
+                            ...prev,
+                            [row.id]: e.target.value,
+                          }))
+                        }
+                        className="rounded-lg border border-slate-200 px-2 py-1 text-xs text-slate-700 outline-none focus:border-emerald-400"
+                      >
+                        <option value="">-- Chọn Bưu Tá --</option>
+                        {deliveryPartners.map((dp) => (
+                          <option key={dp.id} value={dp.id}>
+                            {dp.name}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                  </div>
+                );
+              },
             },
             {
               key: "actions",
@@ -303,14 +426,14 @@ export default function AdminOrdersPage() {
                   onClick={() => openDetail(row)}
                   className="rounded-lg border border-slate-200 px-2.5 py-1 text-xs font-medium text-slate-600 transition hover:bg-slate-50"
                 >
-                  Details
+                  Chi tiết
                 </button>
               ),
             },
           ]}
           rows={orders}
           rowKey={(row) => row.id}
-          emptyText="No orders found"
+          emptyText="Không có đơn hàng nào"
         />
       )}
 
@@ -326,7 +449,7 @@ export default function AdminOrdersPage() {
             ←
           </button>
           <span className="text-sm text-slate-500">
-            Page {page} of {totalPages}
+            Trang {page} của {totalPages}
           </span>
           <button
             type="button"
@@ -343,17 +466,17 @@ export default function AdminOrdersPage() {
       <Drawer
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
-        title="Order Details"
+        title="Chi tiết đơn hàng"
         subtitle={selectedOrder ? `#${selectedOrder.id.slice(-10).toUpperCase()}` : ""}
         width="max-w-[480px]"
       >
         {selectedOrder && (
           <div className="space-y-6 text-sm text-slate-700">
             {/* Status Timeline */}
-            {orderStatusLabel(selectedOrder.orderStatus) !== "Cancelled" ? (
+            {orderStatusLabel(selectedOrder.orderStatus) !== "Đã hủy" ? (
               <div>
                 <p className="mb-3 text-xs font-bold uppercase tracking-wider text-slate-400">
-                  Status Timeline
+                  Tiến trình trạng thái
                 </p>
                 <OrderTimeline
                   steps={ORDER_STEPS}
@@ -362,49 +485,91 @@ export default function AdminOrdersPage() {
               </div>
             ) : (
               <div className="rounded-xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-                🚫 This order was cancelled
+                🚫 Đơn hàng này đã bị hủy
               </div>
             )}
 
             {/* Order Info */}
             <div className="space-y-2 rounded-xl border border-slate-100 bg-slate-50 p-4">
               <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                Order Info
+                Thông tin đơn hàng
               </p>
               <div className="grid grid-cols-2 gap-y-2 text-xs">
-                <span className="text-slate-500">Order ID</span>
+                <span className="text-slate-500">Mã đơn hàng</span>
                 <span className="font-mono font-semibold text-slate-800">
                   #{selectedOrder.id.slice(-10).toUpperCase()}
                 </span>
-                <span className="text-slate-500">Date</span>
+                <span className="text-slate-500">Ngày</span>
                 <span className="text-slate-700">
                   {new Date(selectedOrder.createdAt).toLocaleString("vi-VN")}
                 </span>
-                <span className="text-slate-500">Order Status</span>
+                <span className="text-slate-500">Trạng thái đơn</span>
                 <StatusBadge status={orderStatusLabel(selectedOrder.orderStatus)} showDot />
-                <span className="text-slate-500">Payment</span>
+                <span className="text-slate-500">Thanh toán</span>
                 <StatusBadge status={paymentStatusLabel(selectedOrder.paymentStatus)} showDot />
-                <span className="text-slate-500">User ID</span>
-                <span className="truncate font-mono text-slate-600">
-                  {selectedOrder.userId}
-                </span>
               </div>
             </div>
 
-            {/* Shipping */}
-            <div className="rounded-xl border border-slate-100 p-4">
-              <p className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-400">
-                Shipping Address
-              </p>
-              <p className="text-sm text-slate-700">
-                {selectedOrder.shippingAddress}
-              </p>
-            </div>
+            {/* Shipping Info */}
+            {(() => {
+              const { name, phone, address } = (() => {
+                if (!selectedOrder.shippingAddress) return { name: "Không rõ", phone: "Không rõ", address: "Không rõ" };
+                const parts = selectedOrder.shippingAddress.split(",");
+                if (parts.length < 2) {
+                  return { name: "Không rõ", phone: "Không rõ", address: selectedOrder.shippingAddress };
+                }
+                const nameVal = parts[0].trim();
+                const phoneVal = parts[1].trim();
+                const addressVal = parts.slice(2).join(",").trim();
+                return { name: nameVal, phone: phoneVal, address: addressVal };
+              })();
+
+              return (
+                <div className="rounded-xl border border-slate-100 p-4 space-y-3">
+                  <p className="mb-1 text-xs font-bold uppercase tracking-wider text-slate-400">
+                    Thông tin nhận hàng
+                  </p>
+                  <div className="grid grid-cols-[100px_1fr] gap-y-2 text-xs">
+                    <span className="text-slate-500 font-medium">Người nhận</span>
+                    <span className="font-semibold text-slate-700">{name}</span>
+
+                    <span className="text-slate-500 font-medium">Số điện thoại</span>
+                    <span className="font-mono font-semibold text-slate-700 select-all">{phone}</span>
+
+                    <span className="text-slate-500 font-medium">Địa chỉ giao</span>
+                    <span className="text-slate-600 leading-relaxed">{address}</span>
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* Shipping Partner */}
+            {selectedOrder.deliveryPartnerName && (
+              <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
+                <p className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-400">
+                  Thông tin vận chuyển
+                </p>
+                <div className="grid grid-cols-2 gap-y-2 text-xs">
+                  <span className="text-slate-500">Đơn vị vận chuyển</span>
+                  <span className="font-semibold text-slate-700">
+                    🚚 {selectedOrder.deliveryPartnerName}
+                  </span>
+                  {selectedOrder.returnReason && (
+                    <>
+                      <span className="text-slate-500">Lý do hoàn trả</span>
+                      <span className="font-semibold text-red-600">
+                        ⚠️ {selectedOrder.returnReason}
+                      </span>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Items */}
             <div>
               <p className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-400">
-                Items ({selectedOrder.items.length})
+                Sản phẩm ({selectedOrder.items.length})
               </p>
               <ul className="divide-y divide-slate-100 rounded-xl border border-slate-100">
                 {selectedOrder.items.map((item) => (
@@ -430,48 +595,77 @@ export default function AdminOrdersPage() {
 
             {/* Total */}
             <div className="flex items-center justify-between rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3">
-              <span className="text-sm font-semibold text-slate-700">Total</span>
+              <span className="text-sm font-semibold text-slate-700">Tổng tiền</span>
               <span className="text-lg font-bold text-emerald-700">
                 {Number(selectedOrder.total).toLocaleString()} ₫
               </span>
             </div>
 
             {/* Quick status update from drawer */}
-            <div className="space-y-2">
+            <div className="space-y-3">
               <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                Update Status
+                Cập nhật trạng thái
               </p>
-              <div className="flex gap-2">
-                <select
-                  title="Update order status"
-                  aria-label="Update order status"
-                  value={pendingStatus[selectedOrder.id] ?? selectedOrder.orderStatus}
-                  onChange={(e) =>
-                    setPendingStatus((prev) => ({
-                      ...prev,
-                      [selectedOrder.id]: e.target.value as AdminOrderStatus,
-                    }))
-                  }
-                  className="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-emerald-400"
-                >
-                  {statusOptions.map((s) => (
-                    <option key={s} value={s}>
-                      {orderStatusLabel(s)}
-                    </option>
-                  ))}
-                </select>
-                <button
-                  type="button"
-                  onClick={() => void handleUpdateStatus(selectedOrder.id)}
-                  disabled={
-                    updatingOrderId === selectedOrder.id ||
-                    !pendingStatus[selectedOrder.id] ||
-                    pendingStatus[selectedOrder.id] === selectedOrder.orderStatus
-                  }
-                  className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-40"
-                >
-                  {updatingOrderId === selectedOrder.id ? "Saving…" : "Save"}
-                </button>
+              <div className="flex flex-col gap-3">
+                <div className="flex gap-2">
+                  <select
+                    title="Cập nhật trạng thái đơn hàng"
+                    aria-label="Cập nhật trạng thái đơn hàng"
+                    value={pendingStatus[selectedOrder.id] ?? selectedOrder.orderStatus}
+                    disabled={STATUS_LEVEL[selectedOrder.orderStatus] === 4}
+                    onChange={(e) =>
+                      setPendingStatus((prev) => ({
+                        ...prev,
+                        [selectedOrder.id]: e.target.value as AdminOrderStatus,
+                      }))
+                    }
+                    className="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-emerald-400 disabled:bg-slate-50 disabled:text-slate-400"
+                  >
+                    {getAvailableStatuses(selectedOrder.orderStatus).map((s) => (
+                      <option key={s.value} value={s.value}>
+                        {s.label}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    onClick={() => void handleUpdateStatus(selectedOrder.id)}
+                    disabled={
+                      STATUS_LEVEL[selectedOrder.orderStatus] === 4 ||
+                      updatingOrderId === selectedOrder.id ||
+                      !pendingStatus[selectedOrder.id] ||
+                      pendingStatus[selectedOrder.id] === selectedOrder.orderStatus ||
+                      (pendingStatus[selectedOrder.id] === "shipped" && !selectedPartner[selectedOrder.id])
+                    }
+                    className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-40"
+                  >
+                    {updatingOrderId === selectedOrder.id ? "Đang lưu…" : "Lưu"}
+                  </button>
+                </div>
+                {pendingStatus[selectedOrder.id] === "shipped" && (
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-slate-500">Bưu tá vận chuyển</label>
+                    <select
+                      title="Chọn bưu tá vận chuyển"
+                      aria-label="Chọn bưu tá vận chuyển"
+                      value={selectedPartner[selectedOrder.id] ?? ""}
+                      onChange={(e) =>
+                        setSelectedPartner((prev) => ({
+                          ...prev,
+                          [selectedOrder.id]: e.target.value,
+                        }))
+                      }
+                      className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-emerald-400"
+                    >
+                      <option value="">-- Chọn Bưu Tá --</option>
+                      {deliveryPartners.map((dp) => (
+                        <option key={dp.id} value={dp.id}>
+                          {dp.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </div>
             </div>
           </div>

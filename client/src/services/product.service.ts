@@ -31,6 +31,8 @@ class ProductService extends BaseApiService {
         category: params.category,
         tag: params.tag,
         availability: params.availability,
+        admin: params.admin ? "true" : undefined,
+        includeDiscontinued: params.includeDiscontinued ? "true" : undefined,
       },
     });
 

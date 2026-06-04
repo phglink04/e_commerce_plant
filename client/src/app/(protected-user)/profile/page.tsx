@@ -9,40 +9,40 @@ import Link from "next/link";
 const QUICK_LINKS = [
   {
     href: "/profile/info",
-    label: "Profile Info",
-    desc: "View and edit your personal details",
+    label: "Thông tin cá nhân",
+    desc: "Xem và chỉnh sửa thông tin cá nhân của bạn",
     icon: User,
     color: "#059669",
     bg: "#d1fae5",
   },
   {
     href: "/profile/orders",
-    label: "My Orders",
-    desc: "Track your order history and status",
+    label: "Đơn hàng của tôi",
+    desc: "Theo dõi lịch sử và trạng thái đơn hàng",
     icon: Package,
     color: "#2563eb",
     bg: "#dbeafe",
   },
   {
     href: "/profile/addresses",
-    label: "Addresses",
-    desc: "Manage your delivery addresses",
+    label: "Sổ địa chỉ",
+    desc: "Quản lý địa chỉ nhận hàng của bạn",
     icon: MapPin,
     color: "#d97706",
     bg: "#fef3c7",
   },
   {
     href: "/profile/reviews",
-    label: "My Reviews",
-    desc: "View and manage your product reviews",
+    label: "Đánh giá của tôi",
+    desc: "Xem và quản lý các đánh giá sản phẩm của bạn",
     icon: Star,
     color: "#7c3aed",
     bg: "#ede9fe",
   },
   {
     href: "/profile/security",
-    label: "Security",
-    desc: "Password, 2FA, and login settings",
+    label: "Bảo mật tài khoản",
+    desc: "Mật khẩu, xác thực 2 lớp và cài đặt đăng nhập",
     icon: Shield,
     color: "#dc2626",
     bg: "#fee2e2",
@@ -56,10 +56,10 @@ export default function ProfileOverviewPage() {
     <>
       <header className="pf-main__header">
         <h1 className="pf-main__title" id="profile-page-title">
-          Welcome back, {user?.name?.split(" ")[0] || "User"}
+          Chào mừng trở lại, {user?.name || "Khách hàng"}
         </h1>
         <p className="pf-main__subtitle">
-          Manage your account settings and preferences
+          Quản lý các cài đặt tài khoản và tùy chọn cá nhân của bạn
         </p>
       </header>
 

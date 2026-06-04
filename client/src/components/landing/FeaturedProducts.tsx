@@ -52,7 +52,6 @@ export default function FeaturedProducts({
   gridConfig,
 }: FeaturedProductsProps) {
   const { token } = useAuthStore();
-  const { incrementCart } = useHomeUiStore();
 
   const columns = gridConfig?.columns ?? 4;
   const rows = gridConfig?.rows ?? 2;
@@ -114,14 +113,24 @@ export default function FeaturedProducts({
   }, [products, selectedCategory]);
 
   const handleAddToCart = async (product: PlantProduct) => {
-    incrementCart(1);
-    if (!token) return;
+    if (!token) {
+      if (typeof window !== "undefined") {
+        window.location.href = "/auth/login";
+      }
+      return;
+    }
     try {
-      await api.post(
+      const response = await api.post(
         "/api/users/addtocart",
         { plantId: product._id, quantity: 1, price: product.price },
         { headers: { Authorization: `Bearer ${token}` } },
       );
+      // Update cart count immediately from response instead of making another API call
+      const cart = response.data?.data?.cart ?? [];
+      if (cart && Array.isArray(cart)) {
+        const state = useHomeUiStore.getState();
+        state.setCartCount(cart.length);
+      }
     } catch {
       // Keep UX responsive even if backend cart sync fails.
     }

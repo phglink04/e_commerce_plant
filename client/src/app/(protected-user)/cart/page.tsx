@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/lib/api";
 import { useAuthStore } from "@/store/auth-store";
+import { useHomeUiStore } from "@/store/home-ui-store";
 import AddressModal from "@/components/cart-checkout/AddressModal";
 import AddressSelector from "@/components/cart-checkout/AddressSelector";
 import CartItem from "@/components/cart-checkout/CartItem";
@@ -49,6 +50,7 @@ const getApiErrorMessage = (error: unknown, fallback: string): string => {
 export default function CartPage() {
   const router = useRouter();
   const { token } = useAuthStore();
+  const { decrementCart, syncCartCount } = useHomeUiStore();
   const [items, setItems] = useState<CartItemType[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [plantsMap, setPlantsMap] = useState<Record<string, Plant>>({});
@@ -150,7 +152,7 @@ export default function CartPage() {
         api.get("/api/users/cart", {
           headers: { Authorization: `Bearer ${token}` },
         }),
-        api.get("/api/plants?limit=200&page=1"),
+        api.get("/api/plants?limit=200&page=1&includeDiscontinued=true"),
       ]);
 
       const cartItems = (cartRes.data?.data?.cart ?? []) as CartItemType[];
@@ -197,21 +199,28 @@ export default function CartPage() {
       setPlantsMap(nextMap);
       setItems(syncedItems);
       setSelectedIds((previous) => {
+        const activeCartItemIds = syncedItems
+          .filter((item) => {
+            const plant = nextMap[item.plantId];
+            return plant && plant.stock !== undefined && plant.stock > 0;
+          })
+          .map((item) => item.plantId);
+
         if (!selectionInitializedRef.current) {
           selectionInitializedRef.current = true;
           const stored = parseStoredSelection();
           if (stored !== null) {
-            const validStored = stored.filter((id) => cartItemIds.includes(id));
+            const validStored = stored.filter((id) => activeCartItemIds.includes(id));
             return validStored;
           }
-          return cartItemIds;
+          return activeCartItemIds;
         }
 
-        const validPrevious = previous.filter((id) => cartItemIds.includes(id));
+        const validPrevious = previous.filter((id) => activeCartItemIds.includes(id));
         if (validPrevious.length > 0) {
           return validPrevious;
         }
-        return cartItemIds;
+        return activeCartItemIds;
       });
     } catch (loadError) {
       setError(getApiErrorMessage(loadError, "Unable to load cart."));
@@ -279,6 +288,15 @@ export default function CartPage() {
     [items, selectedIds],
   );
 
+  const activeCartIds = useMemo(() => {
+    return items
+      .filter((item) => {
+        const plant = plantsMap[item.plantId];
+        return plant && plant.stock !== undefined && plant.stock > 0;
+      })
+      .map((item) => item.plantId);
+  }, [items, plantsMap]);
+
   const subtotal = useMemo(
     () =>
       selectedItems.reduce((sum, item) => sum + item.price * item.quantity, 0),
@@ -325,7 +343,7 @@ export default function CartPage() {
 
   const toggleSelectAll = () => {
     setSelectedIds((previous) =>
-      previous.length === items.length ? [] : items.map((item) => item.plantId),
+      previous.length === activeCartIds.length ? [] : activeCartIds
     );
   };
 
@@ -354,6 +372,7 @@ export default function CartPage() {
         await api.delete(`/api/users/deleteitem/${plantId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+        decrementCart(1);
       } else {
         const response = await api.patch(
           "/api/users/updatecart",
@@ -375,6 +394,40 @@ export default function CartPage() {
     }
   };
 
+  const changeQtyAbsolute = async (plantId: string, targetQty: number) => {
+    if (!token) return;
+
+    const maxStock = plantsMap[plantId]?.stock ?? 0;
+    let nextQty = targetQty;
+    if (nextQty <= 0) {
+      nextQty = 1;
+    } else if (nextQty > maxStock) {
+      nextQty = maxStock;
+    }
+
+    try {
+      setUpdatingId(plantId);
+      setError("");
+      setSuccess("");
+
+      const response = await api.patch(
+        "/api/users/updatecart",
+        { plantId, quantity: nextQty },
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+      
+      if (response.data?.data?.stockWarning) {
+        setSuccess(response.data.data.stockWarning);
+      }
+
+      await loadCart();
+    } catch (updateError) {
+      setError(getApiErrorMessage(updateError, "Unable to update cart."));
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
   const removeItem = async (plantId: string) => {
     if (!token) return;
 
@@ -383,6 +436,7 @@ export default function CartPage() {
       await api.delete(`/api/users/deleteitem/${plantId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      decrementCart(1);
       await loadCart();
     } catch (removeError) {
       setError(getApiErrorMessage(removeError, "Unable to remove item."));
@@ -392,6 +446,10 @@ export default function CartPage() {
   };
 
   const toggleSelect = (plantId: string) => {
+    const plant = plantsMap[plantId];
+    if (plant && (plant.stock === undefined || plant.stock <= 0)) {
+      return; // Prevent selection of out-of-stock items
+    }
     setSelectedIds((prev) =>
       prev.includes(plantId)
         ? prev.filter((id) => id !== plantId)
@@ -497,13 +555,11 @@ export default function CartPage() {
       return;
     }
 
-    await Promise.all(
-      plantIds.map((plantId) =>
-        api.delete(`/api/users/deleteitem/${plantId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-      ),
-    );
+    for (const plantId of plantIds) {
+      await api.delete(`/api/users/deleteitem/${plantId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    }
   };
 
   const createOrder = async (): Promise<string> => {
@@ -649,6 +705,7 @@ export default function CartPage() {
       if (paymentMethod === "cash" || actualPayable <= 0) {
         await clearSelectedItemsFromCart(selectedPlantIds);
         await loadCart();
+        void syncCartCount(token);
         router.push(`/checkout/success?orderId=${orderId}`);
         return;
       }
@@ -739,7 +796,7 @@ export default function CartPage() {
                   <input
                     type="checkbox"
                     checked={
-                      items.length > 0 && selectedIds.length === items.length
+                      activeCartIds.length > 0 && selectedIds.length === activeCartIds.length
                     }
                     onChange={toggleSelectAll}
                     className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
@@ -775,6 +832,9 @@ export default function CartPage() {
                       }}
                       onRemove={(id) => {
                         void removeItem(id);
+                      }}
+                      onChangeQty={(id, qty) => {
+                        void changeQtyAbsolute(id, qty);
                       }}
                     />
                   ))}

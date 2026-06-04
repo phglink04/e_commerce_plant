@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image, { type ImageLoaderProps } from "next/image";
+import { useAuthStore } from "@/store/auth-store";
 import type { Review } from "@/types/review";
 
 const passthroughLoader = ({ src }: ImageLoaderProps) => src;
@@ -27,6 +28,8 @@ function timeAgo(dateStr: string) {
 }
 
 export default function ReviewCard({ review, currentUserId, onLike, onReply, isLoggedIn }: Props) {
+  const { user } = useAuthStore();
+  const isAdmin = user?.role === "admin" || user?.role === "owner";
   const [showReplies, setShowReplies] = useState(false);
   const [replyText, setReplyText] = useState("");
   const [showReplyForm, setShowReplyForm] = useState(false);
@@ -82,14 +85,7 @@ export default function ReviewCard({ review, currentUserId, onLike, onReply, isL
       )}
 
       <div className="review-card__actions">
-        <button
-          className={`review-card__like-btn ${isLiked ? "review-card__like-btn--active" : ""}`}
-          onClick={() => isLoggedIn && onLike(review.id)}
-          disabled={!isLoggedIn}
-        >
-          {isLiked ? "❤️" : "🤍"} {review.likes > 0 && review.likes}
-        </button>
-        {isLoggedIn && (
+        {isLoggedIn && isAdmin && (
           <button className="review-card__reply-btn" onClick={() => setShowReplyForm(!showReplyForm)}>
             💬 Trả lời
           </button>

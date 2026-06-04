@@ -86,6 +86,15 @@ export class Order {
 
   @Prop({ type: String, default: null })
   transactionCode?: string;
+
+  @Prop({ type: String, default: null })
+  deliveryPartnerId?: string;
+
+  @Prop({ type: String, default: null })
+  deliveryPartnerName?: string;
+
+  @Prop({ type: String, default: null })
+  returnReason?: string;
 }
 
 export type OrderDocument = HydratedDocument<Order>;

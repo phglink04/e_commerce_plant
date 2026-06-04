@@ -74,7 +74,6 @@ type GridConfig = {
 
 export default function SaleProducts({ gridConfig }: { gridConfig?: GridConfig }) {
   const { token } = useAuthStore();
-  const { incrementCart } = useHomeUiStore();
 
   const columns = gridConfig?.columns ?? 4;
   const rows = gridConfig?.rows ?? 1;
@@ -139,20 +138,29 @@ export default function SaleProducts({ gridConfig }: { gridConfig?: GridConfig }
 
   const handleAddToCart = useCallback(
     async (product: SaleProduct) => {
-      incrementCart(1);
-      if (!token) return;
+      if (!token) {
+        if (typeof window !== "undefined") {
+          window.location.href = "/auth/login";
+        }
+        return;
+      }
       try {
         const salePrice = calcDiscountedPrice(product.price, product.discountPercentage);
-        await api.post(
+        const response = await api.post(
           "/api/users/addtocart",
           { plantId: product._id, quantity: 1, price: salePrice },
           { headers: { Authorization: `Bearer ${token}` } },
         );
+        // Update cart count immediately from response
+        const cart = response.data?.data?.cart ?? [];
+        if (cart && Array.isArray(cart)) {
+          useHomeUiStore.getState().setCartCount(cart.length);
+        }
       } catch {
         /* keep UX responsive */
       }
     },
-    [token, incrementCart],
+    [token],
   );
 
   const getProductUrl = (product: SaleProduct) => {

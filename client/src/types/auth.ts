@@ -14,6 +14,7 @@ export type LoginPayload = {
   email: string;
   password: string;
   captchaToken?: string;
+  targetRole?: string;
 };
 
 export type RegisterPayload = {

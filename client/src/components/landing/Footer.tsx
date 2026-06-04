@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Globe, Leaf, Sprout, Mail, MapPin, Phone } from "lucide-react";
 import api from "@/lib/api";
 
@@ -12,18 +13,16 @@ type FooterInfo = {
   facebookLink: string;
 };
 
+type ApiCategory = {
+  id: string;
+  name: string;
+  slug: string;
+};
+
 const quickLinks = [
   { href: "/", label: "Trang chủ" },
   { href: "/shop", label: "Cửa hàng" },
   { href: "/blog", label: "Blog" },
-];
-
-const categories = [
-  "Cây nội thất",
-  "Cây ngoại thất",
-  "Bonsai",
-  "Sen đá",
-  "Cây lọc không khí",
 ];
 
 const defaultFooter: FooterInfo = {
@@ -34,7 +33,9 @@ const defaultFooter: FooterInfo = {
 };
 
 export default function Footer() {
+  const router = useRouter();
   const [footerInfo, setFooterInfo] = useState<FooterInfo>(defaultFooter);
+  const [categories, setCategories] = useState<ApiCategory[]>([]);
 
   useEffect(() => {
     const fetchFooter = async () => {
@@ -56,6 +57,24 @@ export default function Footer() {
 
     void fetchFooter();
   }, []);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await api.get("/api/categories?limit=50");
+        const cats = (response.data?.data?.categories ?? []) as ApiCategory[];
+        setCategories(cats);
+      } catch {
+        setCategories([]);
+      }
+    };
+
+    void fetchCategories();
+  }, []);
+
+  const handleCategoryClick = (categoryName: string) => {
+    router.push(`/shop?category=${encodeURIComponent(categoryName)}`);
+  };
 
   return (
     <footer className="border-t border-emerald-100 bg-slate-950 text-slate-100">
@@ -112,7 +131,15 @@ export default function Footer() {
           </h4>
           <ul className="mt-4 space-y-2 text-sm text-slate-300">
             {categories.map((item) => (
-              <li key={item}>{item}</li>
+              <li key={item.id}>
+                <button
+                  type="button"
+                  onClick={() => handleCategoryClick(item.name)}
+                  className="transition hover:text-emerald-400"
+                >
+                  {item.name}
+                </button>
+              </li>
             ))}
           </ul>
         </section>

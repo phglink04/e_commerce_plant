@@ -10,8 +10,11 @@ import { Discount } from "./schemas/discount.schema";
 import { CreateDiscountDto } from "./dto/create-discount.dto";
 import { UpdateDiscountDto } from "./dto/update-discount.dto";
 import { ApplyDiscountDto } from "./dto/apply-discount.dto";
+import { Order } from "../orders/schemas/order.schema";
 
-const toIsoString = (value: unknown): string => {
+const toIsoString = (value: unknown): string | null => {
+  if (value === null || value === undefined) return null;
+
   if (value instanceof Date) {
     return Number.isNaN(value.getTime())
       ? new Date().toISOString()
@@ -42,6 +45,8 @@ export class DiscountsService {
   constructor(
     @InjectModel(Discount.name)
     private readonly discountModel: Model<Discount>,
+    @InjectModel(Order.name)
+    private readonly orderModel: Model<Order>,
   ) {}
 
   /**
@@ -49,19 +54,34 @@ export class DiscountsService {
    * The final code is auto-generated: SANITISE(name) + percentage.
    */
   async create(dto: CreateDiscountDto) {
-    // Validate dates
-    const start = new Date(dto.startDate);
-    const end = new Date(dto.endDate);
-    const now = new Date();
+    const hasStartDate = dto.startDate !== null && dto.startDate !== undefined;
+    const hasEndDate = dto.endDate !== null && dto.endDate !== undefined;
 
-    if (end <= start) {
+    let start: Date | null = null;
+    let end: Date | null = null;
+
+    if (hasStartDate) {
+      start = new Date(dto.startDate!);
+    }
+    if (hasEndDate) {
+      end = new Date(dto.endDate!);
+    }
+
+    // If both dates are provided, validate
+    const now = new Date();
+    if (start && start < now) {
       throw new BadRequestException(
-        "Ngày kết thúc phải lớn hơn ngày bắt đầu",
+        "Ngày bắt đầu không được nhỏ hơn thời gian hiện tại",
       );
     }
-    if (end <= now) {
+    if (end && end < now) {
       throw new BadRequestException(
-        "Không thể tạo mã đã hết hạn",
+        "Ngày kết thúc không được nhỏ hơn thời gian hiện tại",
+      );
+    }
+    if (start && end && end <= start) {
+      throw new BadRequestException(
+        "Ngày kết thúc phải lớn hơn ngày bắt đầu",
       );
     }
 
@@ -84,7 +104,8 @@ export class DiscountsService {
       percentage: dto.percentage,
       minOrderValue: dto.minOrderValue,
       maxDiscount: dto.maxDiscount ?? undefined,
-      usageLimit: dto.usageLimit,
+      usageLimit: dto.usageLimit ?? null,
+      usageLimitPerUser: dto.usageLimitPerUser ?? null,
       usedCount: 0,
       startDate: start,
       endDate: end,
@@ -153,14 +174,35 @@ export class DiscountsService {
    */
   async getVisible() {
     const now = new Date();
+    const filter: Record<string, unknown> = {
+      isActive: true,
+      isVisible: true,
+    };
+
+    // Date conditions: either null (unlimited) or within range
+    filter.$and = [
+      {
+        $or: [
+          { startDate: null },
+          { startDate: { $lte: now } },
+        ],
+      },
+      {
+        $or: [
+          { endDate: null },
+          { endDate: { $gte: now } },
+        ],
+      },
+      {
+        $or: [
+          { usageLimit: null },
+          { $expr: { $lt: ["$usedCount", "$usageLimit"] } },
+        ],
+      },
+    ];
+
     const discounts = await this.discountModel
-      .find({
-        isActive: true,
-        isVisible: true,
-        startDate: { $lte: now },
-        endDate: { $gte: now },
-        $expr: { $lt: ["$usedCount", "$usageLimit"] },
-      })
+      .find(filter)
       .sort({ createdAt: -1 })
       .lean();
 
@@ -192,19 +234,50 @@ export class DiscountsService {
       throw new NotFoundException("Discount not found");
     }
 
-    // Validate dates if provided
-    const startDate = dto.startDate
-      ? new Date(dto.startDate)
-      : existing.startDate;
-    const endDate = dto.endDate ? new Date(dto.endDate) : existing.endDate;
+    // Validate dates if both are provided or mixed with existing
+    const hasNewStart = dto.startDate !== undefined;
+    const hasNewEnd = dto.endDate !== undefined;
 
-    if (endDate <= startDate) {
+    const startDate = hasNewStart
+      ? (dto.startDate ? new Date(dto.startDate) : null)
+      : existing.startDate ?? null;
+    const endDate = hasNewEnd
+      ? (dto.endDate ? new Date(dto.endDate) : null)
+      : existing.endDate ?? null;
+
+    if (startDate && endDate && endDate <= startDate) {
       throw new BadRequestException(
         "Ngày kết thúc phải lớn hơn ngày bắt đầu",
       );
     }
 
+    const now = new Date();
+    if (startDate && startDate < now) {
+      throw new BadRequestException(
+        "Ngày bắt đầu không được nhỏ hơn thời gian hiện tại",
+      );
+    }
+    if (endDate && endDate < now) {
+      throw new BadRequestException(
+        "Ngày kết thúc không được nhỏ hơn thời gian hiện tại",
+      );
+    }
+
     const updateData: Record<string, unknown> = { ...dto };
+
+    // Handle nullable fields explicitly
+    if (hasNewStart) {
+      updateData.startDate = startDate;
+    }
+    if (hasNewEnd) {
+      updateData.endDate = endDate;
+    }
+    if (dto.usageLimit !== undefined) {
+      updateData.usageLimit = dto.usageLimit;
+    }
+    if (dto.usageLimitPerUser !== undefined) {
+      updateData.usageLimitPerUser = dto.usageLimitPerUser;
+    }
 
     // Re-generate code if name or percentage changed
     const newName = dto.name ?? existing.name;
@@ -261,7 +334,7 @@ export class DiscountsService {
    * Apply a discount code (user-facing).
    * Validates all conditions and returns the calculated discount.
    */
-  async apply(dto: ApplyDiscountDto) {
+  async apply(dto: ApplyDiscountDto, userId: string) {
     const codeUpper = dto.code.trim().toUpperCase();
     const { cartTotal } = dto;
 
@@ -276,18 +349,39 @@ export class DiscountsService {
       throw new BadRequestException("Mã giảm giá đã bị vô hiệu hóa");
     }
 
-    // Check date range
+    // Check date range (only if dates are set)
     const now = new Date();
-    if (now < new Date(discount.startDate)) {
+    if (discount.startDate && now < new Date(discount.startDate)) {
       throw new BadRequestException("Mã giảm giá chưa có hiệu lực");
     }
-    if (now > new Date(discount.endDate)) {
+    if (discount.endDate && now > new Date(discount.endDate)) {
       throw new BadRequestException("Mã giảm giá đã hết hạn");
     }
 
-    // Check usage limit
-    if (discount.usedCount >= discount.usageLimit) {
+    // Check total usage limit (only if limit is set)
+    if (
+      discount.usageLimit !== null &&
+      discount.usageLimit !== undefined &&
+      discount.usedCount >= discount.usageLimit
+    ) {
       throw new BadRequestException("Mã giảm giá đã hết lượt sử dụng");
+    }
+
+    // Check per-user usage limit
+    if (
+      discount.usageLimitPerUser !== null &&
+      discount.usageLimitPerUser !== undefined &&
+      userId
+    ) {
+      const userUsageCount = await this.orderModel.countDocuments({
+        userId,
+        "discount.code": codeUpper,
+      });
+      if (userUsageCount >= discount.usageLimitPerUser) {
+        throw new BadRequestException(
+          `Bạn đã sử dụng mã này ${userUsageCount} lần (tối đa ${discount.usageLimitPerUser} lần)`,
+        );
+      }
     }
 
     // Check minimum order value
@@ -342,14 +436,15 @@ export class DiscountsService {
       percentage: discount.percentage ?? discount.value ?? 0,
       minOrderValue: discount.minOrderValue,
       maxDiscount: discount.maxDiscount ?? null,
-      usageLimit: discount.usageLimit,
+      usageLimit: discount.usageLimit ?? null,
+      usageLimitPerUser: discount.usageLimitPerUser ?? null,
       usedCount: discount.usedCount,
       startDate: toIsoString(discount.startDate),
       endDate: toIsoString(discount.endDate),
       isActive: discount.isActive,
       isVisible: discount.isVisible ?? true,
-      createdAt: toIsoString(discount.createdAt),
-      updatedAt: toIsoString(discount.updatedAt),
+      createdAt: toIsoString(discount.createdAt) ?? new Date().toISOString(),
+      updatedAt: toIsoString(discount.updatedAt) ?? new Date().toISOString(),
     };
   }
 }

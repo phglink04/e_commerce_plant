@@ -34,7 +34,7 @@ export class CreateReviewDto {
 
   @IsOptional()
   @IsArray()
-  @ArrayMaxSize(5, { message: "Maximum 5 images allowed" })
+  @ArrayMaxSize(3, { message: "Maximum 3 images allowed" })
   @IsString({ each: true })
   images?: string[];
 }

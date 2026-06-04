@@ -12,7 +12,7 @@ export interface Product {
   price: number;
   costPrice?: number;
   salePrice?: number;
-  availability: "In Stock" | "Out Of Stock" | "Up Coming";
+  availability: "In Stock" | "Out Of Stock" | "Up Coming" | "Discontinued";
   tag?: string;
   tags: string[];
   description?: string;
@@ -20,6 +20,7 @@ export interface Product {
   isFeatured?: boolean;
   isFlashSale?: boolean;
   discountPercentage?: number;
+  sold?: number;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -31,7 +32,7 @@ export interface CreateProductPayload {
   category: string;
   price: number;
   costPrice?: number;
-  availability: "In Stock" | "Out Of Stock" | "Up Coming";
+  availability: "In Stock" | "Out Of Stock" | "Up Coming" | "Discontinued";
   tags?: string[];
   description?: string;
   stock?: number;

@@ -8,11 +8,13 @@ import AdminModal from "@/components/admin/ui/admin-modal";
 import AdminToast from "@/components/admin/ui/admin-toast";
 import ConfirmDialog from "@/components/admin/ui/confirm-dialog";
 import AdminProductForm from "@/components/admin/AdminProductForm";
+import StatusTabs from "@/components/admin/ui/status-tabs";
 import { productService } from "@/services";
 import { Product } from "@/types/product";
 
 export default function AdminPlantsPage() {
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
@@ -26,6 +28,8 @@ export default function AdminPlantsPage() {
   const { products, loading, pagination, goToPage, refetch } = useProducts({
     search,
     limit: 12,
+    admin: true,
+    availability: statusFilter === "all" ? undefined : statusFilter,
   });
 
   // Open create form
@@ -52,14 +56,14 @@ export default function AdminPlantsPage() {
     try {
       setDeleting(true);
       await productService.deleteProduct(deleteTarget._id);
-      setToast({ type: "success", message: "Product deleted successfully" });
+      setToast({ type: "success", message: "Đã ngừng kinh doanh sản phẩm thành công" });
       setDeleteTarget(null);
       refetch();
     } catch (err) {
       setToast({
         type: "error",
         message:
-          err instanceof Error ? err.message : "Đã xáy ra lỗi khi xóa sản phẩm",
+          err instanceof Error ? err.message : "Đã xảy ra lỗi khi thực hiện",
       });
     } finally {
       setDeleting(false);
@@ -71,8 +75,8 @@ export default function AdminPlantsPage() {
     setToast({
       type: "success",
       message: editingProduct
-        ? "Product updated successfully"
-        : "Product created successfully",
+        ? "Sản phẩm đã được cập nhật thành công"
+        : "Sản phẩm đã được tạo thành công",
     });
     refetch();
   };
@@ -83,10 +87,10 @@ export default function AdminPlantsPage() {
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-2xl font-bold tracking-tight text-slate-900">
-            Products
+            Sản phẩm
           </h2>
           <p className="mt-0.5 text-sm text-slate-500">
-            {pagination?.totalResults?.toLocaleString() || 0} total products
+            {pagination?.totalResults?.toLocaleString() || 0} tổng sản phẩm
           </p>
         </div>
         <button
@@ -94,16 +98,42 @@ export default function AdminPlantsPage() {
           className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-emerald-200 transition hover:from-emerald-700 hover:to-emerald-600"
         >
           <Plus size={16} />
-          Add Product
+          Thêm sản phẩm
         </button>
       </header>
 
-      {/* Search Bar */}
-      <SearchBar
-        onSearch={setSearch}
-        placeholder="Tìm kiếm sản phẩm…"
-        debounceDelay={500}
+      {/* Status Tabs */}
+      <StatusTabs
+        tabs={[
+          { value: "all", label: "Tất cả", count: statusFilter === "all" ? pagination?.totalResults : undefined },
+          { value: "In Stock", label: "Còn hàng", count: statusFilter === "In Stock" ? pagination?.totalResults : undefined },
+          { value: "Out Of Stock", label: "Hết hàng", count: statusFilter === "Out Of Stock" ? pagination?.totalResults : undefined },
+          { value: "Up Coming", label: "Sắp về", count: statusFilter === "Up Coming" ? pagination?.totalResults : undefined },
+          { value: "Discontinued", label: "Ngừng kinh doanh", count: statusFilter === "Discontinued" ? pagination?.totalResults : undefined },
+        ]}
+        value={statusFilter}
+        onChange={(val) => {
+          setStatusFilter(val);
+          goToPage(1);
+        }}
       />
+
+      {/* Search Bar */}
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="flex-1">
+          <SearchBar
+            onSearch={setSearch}
+            placeholder="Tìm kiếm sản phẩm…"
+            debounceDelay={500}
+          />
+        </div>
+        {loading && (
+          <span className="inline-flex items-center gap-1.5 text-xs text-slate-400">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
+            Đang tải…
+          </span>
+        )}
+      </div>
 
       {/* Products Table */}
       {!loading && products.length > 0 ? (
@@ -112,7 +142,7 @@ export default function AdminPlantsPage() {
             <thead className="border-b border-slate-200 bg-slate-50">
               <tr className="text-xs font-semibold uppercase tracking-wider text-slate-500">
                 <th className="px-4 py-3 text-left">Sản phẩm</th>
-                <th className="px-4 py-3 text-left">Danh mục</th>
+                <th className="px-4 py-3 text-center">Đã bán</th>
                 <th className="px-4 py-3 text-right">Giá nhập</th>
                 <th className="px-4 py-3 text-right">Giá bán</th>
                 <th className="px-4 py-3 text-center">Giảm giá</th>
@@ -142,10 +172,10 @@ export default function AdminPlantsPage() {
                       <span className="text-sm font-semibold text-slate-800 line-clamp-1">{product.name}</span>
                     </div>
                   </td>
-                  {/* Category */}
-                  <td className="px-4 py-3">
-                    <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
-                      {product.category}
+                  {/* Sold */}
+                  <td className="px-4 py-3 text-center">
+                    <span className="text-sm font-semibold tabular-nums text-slate-600">
+                      {product.sold ?? 0}
                     </span>
                   </td>
                   {/* Cost Price */}
@@ -187,17 +217,27 @@ export default function AdminPlantsPage() {
                       product.availability === "In Stock"
                         ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
                         : product.availability === "Out Of Stock"
-                        ? "bg-red-50 text-red-600 ring-1 ring-red-200"
+                        ? "bg-rose-50 text-rose-600 ring-1 ring-rose-200"
+                        : product.availability === "Discontinued"
+                        ? "bg-slate-100 text-slate-600 ring-1 ring-slate-200"
                         : "bg-blue-50 text-blue-600 ring-1 ring-blue-200"
                     }`}>
                       <span className={`h-1.5 w-1.5 rounded-full ${
                         product.availability === "In Stock"
                           ? "bg-emerald-500"
                           : product.availability === "Out Of Stock"
-                          ? "bg-red-500"
+                          ? "bg-rose-500"
+                          : product.availability === "Discontinued"
+                          ? "bg-slate-400"
                           : "bg-blue-500"
                       }`} />
-                      {product.availability === "In Stock" ? "Còn hàng" : product.availability === "Out Of Stock" ? "Hết hàng" : "Sắp về"}
+                      {product.availability === "In Stock"
+                        ? "Còn hàng"
+                        : product.availability === "Out Of Stock"
+                        ? "Hết hàng"
+                        : product.availability === "Discontinued"
+                        ? "Ngừng kinh doanh"
+                        : "Sắp về"}
                     </span>
                   </td>
                   {/* Featured & Flash Sale */}
@@ -227,13 +267,6 @@ export default function AdminPlantsPage() {
                         title="Chỉnh sửa"
                       >
                         <Pencil size={15} />
-                      </button>
-                      <button
-                        onClick={() => setDeleteTarget(product)}
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-red-500 transition hover:bg-red-50"
-                        title="Xóa"
-                      >
-                        <Trash2 size={15} />
                       </button>
                     </div>
                   </td>
@@ -280,9 +313,9 @@ export default function AdminPlantsPage() {
       {/* Delete Confirmation */}
       {deleteTarget && (
         <ConfirmDialog
-          title="Xóa sản phẩm"
-          description={`Bạn có chắc chắn muốn xóa "${deleteTarget.name}"? Hành động này không thể được hoàn tác.`}
-          confirmLabel="Xóa"
+          title="Ngừng kinh doanh sản phẩm"
+          description={`Bạn có chắc chắn muốn chuyển trạng thái của "${deleteTarget.name}" sang ngừng kinh doanh? Giao diện người dùng sẽ ẩn sản phẩm này.`}
+          confirmLabel="Ngừng kinh doanh"
           cancelLabel="Hủy"
           open={!!deleteTarget}
           loading={deleting}

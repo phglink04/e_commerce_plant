@@ -7,10 +7,10 @@ export default function ProfileAddressesPage() {
     <>
       <header className="pf-main__header">
         <h1 className="pf-main__title" id="profile-page-title">
-          Addresses
+          Sổ địa chỉ
         </h1>
         <p className="pf-main__subtitle">
-          Manage your delivery addresses
+          Quản lý các địa chỉ nhận hàng của bạn
         </p>
       </header>
       <div className="pf-main__content">

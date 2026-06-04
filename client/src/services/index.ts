@@ -15,5 +15,5 @@ export { orderService } from "./order.service";
 export { reviewService } from "./review.service";
 export { profileService } from "./profile.service";
 export { addressService } from "./address.service";
-export * from "./chat.service";
-export { chatService } from "./chat.service";
+export * from "./chatbot.service";
+export { chatbotService } from "./chatbot.service";

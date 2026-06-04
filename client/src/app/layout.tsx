@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Montserrat, Lexend, Be_Vietnam_Pro } from "next/font/google";
 import "./globals.css";
-import "./chat.css";
 import AppLayout from "@/components/layouts/app-layout";
 
 const beVietnamPro = Be_Vietnam_Pro({

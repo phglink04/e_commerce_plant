@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { reviewService } from "@/services/review.service";
 import { useAuthStore } from "@/store/auth-store";
 import type { Review, RatingSummary, CanReviewResponse } from "@/types/review";
 import RatingSummaryHeader from "./RatingSummaryHeader";
 import ReviewFilters from "./ReviewFilters";
 import ReviewCard from "./ReviewCard";
-import ReviewForm from "./ReviewForm";
 import ReviewSkeleton from "./ReviewSkeleton";
 
 interface Props {
@@ -15,6 +15,7 @@ interface Props {
 }
 
 export default function ReviewSection({ productId }: Props) {
+  const router = useRouter();
   const { user, token } = useAuthStore();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [summary, setSummary] = useState<RatingSummary | null>(null);
@@ -23,7 +24,6 @@ export default function ReviewSection({ productId }: Props) {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalResults, setTotalResults] = useState(0);
-  const [showForm, setShowForm] = useState(false);
 
   // Filters
   const [filterRating, setFilterRating] = useState<number | undefined>();
@@ -82,7 +82,6 @@ export default function ReviewSection({ productId }: Props) {
   }, [fetchReviews]);
 
   const handleReviewSubmitted = () => {
-    setShowForm(false);
     setPage(1);
     fetchReviews();
     fetchSummary();
@@ -128,17 +127,8 @@ export default function ReviewSection({ productId }: Props) {
         <RatingSummaryHeader
           summary={summary}
           canReview={canReviewData?.canReview || false}
-          onWriteReview={() => setShowForm(true)}
+          onWriteReview={() => router.push("/profile/reviews")}
           isLoggedIn={!!token}
-        />
-      )}
-
-      {showForm && canReviewData?.canReview && canReviewData.orderId && (
-        <ReviewForm
-          productId={productId}
-          orderId={canReviewData.orderId}
-          onSubmitted={handleReviewSubmitted}
-          onCancel={() => setShowForm(false)}
         />
       )}
 

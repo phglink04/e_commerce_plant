@@ -54,4 +54,72 @@ export class DashboardController {
       message: "Recent orders fetched successfully",
     };
   }
+
+  @Get("low-stock")
+  async getLowStockProducts(@Query("limit") limit: number = 10) {
+    const data = await this.dashboardService.getLowStockProducts(limit);
+    return {
+      data,
+      message: "Low stock products fetched successfully",
+    };
+  }
+
+  // ─── Analytics Endpoints (with date range filtering) ───────────
+
+  @Get("analytics/stats")
+  async getAnalyticsStats(
+    @Query("start") start: string,
+    @Query("end") end: string,
+  ) {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    const data = await this.dashboardService.getAnalyticsStats(startDate, endDate);
+    return { data, message: "Analytics stats fetched successfully" };
+  }
+
+  @Get("analytics/order-status")
+  async getAnalyticsOrderStatus(
+    @Query("start") start: string,
+    @Query("end") end: string,
+  ) {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    const data = await this.dashboardService.getAnalyticsOrderStatus(startDate, endDate);
+    return { data, message: "Analytics order status fetched successfully" };
+  }
+
+  @Get("analytics/top-products")
+  async getAnalyticsTopProducts(
+    @Query("start") start: string,
+    @Query("end") end: string,
+    @Query("limit") limit: number = 10,
+  ) {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    const data = await this.dashboardService.getAnalyticsTopProducts(startDate, endDate, limit);
+    return { data, message: "Analytics top products fetched successfully" };
+  }
+
+  @Get("analytics/review-stats")
+  async getReviewStats(
+    @Query("start") start: string,
+    @Query("end") end: string,
+  ) {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    const data = await this.dashboardService.getReviewStats(startDate, endDate);
+    return { data, message: "Review stats fetched successfully" };
+  }
+
+  @Get("analytics/recent-customers")
+  async getRecentCustomers(
+    @Query("start") start: string,
+    @Query("end") end: string,
+    @Query("limit") limit: number = 5,
+  ) {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    const data = await this.dashboardService.getRecentCustomers(startDate, endDate, limit);
+    return { data, message: "Recent customers fetched successfully" };
+  }
 }

@@ -39,6 +39,15 @@ export default function LoginForm() {
   };
 
   useEffect(() => {
+    if (success || error) {
+      const timer = setTimeout(() => {
+        clearMessages();
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [success, error, clearMessages]);
+
+  useEffect(() => {
     if (!googleClientId) {
       return;
     }
@@ -121,7 +130,7 @@ export default function LoginForm() {
       return;
     }
 
-    const result = await login({ email, password, captchaToken });
+    const result = await login({ email, password, captchaToken, targetRole: "user" });
     if (result === "ok") {
       const role = normalizeRole(useAuthStore.getState().user?.role);
       router.push(getRoleHomePath(role));

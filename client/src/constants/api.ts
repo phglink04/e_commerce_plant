@@ -99,11 +99,13 @@ export const API_ENDPOINTS = {
     create: "/api/reviews",
     summary: "/api/reviews/summary",
     canReview: "/api/reviews/can-review",
+    pending: "/api/reviews/pending",
     like: (id: string) => `/api/reviews/${id}/like`,
     reply: (id: string) => `/api/reviews/${id}/reply`,
     myReviews: "/api/reviews/my-reviews",
     update: (id: string) => `/api/reviews/${id}`,
     delete: (id: string) => `/api/reviews/${id}`,
+    uploadImage: "/api/reviews/upload-image",
     // Admin
     adminList: "/api/reviews/admin",
     adminApprove: (id: string) => `/api/reviews/admin/${id}/approve`,

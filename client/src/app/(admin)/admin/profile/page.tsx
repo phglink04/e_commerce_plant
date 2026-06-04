@@ -20,7 +20,7 @@ export default function AdminProfilePage() {
         });
         setProfile(response.data?.data?.user ?? null);
       } catch {
-        setError("Unable to load profile.");
+        setError("Không thể tải trang cá nhân.");
       }
     };
 
@@ -29,12 +29,12 @@ export default function AdminProfilePage() {
 
   return (
     <section>
-      <h1>Admin Profile</h1>
+      <h1>Trang cá nhân Quản trị</h1>
       {error ? <p className="error">{error}</p> : null}
       <div className="pw-admin-list">
-        <p>Name: {profile?.name || "-"}</p>
+        <p>Tên: {profile?.name || "-"}</p>
         <p>Email: {profile?.email || "-"}</p>
-        <p>Role: {profile?.role || "-"}</p>
+        <p>Vai trò: {profile?.role || "-"}</p>
       </div>
     </section>
   );

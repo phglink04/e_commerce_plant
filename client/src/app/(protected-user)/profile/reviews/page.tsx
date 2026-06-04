@@ -7,10 +7,10 @@ export default function ProfileReviewsPage() {
     <>
       <header className="pf-main__header">
         <h1 className="pf-main__title" id="profile-page-title">
-          My Reviews
+          Đánh giá của tôi
         </h1>
         <p className="pf-main__subtitle">
-          View and manage your product reviews
+          Xem và quản lý các đánh giá sản phẩm của bạn
         </p>
       </header>
       <div className="pf-main__content">

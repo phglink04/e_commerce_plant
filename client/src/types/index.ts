@@ -12,5 +12,5 @@ export * from "./auth";
 export * from "./review";
 export * from "./address";
 export * from "./profile";
-export * from "./chat";
+export * from "./chatbot";
 

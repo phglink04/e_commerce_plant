@@ -28,9 +28,8 @@ const statusColors: Record<string, string> = {
 function getDiscountStatus(d: Discount): string {
   if (!d.isActive) return "inactive";
   const now = new Date();
-  if (new Date(d.endDate) < now) return "expired";
-  if (new Date(d.startDate) > now) return "inactive";
-  if (d.usedCount >= d.usageLimit) return "inactive";
+  if (d.endDate && new Date(d.endDate) < now) return "expired";
+  if (d.usageLimit !== null && d.usedCount >= d.usageLimit) return "expired";
   return "active";
 }
 
@@ -241,6 +240,7 @@ export default function AdminDiscountsPage() {
                 <th className="px-4 py-3 text-right">Giảm tối đa</th>
                 <th className="px-4 py-3 text-right">Đơn tối thiểu</th>
                 <th className="px-4 py-3 text-center">Lượt dùng</th>
+                <th className="px-4 py-3 text-center">Mỗi user</th>
                 <th className="px-4 py-3 text-center">Trạng thái</th>
                 <th className="px-4 py-3 text-center">Hiển thị</th>
                 <th className="px-4 py-3 text-left">Thời gian</th>
@@ -253,15 +253,10 @@ export default function AdminDiscountsPage() {
                 return (
                   <tr key={d.id} className="transition hover:bg-slate-50/80">
                     <td className="px-4 py-3">
-                      <div>
-                        <span className="inline-flex items-center gap-1.5 rounded-lg bg-violet-50 px-2.5 py-1 text-sm font-bold text-violet-700 tracking-wide ring-1 ring-violet-200">
-                          <Tag size={12} />
-                          {d.code}
-                        </span>
-                        {d.name && (
-                          <p className="mt-0.5 text-xs text-slate-400">{d.name}</p>
-                        )}
-                      </div>
+                      <span className="inline-flex items-center gap-1.5 rounded-lg bg-violet-50 px-2.5 py-1 text-sm font-bold text-violet-700 tracking-wide ring-1 ring-violet-200">
+                        <Tag size={12} />
+                        {d.code}
+                      </span>
                     </td>
                     <td className="px-4 py-3 text-center">
                       <span className="inline-flex items-center rounded-full bg-rose-50 px-2.5 py-1 text-sm font-bold text-rose-600 ring-1 ring-rose-200">
@@ -282,7 +277,20 @@ export default function AdminDiscountsPage() {
                       <span className="font-semibold text-slate-800">
                         {d.usedCount}
                       </span>
-                      <span className="text-slate-400">/{d.usageLimit}</span>
+                      {d.usageLimit !== null ? (
+                        <span className="text-slate-400">/{d.usageLimit}</span>
+                      ) : (
+                        <span className="text-emerald-500 text-xs">/∞</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-center text-sm">
+                      {d.usageLimitPerUser !== null ? (
+                        <span className="inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-600 ring-1 ring-blue-200">
+                          {d.usageLimitPerUser} lần
+                        </span>
+                      ) : (
+                        <span className="text-slate-400 text-xs">∞</span>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-center">
                       <span
@@ -320,10 +328,16 @@ export default function AdminDiscountsPage() {
                       </button>
                     </td>
                     <td className="px-4 py-3">
-                      <div className="text-xs text-slate-500">
-                        <div>{formatDate(d.startDate)}</div>
-                        <div className="text-slate-400">→ {formatDate(d.endDate)}</div>
-                      </div>
+                      {d.startDate || d.endDate ? (
+                        <div className="text-xs text-slate-500">
+                          <div>{d.startDate ? formatDate(d.startDate) : "—"}</div>
+                          <div className="text-slate-400">→ {d.endDate ? formatDate(d.endDate) : "—"}</div>
+                        </div>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-600 ring-1 ring-emerald-200">
+                          ∞ Vĩnh viễn
+                        </span>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex justify-end gap-1.5">

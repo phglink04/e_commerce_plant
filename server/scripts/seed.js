@@ -47,40 +47,50 @@ const CATEGORIES = [
   { name: "Sen đá", slug: "sen-da", description: "Các loại sen đá, xương rồng mini dễ chăm sóc", isActive: true },
 ];
 
-// ── Plants (20) ─────────────────────────────────────────────────────────────
+// ── Plants (30) ─────────────────────────────────────────────────────────────
 const PLANTS = [
-  // Cây để bàn (4)
-  { name: "Kim Tiền Mini", category: "Cây để bàn", tags: ["indoor", "easy-care", "desktop", "office"], price: 85000, costPrice: 35000, stock: 45, description: "Cây kim tiền mini dáng nhỏ gọn, mang ý nghĩa tài lộc, rất thích hợp để bàn làm việc.", imageCover: "https://images.unsplash.com/photo-1637967886160-fd78dc3ce3f5?w=600", isFeatured: true },
-  { name: "Lưỡi Hổ Mini", category: "Cây để bàn", tags: ["indoor", "easy-care", "desktop", "low-water", "office"], price: 65000, costPrice: 25000, stock: 60, description: "Cây lưỡi hổ mini thanh lọc không khí, cực kỳ dễ chăm sóc, chịu hạn tốt.", imageCover: "https://images.unsplash.com/photo-1593482892580-e32e47e0a38d?w=600", isFeatured: true },
-  { name: "Xương Rồng Tai Thỏ", category: "Cây để bàn", tags: ["indoor", "easy-care", "desktop", "low-water", "pet-friendly"], price: 55000, costPrice: 20000, stock: 70, description: "Xương rồng tai thỏ dễ thương, ít tưới nước, trang trí bàn học cực xinh.", imageCover: "https://images.unsplash.com/photo-1459411552884-841db9b3cc2a?w=600" },
-  { name: "Trầu Bà Mini", category: "Cây để bàn", tags: ["indoor", "easy-care", "desktop", "shade-loving"], price: 75000, costPrice: 30000, stock: 50, description: "Trầu bà lá nhỏ dáng rủ, phù hợp để bàn hoặc treo cửa sổ.", imageCover: "https://images.unsplash.com/photo-1614594975525-e45190c55d0b?w=600" },
+  // Cây để bàn (6)
+  { name: "Kim Tiền Mini", category: "Cây để bàn", tags: ["indoor", "easy-care", "desktop", "office"], price: 85000, costPrice: 35000, stock: 45, description: "Cây Kim Tiền Mini để bàn làm việc phong thủy tài lộc mang lại may mắn thịnh vượng. Cây cảnh văn phòng lọc khí tốt, dễ chăm sóc.", imageCover: "https://images.unsplash.com/photo-1637967886160-fd78dc3ce3f5?w=600", isFeatured: true },
+  { name: "Lưỡi Hổ Mini", category: "Cây để bàn", tags: ["indoor", "easy-care", "desktop", "low-water", "office"], price: 65000, costPrice: 25000, stock: 60, description: "Cây Lưỡi Hổ Mini thanh lọc không khí lọc bụi mịn hấp thụ bức xạ máy tính. Cây cảnh phong thủy đuổi xui xẻo thích hợp để bàn làm việc.", imageCover: "https://images.unsplash.com/photo-1593482892580-e32e47e0a38d?w=600", isFeatured: true },
+  { name: "Xương Rồng Tai Thỏ", category: "Cây để bàn", tags: ["indoor", "easy-care", "desktop", "low-water", "pet-friendly"], price: 55000, costPrice: 20000, stock: 70, description: "Cây Xương Rồng Tai Thỏ mini dễ thương trang trí bàn học bàn làm việc. Cây chịu hạn tốt ưa nắng nhẹ làm quà tặng xinh xắn ý nghĩa.", imageCover: "https://images.unsplash.com/photo-1459411552884-841db9b3cc2a?w=600" },
+  { name: "Trầu Bà Mini", category: "Cây để bàn", tags: ["indoor", "easy-care", "desktop", "shade-loving"], price: 75000, costPrice: 30000, stock: 50, description: "Cây Trầu Bà Mini dáng rủ thanh lọc không khí trong nhà hấp thụ formaldehyde. Cây trồng trong nhà lá xanh mướt dễ chăm sóc ưa bóng râm.", imageCover: "https://images.unsplash.com/photo-1614594975525-e45190c55d0b?w=600" },
+  { name: "Cẩm Nhung Đỏ", category: "Cây để bàn", tags: ["indoor", "easy-care", "desktop", "office"], price: 45000, costPrice: 18000, stock: 40, description: "Cây Cẩm Nhung Đỏ mini may mắn để bàn hợp mệnh Hỏa Thổ mang tài lộc. Cây Fittonia lá đỏ rực rỡ thu hút tài vận dễ trồng trong nhà.", imageCover: "https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=600" },
+  { name: "Nhất Mạt Hương", category: "Cây để bàn", tags: ["indoor", "easy-care", "desktop", "low-water"], price: 50000, costPrice: 20000, stock: 50, description: "Cây Nhất Mạt Hương đuổi muỗi tự nhiên để bàn làm việc văn phòng. Cây sen đá thơm tỏa hương dễ chịu giúp giải tỏa stress mệt mỏi.", imageCover: "https://images.unsplash.com/photo-1459411552884-841db9b3cc2a?w=600" },
 
-  // Cây phong thủy (4)
-  { name: "Kim Ngân Lộc", category: "Cây phong thủy", tags: ["indoor", "office", "living-room"], price: 320000, costPrice: 150000, stock: 20, description: "Cây kim ngân tết thân, biểu tượng tài lộc và thịnh vượng cho gia chủ.", imageCover: "https://images.unsplash.com/photo-1509423350716-97f9360b4e09?w=600", isFeatured: true },
-  { name: "Phát Tài", category: "Cây phong thủy", tags: ["indoor", "shade-loving", "living-room", "office"], price: 250000, costPrice: 100000, stock: 25, description: "Cây phát tài lá xanh bóng, mang may mắn và phú quý, chịu bóng râm tốt.", imageCover: "https://images.unsplash.com/photo-1632207691143-643e2a9a9361?w=600", isFeatured: true },
-  { name: "Lan Ý", category: "Cây phong thủy", tags: ["indoor", "shade-loving", "bedroom", "living-room", "pet-friendly"], price: 180000, costPrice: 70000, stock: 30, description: "Lan ý hoa trắng thanh tao, thanh lọc không khí, hợp phong thủy phòng khách.", imageCover: "https://images.unsplash.com/photo-1616690248297-4434834e0180?w=600" },
-  { name: "Vạn Niên Thanh", category: "Cây phong thủy", tags: ["indoor", "easy-care", "living-room"], price: 150000, costPrice: 60000, stock: 35, description: "Vạn niên thanh lá xanh quanh năm, biểu tượng trường thọ và bình an.", imageCover: "https://images.unsplash.com/photo-1501004318855-b174af0e925d?w=600" },
+  // Cây phong thủy (6)
+  { name: "Kim Ngân Lộc", category: "Cây phong thủy", tags: ["indoor", "office", "living-room"], price: 320000, costPrice: 150000, stock: 20, description: "Cây Kim Ngân Lộc phong thủy phòng khách thu hút vượng khí tài lộc. Thân thắt bím sang trọng làm cây cảnh văn phòng trang trí nội thất.", imageCover: "https://images.unsplash.com/photo-1509423350716-97f9360b4e09?w=600", isFeatured: true },
+  { name: "Phát Tài", category: "Cây phong thủy", tags: ["indoor", "shade-loving", "living-room", "office"], price: 250000, costPrice: 100000, stock: 25, description: "Cây Phát Tài phong thủy đem lại may mắn tài lộc thịnh vượng. Cây cảnh trong nhà lá xanh mướt lọc bụi bẩn làm đẹp không gian sống.", imageCover: "https://images.unsplash.com/photo-1632207691143-643e2a9a9361?w=600", isFeatured: true },
+  { name: "Lan Ý", category: "Cây phong thủy", tags: ["indoor", "shade-loving", "bedroom", "living-room", "pet-friendly"], price: 180000, costPrice: 70000, stock: 30, description: "Cây Lan Ý lọc không khí hấp thụ bức xạ điện tử khí độc hại. Cây phong thủy hoa trắng thanh cao mang may mắn hòa khí cho gia đình.", imageCover: "https://images.unsplash.com/photo-1616690248297-4434834e0180?w=600" },
+  { name: "Vạn Niên Thanh", category: "Cây phong thủy", tags: ["indoor", "easy-care", "living-room"], price: 150000, costPrice: 60000, stock: 35, description: "Cây Vạn Niên Thanh phong thủy mang cát tường trường thọ bình an. Cây xanh tốt quanh năm lọc không khí tốt thích hợp trồng phòng khách.", imageCover: "https://images.unsplash.com/photo-1501004318855-b174af0e925d?w=600" },
+  { name: "Thiết Mộc Lan", category: "Cây phong thủy", tags: ["indoor", "office", "living-room"], price: 450000, costPrice: 200000, stock: 15, description: "Cây Thiết Mộc Lan ghép chậu phong thủy mang lại phú quý thịnh vượng. Cây cảnh nội thất lọc không khí bụi mịn thích hợp sảnh văn phòng.", imageCover: "https://images.unsplash.com/photo-1632207691143-643e2a9a9361?w=600" },
+  { name: "Ngũ Gia Bì", category: "Cây phong thủy", tags: ["indoor", "easy-care", "living-room", "office"], price: 210000, costPrice: 90000, stock: 20, description: "Cây Ngũ Gia Bì đuổi muỗi côn trùng tự nhiên thanh lọc khí độc. Cây phong thủy phát triển sự nghiệp vững chắc thích hợp đặt phòng khách.", imageCover: "https://images.unsplash.com/photo-1501004318855-b174af0e925d?w=600" },
 
-  // Cây trong nhà (4)
-  { name: "Monstera", category: "Cây trong nhà", tags: ["indoor", "living-room", "shade-loving"], price: 350000, costPrice: 160000, stock: 18, description: "Monstera lá xẻ thùy đặc trưng, điểm nhấn trang trí nội thất hiện đại.", imageCover: "https://images.unsplash.com/photo-1614594975525-e45190c55d0b?w=600", isFeatured: true, isFlashSale: true, discountPercentage: 15 },
-  { name: "Đuôi Công", category: "Cây trong nhà", tags: ["indoor", "shade-loving", "bedroom", "living-room"], price: 280000, costPrice: 120000, stock: 15, description: "Cây đuôi công (Calathea) lá sọc đẹp mắt, ưa bóng râm, hợp phòng ngủ.", imageCover: "https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=600" },
-  { name: "Cau Tiểu Trâm", category: "Cây trong nhà", tags: ["indoor", "shade-loving", "living-room", "office"], price: 220000, costPrice: 90000, stock: 22, description: "Cau tiểu trâm dáng thanh mảnh, thanh lọc không khí rất tốt.", imageCover: "https://images.unsplash.com/photo-1586185018858-33be5e70dc3c?w=600" },
-  { name: "Trầu Bà Đế Vương", category: "Cây trong nhà", tags: ["indoor", "easy-care", "living-room", "office"], price: 195000, costPrice: 80000, stock: 28, description: "Trầu bà đế vương lá xanh bóng to, dễ chăm, hợp văn phòng và phòng khách.", imageCover: "https://images.unsplash.com/photo-1637967886160-fd78dc3ce3f5?w=600" },
+  // Cây trong nhà (6)
+  { name: "Monstera", category: "Cây trong nhà", tags: ["indoor", "living-room", "shade-loving"], price: 350000, costPrice: 160000, stock: 18, description: "Cây Trầu Bà Nam Mỹ Monstera lá xẻ nghệ thuật trang trí nội thất sang trọng. Cây lọc không khí tạo không gian xanh mát phong cách châu Âu.", imageCover: "https://images.unsplash.com/photo-1614594975525-e45190c55d0b?w=600", isFeatured: true, isFlashSale: true, discountPercentage: 15 },
+  { name: "Đuôi Công", category: "Cây trong nhà", tags: ["indoor", "shade-loving", "bedroom", "living-room"], price: 280000, costPrice: 120000, stock: 15, description: "Cây Đuôi Công Calathea lá sọc hoa văn rực rỡ thu hút may mắn cát tường. Cây cảnh trong nhà ưa bóng râm mát thích hợp trang trí phòng ngủ.", imageCover: "https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=600" },
+  { name: "Cau Tiểu Trâm", category: "Cây trong nhà", tags: ["indoor", "shade-loving", "living-room", "office"], price: 220000, costPrice: 90000, stock: 22, description: "Cây Cau Tiểu Trâm để bàn làm việc hấp thụ bức xạ máy tính lọc không khí. Dáng cây mảnh mai phong thủy trừ tà khí mang may mắn.", imageCover: "https://images.unsplash.com/photo-1586185018858-33be5e70dc3c?w=600" },
+  { name: "Trầu Bà Đế Vương", category: "Cây trong nhà", tags: ["indoor", "easy-care", "living-room", "office"], price: 195000, costPrice: 80000, stock: 28, description: "Cây Trầu Bà Đế Vương phong thủy sếp văn phòng thể hiện uy quyền ý chí tiến thủ. Cây lọc khí độc bụi mịn tốt dễ chăm sóc.", imageCover: "https://images.unsplash.com/photo-1637967886160-fd78dc3ce3f5?w=600" },
+  { name: "Bàng Singapore", category: "Cây trong nhà", tags: ["indoor", "living-room", "office"], price: 390000, costPrice: 180000, stock: 12, description: "Cây Bàng Singapore nội thất hiện đại sang trọng dáng thẳng lá to tròn. Cây cảnh phong thủy hút tài lộc trang trí quán cafe văn phòng.", imageCover: "https://images.unsplash.com/photo-1586185018858-33be5e70dc3c?w=600" },
+  { name: "Trầu Bà Thanh Xuân", category: "Cây trong nhà", tags: ["indoor", "living-room", "shade-loving"], price: 310000, costPrice: 130000, stock: 15, description: "Cây Trầu Bà Thanh Xuân lá xẻ sâu bản to tạo điểm nhấn không gian nội thất. Cây lọc khí formaldehyde độc hại cực tốt.", imageCover: "https://images.unsplash.com/photo-1614594975525-e45190c55d0b?w=600" },
 
-  // Cây ngoài trời (4)
-  { name: "Hoa Hồng Đỏ", category: "Cây ngoài trời", tags: ["outdoor", "sunlight", "balcony"], price: 120000, costPrice: 45000, stock: 40, description: "Hoa hồng đỏ rực rỡ, thích hợp trồng ban công nơi có nắng.", imageCover: "https://images.unsplash.com/photo-1499002238440-d264edd596ec?w=600", isFlashSale: true, discountPercentage: 20 },
-  { name: "Hoa Giấy", category: "Cây ngoài trời", tags: ["outdoor", "sunlight", "balcony", "low-water"], price: 95000, costPrice: 35000, stock: 50, description: "Hoa giấy nhiều màu sắc, chịu nắng và hạn rất tốt, nở hoa quanh năm.", imageCover: "https://images.unsplash.com/photo-1603912699214-92627f304eb6?w=600" },
-  { name: "Nguyệt Quế", category: "Cây ngoài trời", tags: ["outdoor", "sunlight", "balcony"], price: 160000, costPrice: 65000, stock: 30, description: "Nguyệt quế hoa trắng thơm nhẹ, hợp trồng sân vườn và ban công.", imageCover: "https://images.unsplash.com/photo-1515586000433-45406d8e6662?w=600" },
-  { name: "Hương Thảo", category: "Cây ngoài trời", tags: ["outdoor", "sunlight", "balcony", "easy-care"], price: 80000, costPrice: 30000, stock: 55, description: "Hương thảo (Rosemary) vừa trang trí vừa dùng nấu ăn, hương thơm dễ chịu.", imageCover: "https://images.unsplash.com/photo-1515586000433-45406d8e6662?w=600", isFeatured: true },
+  // Cây ngoài trời (6)
+  { name: "Hoa Hồng Đỏ", category: "Cây ngoài trời", tags: ["outdoor", "sunlight", "balcony"], price: 120000, costPrice: 45000, stock: 40, description: "Cây Hoa Hồng Đỏ trồng ban công sân vườn chịu nắng tốt nở hoa quanh năm. Cây hoa hồng mang vẻ quyến rũ ngát hương thơm cho ngôi nhà.", imageCover: "https://images.unsplash.com/photo-1499002238440-d264edd596ec?w=600", isFlashSale: true, discountPercentage: 20 },
+  { name: "Hoa Giấy", category: "Cây ngoài trời", tags: ["outdoor", "sunlight", "balcony", "low-water"], price: 95000, costPrice: 35000, stock: 50, description: "Cây Hoa Giấy leo ban công cổng nhà chịu nắng chịu hạn rực rỡ quanh năm. Cây hoa giấy phong thủy gắn kết gia đình mang lại may mắn.", imageCover: "https://images.unsplash.com/photo-1603912699214-92627f304eb6?w=600" },
+  { name: "Nguyệt Quế", category: "Cây ngoài trời", tags: ["outdoor", "sunlight", "balcony"], price: 160000, costPrice: 65000, stock: 30, description: "Cây Nguyệt Quế hoa trắng thơm ngát phong thủy mang may mắn vinh quang. Cây cảnh ngoài trời chịu nắng thích hợp trồng ban công sân vườn.", imageCover: "https://images.unsplash.com/photo-1515586000433-45406d8e6662?w=600" },
+  { name: "Hương Thảo", category: "Cây ngoài trời", tags: ["outdoor", "sunlight", "balcony", "easy-care"], price: 80000, costPrice: 30000, stock: 55, description: "Cây Hương Thảo Rosemary đuổi muỗi tự nhiên hương tinh dầu giúp thư giãn giảm stress. Cây gia vị trồng ban công sân vườn tiện lợi.", imageCover: "https://images.unsplash.com/photo-1515586000433-45406d8e6662?w=600", isFeatured: true },
+  { name: "Tùng Bồng Lai", category: "Cây ngoài trời", tags: ["outdoor", "sunlight", "balcony", "easy-care"], price: 290000, costPrice: 120000, stock: 18, description: "Cây Tùng Bồng Lai bonsai mini trồng ban công phong thủy mang may mắn trường thọ. Cây tùng phong thủy thu hút quý nhân phù trợ gia chủ.", imageCover: "https://images.unsplash.com/photo-1509423350716-97f9360b4e09?w=600" },
+  { name: "Hoa Nhài Ta", category: "Cây ngoài trời", tags: ["outdoor", "sunlight", "balcony"], price: 110000, costPrice: 45000, stock: 25, description: "Cây Hoa Nhài Ta hoa nhài trắng ngát hương thơm dễ chịu. Cây cảnh ngoài trời trồng ban công ưa nắng hoa nhài dùng ướp trà thanh mát.", imageCover: "https://images.unsplash.com/photo-1515586000433-45406d8e6662?w=600" },
 
-  // Sen đá (4)
-  { name: "Sen Đá Hồng Ngọc", category: "Sen đá", tags: ["indoor", "outdoor", "easy-care", "low-water", "desktop"], price: 45000, costPrice: 15000, stock: 80, description: "Sen đá hồng ngọc màu hồng pastel, dễ trồng, ít tưới nước.", imageCover: "https://images.unsplash.com/photo-1459411552884-841db9b3cc2a?w=600", isFeatured: true },
-  { name: "Sen Đá Cẩm Thạch", category: "Sen đá", tags: ["indoor", "easy-care", "low-water", "desktop", "office"], price: 55000, costPrice: 18000, stock: 65, description: "Sen đá cẩm thạch vân đá tự nhiên, trang trí bàn làm việc tuyệt đẹp.", imageCover: "https://images.unsplash.com/photo-1459411552884-841db9b3cc2a?w=600", isFlashSale: true, discountPercentage: 10 },
-  { name: "Xương Rồng Sao", category: "Sen đá", tags: ["indoor", "outdoor", "easy-care", "low-water", "desktop"], price: 40000, costPrice: 12000, stock: 90, description: "Xương rồng sao dáng tròn đều, cực dễ chăm, tưới 1 lần/tuần.", imageCover: "https://images.unsplash.com/photo-1459411552884-841db9b3cc2a?w=600" },
-  { name: "Sen Đá Kim Cương", category: "Sen đá", tags: ["indoor", "easy-care", "low-water", "desktop", "pet-friendly"], price: 60000, costPrice: 22000, stock: 55, description: "Sen đá kim cương lá mọng nước lấp lánh, quà tặng ý nghĩa.", imageCover: "https://images.unsplash.com/photo-1459411552884-841db9b3cc2a?w=600" },
+  // Sen đá (6)
+  { name: "Sen Đá Hồng Ngọc", category: "Sen đá", tags: ["indoor", "outdoor", "easy-care", "low-water", "desktop"], price: 45000, costPrice: 15000, stock: 80, description: "Sen Đá Hồng Ngọc mọng nước màu hồng pastel dễ thương biểu tượng tình bạn vĩnh cửu. Sen đá để bàn làm việc chịu hạn ít tưới nước.", imageCover: "https://images.unsplash.com/photo-1459411552884-841db9b3cc2a?w=600", isFeatured: true },
+  { name: "Sen Đá Cẩm Thạch", category: "Sen đá", tags: ["indoor", "easy-care", "low-water", "desktop", "office"], price: 55000, costPrice: 18000, stock: 65, description: "Sen Đá Cẩm Thạch vân đá tự nhiên độc đáo mang bình an may mắn tài lộc. Thích hợp trang trí bàn làm việc làm quà tặng.", imageCover: "https://images.unsplash.com/photo-1459411552884-841db9b3cc2a?w=600", isFlashSale: true, discountPercentage: 10 },
+  { name: "Xương Rồng Sao", category: "Sen đá", tags: ["indoor", "outdoor", "easy-care", "low-water", "desktop"], price: 40000, costPrice: 12000, stock: 90, description: "Xương Rồng Sao mini để bàn làm việc gai mềm dáng tròn xinh xắn. Cây chịu hạn tốt lọc bức xạ máy tính trừ tà khí phong thủy.", imageCover: "https://images.unsplash.com/photo-1459411552884-841db9b3cc2a?w=600" },
+  { name: "Sen Đá Kim Cương", category: "Sen đá", tags: ["indoor", "easy-care", "low-water", "desktop", "pet-friendly"], price: 60000, costPrice: 22000, stock: 55, description: "Sen Đá Kim Cương lá trong suốt lấp lánh như ngọc quý mang phú quý tài lộc. Cây sen đá để bàn văn phòng kiên cường dễ chăm.", imageCover: "https://images.unsplash.com/photo-1459411552884-841db9b3cc2a?w=600" },
+  { name: "Sen Đá Bánh Bao", category: "Sen đá", tags: ["indoor", "easy-care", "low-water", "desktop"], price: 50000, costPrice: 20000, stock: 40, description: "Sen Đá Bánh Bao lá to tròn bầu bĩnh mọng nước dễ thương chịu nắng tốt. Cây sen đá phong thủy may mắn dễ trồng cho người mới.", imageCover: "https://images.unsplash.com/photo-1459411552884-841db9b3cc2a?w=600" },
+  { name: "Sen Đá Phật Bà", category: "Sen đá", tags: ["indoor", "easy-care", "low-water", "desktop"], price: 65000, costPrice: 25000, stock: 35, description: "Sen Đá Phật Bà nhiều lớp lá đan xen mang lại may mắn bình an cát tường hóa giải vận xui. Cây sen đá phong thủy để bàn xinh xắn.", imageCover: "https://images.unsplash.com/photo-1459411552884-841db9b3cc2a?w=600" },
 ];
 
-// ── Users (1 admin + 10 users) ──────────────────────────────────────────────
+// ── Users (1 admin + 10 users + 2 delivery partners) ────────────────────────
 const USERS = [
   { name: "Admin PlantWorld", email: "admin@plantworld.com", role: "admin", phone: "0901234567" },
   { name: "Nguyễn Văn An", email: "an.nguyen@gmail.com", role: "user", phone: "0912345678" },
@@ -93,6 +103,8 @@ const USERS = [
   { name: "Bùi Thanh Hà", email: "ha.bui@gmail.com", role: "user", phone: "0989012345" },
   { name: "Ngô Thị Lan", email: "lan.ngo@gmail.com", role: "user", phone: "0911223344" },
   { name: "Đinh Quang Minh", email: "minh.dinh@gmail.com", role: "user", phone: "0922334455" },
+  { name: "Giao Hàng Nhanh (SPX)", email: "spx1@gmail.com", role: "deliverypartner", phone: "0900000001" },
+  { name: "Giao Hàng Tiết Kiệm (GHTK)", email: "ghtk@gmail.com", role: "deliverypartner", phone: "0900000002" },
 ];
 
 const CITIES = ["Hà Nội", "TP. Hồ Chí Minh", "Đà Nẵng", "Hải Phòng", "Cần Thơ"];
@@ -322,12 +334,22 @@ async function main() {
 
   // 6. Orders — each of 10 normal users gets 5-6 completed orders
   console.log("📦 Seeding orders...");
-  const normalUserIds = userIds.slice(1); // skip admin
+  
+  const deliveryPartnerUsers = [];
+  const normalUserInfos = [];
+  
+  userIds.forEach((id, i) => {
+    if (USERS[i].role === "user") {
+      normalUserInfos.push({ id: id.toString(), index: i });
+    } else if (USERS[i].role === "deliverypartner") {
+      deliveryPartnerUsers.push({ id: id.toString(), name: USERS[i].name });
+    }
+  });
+
   const orderDocs = [];
 
-  for (let ui = 0; ui < normalUserIds.length; ui++) {
-    const userId = normalUserIds[ui];
-    const userIdx = ui + 1; // index in full USERS array
+  for (let ui = 0; ui < normalUserInfos.length; ui++) {
+    const { id: userId, index: userIdx } = normalUserInfos[ui];
     const numOrders = rand(5, 6);
 
     for (let oi = 0; oi < numOrders; oi++) {
@@ -353,15 +375,58 @@ async function main() {
       const createdAt = daysAgo(rand(3, 90));
       const addr = addressDocs[userIdx];
 
+      const roll = Math.random();
+      let orderStatus = "delivered";
+      let paymentStatus = "paid";
+      let deliveryPartnerId = null;
+      let deliveryPartnerName = null;
+      let returnReason = null;
+
+      if (roll < 0.15) {
+        orderStatus = "shipped";
+        paymentStatus = "unpaid";
+        const partner = pick(deliveryPartnerUsers);
+        if (partner) {
+          deliveryPartnerId = partner.id;
+          deliveryPartnerName = partner.name;
+        }
+      } else if (roll < 0.3) {
+        orderStatus = "returned";
+        paymentStatus = "unpaid";
+        const partner = pick(deliveryPartnerUsers);
+        if (partner) {
+          deliveryPartnerId = partner.id;
+          deliveryPartnerName = partner.name;
+          returnReason = pick([
+            "Khách hàng hẹn lại ngày giao khác",
+            "Không liên lạc được với khách hàng qua số điện thoại",
+            "Khách từ chối nhận hàng do thay đổi ý định",
+            "Địa chỉ giao hàng không chính xác"
+          ]);
+        }
+      } else {
+        // delivered
+        if (Math.random() < 0.5) {
+          const partner = pick(deliveryPartnerUsers);
+          if (partner) {
+            deliveryPartnerId = partner.id;
+            deliveryPartnerName = partner.name;
+          }
+        }
+      }
+
       orderDocs.push({
-        userId: userId.toString(),
-        orderStatus: "delivered",
-        paymentStatus: "paid",
+        userId: userId,
+        orderStatus,
+        paymentStatus,
         total, items, shippingFee,
         shippingAddress: `${addr.fullName}, ${addr.phone}, ${addr.addressLine}, ${addr.ward}, ${addr.district}, ${addr.city}`,
         addressId: Object.values(addrResult.insertedIds)[userIdx],
         paymentMethod: pick(["cash", "qr"]),
         transactionCode: null,
+        deliveryPartnerId,
+        deliveryPartnerName,
+        returnReason,
         createdAt, updatedAt: createdAt,
       });
     }

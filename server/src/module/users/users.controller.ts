@@ -51,6 +51,13 @@ export class UsersController {
       throw new BadRequestException("Password confirm does not match");
     }
 
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+    if (!passwordRegex.test(body.password)) {
+      throw new BadRequestException(
+        "Mật khẩu phải có ít nhất 8 ký tự, bao gồm ít nhất 1 chữ hoa, 1 chữ thường và 1 chữ số",
+      );
+    }
+
     const me = await this.usersService.findById(user.sub);
     if (!me) {
       throw new BadRequestException("User not found");

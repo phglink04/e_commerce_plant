@@ -1,7 +1,8 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/auth-store";
 import {
   LayoutDashboard,
   Package,
@@ -15,59 +16,60 @@ import {
   Menu,
   X,
   ChevronDown,
+  LogOut,
 } from "lucide-react";
 
 const menuItems = [
   {
-    label: "Dashboard",
+    label: "Bảng điều khiển",
     href: "/admin",
     icon: LayoutDashboard,
   },
   {
-    label: "Products",
+    label: "Sản phẩm",
     href: "/admin/products",
     icon: Package,
     submenu: [
-      { label: "All Products", href: "/admin/products" },
-      { label: "Categories", href: "/admin/categories" },
+      { label: "Tất cả sản phẩm", href: "/admin/products" },
+      { label: "Danh mục", href: "/admin/categories" },
     ],
   },
   {
-    label: "Orders",
+    label: "Đơn hàng",
     href: "/admin/orders",
     icon: ShoppingCart,
     submenu: [
-      { label: "All Orders", href: "/admin/orders" },
-      { label: "Returns", href: "/admin/orders/returns" },
+      { label: "Tất cả đơn hàng", href: "/admin/orders" },
+      { label: "Hoàn trả", href: "/admin/orders/returns" },
     ],
   },
   {
-    label: "Users",
+    label: "Người dùng",
     href: "/admin/users",
     icon: Users,
   },
   {
-    label: "Comments",
+    label: "Bình luận",
     href: "/admin/comments",
     icon: MessageSquare,
   },
   {
-    label: "Delivery",
+    label: "Giao hàng",
     href: "/admin/delivery",
     icon: Truck,
   },
   {
-    label: "Blogs",
+    label: "Bài viết",
     href: "/admin/blogs",
     icon: BookOpen,
   },
   {
-    label: "Home",
+    label: "Trang chủ",
     href: "/admin/home-settings",
     icon: Home,
   },
   {
-    label: "Settings",
+    label: "Cài đặt",
     href: "/admin/settings",
     icon: Settings,
   },
@@ -75,8 +77,15 @@ const menuItems = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { logout } = useAuthStore();
   const [isOpen, setIsOpen] = useState(true);
   const [expandedMenu, setExpandedMenu] = useState<string | null>(null);
+
+  const handleLogout = () => {
+    logout();
+    router.push("/");
+  };
 
   return (
     <>
@@ -142,8 +151,15 @@ export function Sidebar() {
           ))}
         </nav>
 
-        <div className="border-t border-slate-200 p-4">
-          <p className="text-xs text-slate-500 text-center">
+        <div className="border-t border-slate-200 p-4 space-y-3">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-rose-600 hover:bg-rose-50 hover:text-rose-700 font-semibold transition duration-200"
+          >
+            <LogOut size={18} />
+            <span>Đăng xuất</span>
+          </button>
+          <p className="text-xs text-slate-400 text-center font-medium">
             PlantWorld v1.0.0
           </p>
         </div>

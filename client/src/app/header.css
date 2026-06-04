@@ -10,16 +10,16 @@
   width: 40px;
   height: 40px;
   border-radius: 12px;
-  border: 1px solid #d1fae5;
+  border: 1px solid rgba(255, 255, 255, 0.15);
   background: transparent;
-  color: #047857;
+  color: #f0fdf4;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .hdr-mobile-toggle:hover {
-  background: #ecfdf5;
-  border-color: #6ee7b7;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: #34d399;
 }
 
 @media (min-width: 1024px) {
@@ -46,15 +46,15 @@
   padding: 8px 14px;
   font-size: 14px;
   font-weight: 500;
-  color: #334155;
+  color: #e2e8f0;
   border-radius: 10px;
   text-decoration: none;
   transition: all 0.2s;
 }
 
 .hdr-nav-link:hover {
-  color: #047857;
-  background: rgba(16, 185, 129, 0.06);
+  color: #34d399;
+  background: rgba(255, 255, 255, 0.08);
 }
 
 /* Hot badge */
@@ -179,17 +179,18 @@
   margin-left: 8px;
   padding: 9px 14px;
   border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  background: rgba(248, 250, 252, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
   cursor: pointer;
   transition: all 0.25s;
   font-size: 14px;
+  color: #e2e8f0;
 }
 
 .hdr-search-trigger:hover {
-  border-color: #6ee7b7;
-  background: #fff;
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.08);
+  border-color: #34d399;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.15);
 }
 
 @media (min-width: 1024px) {
@@ -210,9 +211,9 @@
   padding: 2px 7px;
   font-size: 11px;
   font-weight: 600;
-  color: #94a3b8;
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
+  color: #cbd5e1;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 6px;
   font-family: inherit;
 }
@@ -226,16 +227,16 @@
   width: 42px;
   height: 42px;
   border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  color: #475569;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #f0fdf4;
   text-decoration: none;
   transition: all 0.2s;
 }
 
 .hdr-icon-btn:hover {
-  border-color: #6ee7b7;
-  background: #ecfdf5;
-  color: #047857;
+  border-color: #34d399;
+  background: rgba(255, 255, 255, 0.08);
+  color: #34d399;
 }
 
 .hdr-cart-badge {
@@ -263,16 +264,16 @@
   gap: 6px;
   padding: 4px 10px 4px 4px;
   border-radius: 12px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.15);
   background: transparent;
   cursor: pointer;
   transition: all 0.2s;
-  color: #475569;
+  color: #f0fdf4;
 }
 
 .hdr-avatar-btn:hover {
-  border-color: #6ee7b7;
-  background: #f0fdf4;
+  border-color: #34d399;
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .hdr-avatar-circle {

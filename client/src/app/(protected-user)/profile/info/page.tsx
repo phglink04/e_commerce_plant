@@ -7,10 +7,10 @@ export default function ProfileInfoPage() {
     <>
       <header className="pf-main__header">
         <h1 className="pf-main__title" id="profile-page-title">
-          Profile Info
+          Thông tin cá nhân
         </h1>
         <p className="pf-main__subtitle">
-          Manage your personal information and avatar
+          Quản lý thông tin cá nhân và ảnh đại diện của bạn
         </p>
       </header>
       <div className="pf-main__content">

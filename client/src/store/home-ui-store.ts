@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import api from "@/lib/api";
 
 type HomeUiState = {
   cartCount: number;
@@ -6,6 +7,8 @@ type HomeUiState = {
   recentSearches: string[];
   setCartCount: (value: number) => void;
   incrementCart: (step?: number) => void;
+  decrementCart: (step?: number) => void;
+  syncCartCount: (token: string | null) => Promise<void>;
   toggleWishlist: (id: string) => void;
   pushRecentSearch: (keyword: string) => void;
 };
@@ -19,6 +22,18 @@ export const useHomeUiStore = create<HomeUiState>((set) => ({
 
   incrementCart: (step = 1) =>
     set((state) => ({ cartCount: Math.max(0, state.cartCount + step) })),
+
+  decrementCart: (step = 1) =>
+    set((state) => ({ cartCount: Math.max(0, state.cartCount - step) })),
+
+  syncCartCount: async (token: string | null) => {
+    if (!token) { set({ cartCount: 0 }); return; }
+    try {
+      const res = await api.get("/api/users/cart", { headers: { Authorization: `Bearer ${token}` } });
+      const cart = res.data?.data?.cart ?? [];
+      set({ cartCount: cart.length });
+    } catch { /* silent */ }
+  },
 
   toggleWishlist: (id) =>
     set((state) => ({

@@ -65,12 +65,12 @@ export class ReviewsService {
       );
     }
 
-    // Check for existing review (one review per user per product)
+    // Check for existing review (one review per user per product per order)
     const existing = await this.reviewModel
-      .findOne({ userId, productId: dto.productId })
+      .findOne({ userId, productId: dto.productId, orderId: dto.orderId })
       .lean();
     if (existing) {
-      throw new ConflictException("You have already reviewed this product");
+      throw new ConflictException("You have already reviewed this product for this order");
     }
 
     // Verify product exists
@@ -100,7 +100,7 @@ export class ReviewsService {
 
     return {
       message: "Đánh giá đã được đăng thành công",
-      data: { review: this.toReviewResponse(review.toObject()) },
+      data: { review: this.toReviewResponse(review.toObject(), product) },
     };
   }
 
@@ -168,13 +168,18 @@ export class ReviewsService {
       .limit(limit)
       .lean();
 
+    const plant = await this.plantModel
+      .findById(query.productId)
+      .select("name imageCover slug availability")
+      .lean();
+
     return {
       results: reviews.length,
       totalResults,
       page,
       totalPages: Math.max(1, Math.ceil(totalResults / limit)),
       data: {
-        reviews: reviews.map((r) => this.toReviewResponse(r)),
+        reviews: reviews.map((r) => this.toReviewResponse(r, plant)),
       },
     };
   }
@@ -297,9 +302,14 @@ export class ReviewsService {
 
     await review.save();
 
+    const plant = await this.plantModel
+      .findById(review.productId)
+      .select("name imageCover slug availability")
+      .lean();
+
     return {
       message: "Reply added",
-      data: { review: this.toReviewResponse(review.toObject()) },
+      data: { review: this.toReviewResponse(review.toObject(), plant) },
     };
   }
 
@@ -307,26 +317,16 @@ export class ReviewsService {
    * Check if current user can review a specific product
    */
   async canReview(userId: string, productId: string) {
-    // Check if already reviewed
-    const existing = await this.reviewModel
-      .findOne({ userId, productId })
-      .lean();
-    if (existing) {
-      return {
-        data: { canReview: false, reason: "Already reviewed" },
-      };
-    }
-
-    // Check if user has a delivered order with this product
-    const order = await this.orderModel
-      .findOne({
+    // 1. Find all delivered orders for the user containing this product
+    const orders = await this.orderModel
+      .find({
         userId,
         orderStatus: "delivered",
         "items.plantId": productId,
       })
       .lean();
 
-    if (!order) {
+    if (!orders || orders.length === 0) {
       return {
         data: {
           canReview: false,
@@ -335,19 +335,132 @@ export class ReviewsService {
       };
     }
 
+    // 2. Find all reviews by this user for this product
+    const reviews = await this.reviewModel
+      .find({ userId, productId })
+      .select("orderId")
+      .lean();
+
+    const reviewedOrderIds = reviews.map((r) => String(r.orderId));
+
+    // 3. Find the first order containing this product that has NOT been reviewed yet
+    const unreviewedOrder = orders.find(
+      (order) => !reviewedOrderIds.includes(String(order._id))
+    );
+
+    if (!unreviewedOrder) {
+      return {
+        data: {
+          canReview: false,
+          reason: "Already reviewed for all delivered orders containing this product",
+        },
+      };
+    }
+
     return {
       data: {
         canReview: true,
-        orderId: String(order._id),
+        orderId: String(unreviewedOrder._id),
       },
+    };
+  }
+
+  /**
+   * Get all products from delivered orders that the user has not reviewed yet
+   */
+  async getPendingReviews(userId: string) {
+    // 1. Get all delivered orders for the user
+    const orders = await this.orderModel
+      .find({
+        userId,
+        orderStatus: "delivered",
+      })
+      .lean();
+
+    if (!orders || orders.length === 0) {
+      return { data: { pendingReviews: [] } };
+    }
+
+    // 2. Collect all purchased items as (productId, orderId) combos
+    const combos: { productId: string; orderId: string }[] = [];
+    const uniquePlantIds: string[] = [];
+
+    for (const order of orders) {
+      for (const item of order.items) {
+        if (item.plantId) {
+          combos.push({
+            productId: item.plantId,
+            orderId: String(order._id),
+          });
+          if (!uniquePlantIds.includes(item.plantId)) {
+            uniquePlantIds.push(item.plantId);
+          }
+        }
+      }
+    }
+
+    if (combos.length === 0) {
+      return { data: { pendingReviews: [] } };
+    }
+
+    // 3. Find all existing reviews by this user
+    const existingReviews = await this.reviewModel
+      .find({ userId })
+      .select("productId orderId")
+      .lean();
+
+    // Create a set or helper to check reviewed combos quickly
+    const reviewedKeys = new Set(
+      existingReviews.map((r) => `${r.productId}_${r.orderId}`)
+    );
+
+    // 4. Filter combos that have NOT been reviewed yet
+    const pendingCombos = combos.filter(
+      (c) => !reviewedKeys.has(`${c.productId}_${c.orderId}`)
+    );
+
+    if (pendingCombos.length === 0) {
+      return { data: { pendingReviews: [] } };
+    }
+
+    // 5. Fetch full plant details for unique pending plant IDs
+    const pendingPlantIds = Array.from(new Set(pendingCombos.map((c) => c.productId)));
+    const plants = await this.plantModel
+      .find({
+        _id: { $in: pendingPlantIds },
+      })
+      .select("name imageCover price category rating slug availability")
+      .lean();
+
+    const plantMap = new Map(plants.map((p) => [String(p._id), p]));
+
+    // 6. Build final list of pending reviews
+    const pendingReviews = pendingCombos
+      .map((c) => {
+        const plant = plantMap.get(c.productId);
+        if (!plant) return null;
+        return {
+          product: {
+            id: String(plant._id),
+            name: plant.name,
+            image: plant.imageCover || "",
+            price: plant.price,
+            category: plant.category || "",
+            rating: plant.rating || 0,
+            slug: plant.slug || "",
+          },
+          orderId: c.orderId,
+        };
+      })
+      .filter((item) => item !== null);
+
+    return {
+      data: { pendingReviews },
     };
   }
 
   // ─── User Profile Methods ──────────────────────────────────
 
-  /**
-   * Get all reviews by a specific user (for profile page)
-   */
   async getMyReviews(userId: string, query?: { page?: number; limit?: number }) {
     const page = Math.max(1, Number(query?.page ?? 1));
     const limit = Math.min(50, Math.max(1, Number(query?.limit ?? 10)));
@@ -361,12 +474,24 @@ export class ReviewsService {
       .limit(limit)
       .lean();
 
+    const productIds = reviews.map((r) => r.productId);
+    const plants = await this.plantModel
+      .find({ _id: { $in: productIds } })
+      .select("name imageCover slug availability")
+      .lean();
+
+    const plantMap = new Map(plants.map((p) => [String(p._id), p]));
+
     return {
       results: reviews.length,
       totalResults,
       page,
       totalPages: Math.max(1, Math.ceil(totalResults / limit)),
-      data: { reviews: reviews.map((r) => this.toReviewResponse(r)) },
+      data: {
+        reviews: reviews.map((r) =>
+          this.toReviewResponse(r, plantMap.get(String(r.productId))),
+        ),
+      },
     };
   }
 
@@ -389,7 +514,12 @@ export class ReviewsService {
 
     if (payload.rating !== undefined) review.rating = payload.rating;
     if (payload.content !== undefined) review.content = payload.content.trim();
-    if (payload.images !== undefined) review.images = payload.images;
+    if (payload.images !== undefined) {
+      if (payload.images.length > 3) {
+        throw new BadRequestException("Tối đa 3 hình ảnh được phép");
+      }
+      review.images = payload.images;
+    }
 
     // Keep approved since user already verified
     review.isApproved = true;
@@ -397,9 +527,14 @@ export class ReviewsService {
 
     await this.recalculateProductRating(review.productId);
 
+    const plant = await this.plantModel
+      .findById(review.productId)
+      .select("name imageCover slug availability")
+      .lean();
+
     return {
       message: "Đánh giá đã được cập nhật",
-      data: { review: this.toReviewResponse(review.toObject()) },
+      data: { review: this.toReviewResponse(review.toObject(), plant) },
     };
   }
 
@@ -473,12 +608,23 @@ export class ReviewsService {
       .limit(limit)
       .lean();
 
+    const productIds = reviews.map((r) => r.productId);
+    const plants = await this.plantModel
+      .find({ _id: { $in: productIds } })
+      .select("name imageCover slug availability")
+      .lean();
+    const plantMap = new Map(plants.map((p) => [String(p._id), p]));
+
     return {
       results: reviews.length,
       totalResults,
       page,
       totalPages: Math.max(1, Math.ceil(totalResults / limit)),
-      data: { reviews: reviews.map((r) => this.toReviewResponse(r)) },
+      data: {
+        reviews: reviews.map((r) =>
+          this.toReviewResponse(r, plantMap.get(String(r.productId))),
+        ),
+      },
     };
   }
 
@@ -497,9 +643,14 @@ export class ReviewsService {
     // Recalculate product rating
     await this.recalculateProductRating(review.productId);
 
+    const plant = await this.plantModel
+      .findById(review.productId)
+      .select("name imageCover slug availability")
+      .lean();
+
     return {
       message: "Review approved",
-      data: { review: this.toReviewResponse(review) },
+      data: { review: this.toReviewResponse(review, plant) },
     };
   }
 
@@ -517,9 +668,14 @@ export class ReviewsService {
 
     await this.recalculateProductRating(review.productId);
 
+    const plant = await this.plantModel
+      .findById(review.productId)
+      .select("name imageCover slug availability")
+      .lean();
+
     return {
       message: "Review rejected",
-      data: { review: this.toReviewResponse(review) },
+      data: { review: this.toReviewResponse(review, plant) },
     };
   }
 
@@ -559,7 +715,7 @@ export class ReviewsService {
     await this.plantModel.findByIdAndUpdate(productId, { rating: avg });
   }
 
-  private toReviewResponse(review: any) {
+  private toReviewResponse(review: any, plant?: any) {
     return {
       id: String(review._id),
       userId: review.userId,
@@ -590,6 +746,13 @@ export class ReviewsService {
       updatedAt: review.updatedAt
         ? new Date(review.updatedAt).toISOString()
         : new Date().toISOString(),
+      product: plant ? {
+        id: String(plant._id),
+        name: plant.name,
+        imageCover: plant.imageCover,
+        slug: plant.slug,
+        availability: plant.availability,
+      } : null,
     };
   }
 }

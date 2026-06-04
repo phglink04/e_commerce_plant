@@ -19,7 +19,7 @@ import { DashboardModule } from "./module/dashboard/dashboard.module";
 import { BlogsModule } from "./module/blogs/blogs.module";
 import { DiscountsModule } from "./module/discounts/discounts.module";
 import { ReviewsModule } from "./module/reviews/reviews.module";
-import { ChatModule } from "./module/chat/chat.module";
+import { ChatbotModule } from "./module/chatbot/chatbot.module";
 import { envValidationSchema } from "./infrastructure/config/env.validation";
 import { DebugModule } from "./debug/debug.module";
 
@@ -78,7 +78,7 @@ import { DebugModule } from "./debug/debug.module";
     BlogsModule,
     DiscountsModule,
     ReviewsModule,
-    ChatModule,
+    ChatbotModule,
     DebugModule,
   ],
   providers: [

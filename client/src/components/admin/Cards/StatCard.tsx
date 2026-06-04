@@ -10,6 +10,8 @@ interface StatCardProps {
   trend?: { value: number; direction: "up" | "down" };
   color?: "emerald" | "blue" | "violet" | "amber" | "rose";
   delay?: number;
+  subValue?: string;
+  tooltip?: string;
 }
 
 const colorConfig = {
@@ -57,6 +59,8 @@ export function StatCard({
   trend,
   color = "emerald",
   delay = 0,
+  subValue,
+  tooltip,
 }: StatCardProps) {
   const config = colorConfig[color];
 
@@ -66,6 +70,7 @@ export function StatCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: delay * 0.1 }}
       className="admin-stat-card"
+      title={tooltip || String(value)}
       style={{
         background: "#fff",
         borderRadius: "20px",
@@ -116,6 +121,18 @@ export function StatCard({
           >
             {value}
           </p>
+          {subValue && (
+            <p
+              style={{
+                fontSize: "0.75rem",
+                color: "#64748b",
+                fontWeight: 500,
+                margin: "0.2rem 0 0",
+              }}
+            >
+              {subValue}
+            </p>
+          )}
           {trend && (
             <div
               className="flex items-center gap-1"

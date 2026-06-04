@@ -31,6 +31,8 @@ interface UseProductsOptions {
   search?: string;
   category?: string;
   tag?: string;
+  admin?: boolean;
+  availability?: string;
 }
 
 export function useProducts(options: UseProductsOptions = {}) {
@@ -40,6 +42,8 @@ export function useProducts(options: UseProductsOptions = {}) {
     search = "",
     category = "",
     tag = "",
+    admin = false,
+    availability = "",
   } = options;
 
   const [state, setState] = useState<UseProductsState>({
@@ -66,6 +70,8 @@ export function useProducts(options: UseProductsOptions = {}) {
           search,
           category,
           tag,
+          availability: availability || undefined,
+          admin,
         } as PaginationParams);
 
         setState((prev) => ({
@@ -87,7 +93,7 @@ export function useProducts(options: UseProductsOptions = {}) {
         }));
       }
     },
-    [limit, search, category, tag],
+    [limit, search, category, tag, availability],
   );
 
   // Fetch khi component mount hoặc khi dependencies thay đổi

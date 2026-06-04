@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import api from "@/lib/api";
 import { extractIdFromSlugAndId, buildSlugAndId } from "@/lib/slug.utils";
 import { useAuthStore } from "@/store/auth-store";
+import { useHomeUiStore } from "@/store/home-ui-store";
 import ReviewSection from "@/components/reviews/ReviewSection";
 import "@/components/reviews/reviews.css";
 
@@ -43,6 +44,7 @@ export default function PlantDetailPage({ params }: PlantDetailPageProps) {
   const [error, setError] = useState("");
   const [cartMessage, setCartMessage] = useState("");
   const [quantity, setQuantity] = useState(1);
+  const [quantityInput, setQuantityInput] = useState("1");
   const [slugAndId, setSlugAndId] = useState<string | null>(null);
 
   // Resolve params
@@ -81,6 +83,13 @@ export default function PlantDetailPage({ params }: PlantDetailPageProps) {
         }
 
         setPlant(plantData);
+        if (plantData.stock === 0 || plantData.availability === "Out Of Stock") {
+          setQuantity(0);
+          setQuantityInput("0");
+        } else {
+          setQuantity(1);
+          setQuantityInput("1");
+        }
       } catch (err) {
         const errorMsg =
           typeof err === "object" && err && "response" in err
@@ -96,26 +105,38 @@ export default function PlantDetailPage({ params }: PlantDetailPageProps) {
     fetchPlant();
   }, [slugAndId, router]);
 
+  const maxQty = plant?.stock ?? 1;
+
   const handleAddToCart = async () => {
     setCartMessage("");
 
     if (!token) {
-      setCartMessage("Please login first to add products to cart.");
+      setCartMessage("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.");
       return;
     }
 
     if (!plant) {
-      setCartMessage("Plant not available.");
+      setCartMessage("Sản phẩm không khả dụng.");
       return;
     }
 
-    if (quantity <= 0) {
-      setCartMessage("Please select a valid quantity.");
+    // Parse and validate input value first
+    let val = parseInt(quantityInput, 10);
+    if (isNaN(val) || val <= 0) {
+      val = 1;
+    } else if (val > maxQty) {
+      val = maxQty;
+    }
+    setQuantity(val);
+    setQuantityInput(String(val));
+
+    if (val <= 0 || val > maxQty) {
+      setCartMessage(`Số lượng phải từ 1 đến ${maxQty}.`);
       return;
     }
 
     try {
-      await api.post(
+      const response = await api.post(
         "/api/users/addtocart",
         {
           plantId: plant._id,
@@ -128,14 +149,20 @@ export default function PlantDetailPage({ params }: PlantDetailPageProps) {
           },
         },
       );
-      setCartMessage(`Added ${plant.name} (qty: ${quantity}) to cart.`);
+      // Update cart count immediately from response
+      const cart = response.data?.data?.cart ?? [];
+      if (cart && Array.isArray(cart)) {
+        const state = useHomeUiStore.getState();
+        state.setCartCount(cart.length);
+      }
+      setCartMessage(`Đã thêm "${plant.name}" (SL: ${quantity}) vào giỏ hàng!`);
       setQuantity(1);
     } catch (err) {
       const message =
         typeof err === "object" && err && "response" in err
           ? ((err as { response?: { data?: { message?: string } } }).response
-              ?.data?.message ?? "Failed to add to cart.")
-          : "Failed to add to cart.";
+              ?.data?.message ?? "Thêm vào giỏ hàng thất bại.")
+          : "Thêm vào giỏ hàng thất bại.";
       setCartMessage(message);
     }
   };
@@ -145,7 +172,7 @@ export default function PlantDetailPage({ params }: PlantDetailPageProps) {
       <main className="container py-12">
         <div className="flex justify-center items-center h-screen">
           <div className="text-center">
-            <p className="text-gray-600">Loading product details...</p>
+            <p className="text-gray-600">Đang tải thông tin sản phẩm...</p>
           </div>
         </div>
       </main>
@@ -198,7 +225,7 @@ export default function PlantDetailPage({ params }: PlantDetailPageProps) {
             {outOfStock && (
               <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                 <span className="text-white font-bold text-lg">
-                  Out of Stock
+                  Hết hàng
                 </span>
               </div>
             )}
@@ -238,14 +265,14 @@ export default function PlantDetailPage({ params }: PlantDetailPageProps) {
           {/* Stock Info */}
           {plant.stock !== undefined && (
             <p className="text-sm text-gray-600 mb-4">
-              {plant.stock > 0 ? `${plant.stock} in stock` : "Out of stock"}
+              {plant.stock > 0 ? `Còn ${plant.stock} sản phẩm trong kho` : "Hết hàng"}
             </p>
           )}
 
           {/* Rating */}
           {plant.rating !== undefined && plant.rating > 0 && (
             <p className="text-sm text-gray-600 mb-4">
-              ⭐ Rating: {plant.rating.toFixed(1)}
+              ⭐ Đánh giá: {plant.rating.toFixed(1)}
             </p>
           )}
 
@@ -272,7 +299,7 @@ export default function PlantDetailPage({ params }: PlantDetailPageProps) {
           {plant.description && (
             <div className="mb-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Description
+                Mô tả sản phẩm
               </h3>
               <p className="text-gray-600 leading-relaxed">
                 {plant.description}
@@ -284,26 +311,45 @@ export default function PlantDetailPage({ params }: PlantDetailPageProps) {
           <div className="flex gap-4 mb-6">
             <div className="flex items-center border border-gray-300 rounded-lg">
               <button
-                onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                disabled={outOfStock}
-                className="px-4 py-2 text-gray-600 hover:bg-gray-100 disabled:cursor-not-allowed"
+                onClick={() => {
+                  const nextVal = Math.max(1, quantity - 1);
+                  setQuantity(nextVal);
+                  setQuantityInput(String(nextVal));
+                }}
+                disabled={outOfStock || quantity <= 1}
+                className="px-4 py-2 text-gray-600 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 −
               </button>
               <input
                 type="number"
-                min="1"
-                value={quantity}
-                onChange={(e) =>
-                  setQuantity(Math.max(1, Number(e.target.value || 1)))
-                }
+                min={1}
+                max={maxQty}
+                value={quantityInput}
+                onChange={(e) => {
+                  setQuantityInput(e.target.value);
+                }}
+                onBlur={() => {
+                  let val = parseInt(quantityInput, 10);
+                  if (isNaN(val) || val <= 0) {
+                    val = 1;
+                  } else if (val > maxQty) {
+                    val = maxQty;
+                  }
+                  setQuantity(val);
+                  setQuantityInput(String(val));
+                }}
                 disabled={outOfStock}
                 className="w-16 text-center border-x border-gray-300 py-2 focus:outline-none disabled:bg-gray-100"
               />
               <button
-                onClick={() => setQuantity(quantity + 1)}
-                disabled={outOfStock}
-                className="px-4 py-2 text-gray-600 hover:bg-gray-100 disabled:cursor-not-allowed"
+                onClick={() => {
+                  const nextVal = Math.min(maxQty, quantity + 1);
+                  setQuantity(nextVal);
+                  setQuantityInput(String(nextVal));
+                }}
+                disabled={outOfStock || quantity >= maxQty}
+                className="px-4 py-2 text-gray-600 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 +
               </button>
@@ -314,7 +360,7 @@ export default function PlantDetailPage({ params }: PlantDetailPageProps) {
               disabled={outOfStock}
               className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-bold py-3 rounded-lg transition-colors"
             >
-              {outOfStock ? "Out of Stock" : "Add to Cart"}
+              {outOfStock ? "Hết hàng" : "🛒 Thêm vào giỏ hàng"}
             </button>
           </div>
 
@@ -322,9 +368,9 @@ export default function PlantDetailPage({ params }: PlantDetailPageProps) {
           {cartMessage && (
             <div
               className={`p-4 rounded-lg text-sm font-medium ${
-                cartMessage.includes("Added")
+                cartMessage.includes("Đã thêm")
                   ? "bg-green-100 text-green-700"
-                  : "bg-blue-100 text-blue-700"
+                  : "bg-red-100 text-red-700"
               }`}
             >
               {cartMessage}

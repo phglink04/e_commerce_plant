@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import api from "@/lib/api";
@@ -44,7 +44,7 @@ type SessionData = {
   };
 };
 
-export default function CheckoutPendingPage() {
+function CheckoutPendingPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { token } = useAuthStore();
@@ -65,7 +65,7 @@ export default function CheckoutPendingPage() {
   useEffect(() => {
     if (!orderId || !token) {
       setLoading(false);
-      setError("Missing order information.");
+      setError("Thiếu thông tin đơn hàng.");
       return;
     }
 
@@ -76,7 +76,7 @@ export default function CheckoutPendingPage() {
           headers: { Authorization: `Bearer ${token}` },
         });
         const orderData = orderRes.data?.data?.order as OrderData | undefined;
-        if (!orderData) throw new Error("Order not found");
+        if (!orderData) throw new Error("Không tìm thấy đơn hàng.");
 
         // If already paid, redirect to success
         if (orderData.paymentStatus === "paid") {
@@ -118,7 +118,7 @@ export default function CheckoutPendingPage() {
         };
 
         if (!newQrData.qrDataURL || !newQrData.transactionCode) {
-          throw new Error("Failed to generate QR code");
+          throw new Error("Tạo mã QR thanh toán thất bại.");
         }
 
         // Save to session for page refresh
@@ -127,7 +127,7 @@ export default function CheckoutPendingPage() {
         setPaymentStatus("pending");
       } catch (err) {
         const msg =
-          err instanceof Error ? err.message : "Unable to load checkout.";
+          err instanceof Error ? err.message : "Không thể tải thông tin thanh toán.";
         setError(msg);
       } finally {
         setLoading(false);
@@ -165,13 +165,11 @@ export default function CheckoutPendingPage() {
           // Clear purchased items from cart
           try {
             if (order) {
-              await Promise.all(
-                order.items.map((item) =>
-                  api.delete(`/api/users/deleteitem/${item.plantId}`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                  }),
-                ),
-              );
+              for (const item of order.items) {
+                await api.delete(`/api/users/deleteitem/${item.plantId}`, {
+                  headers: { Authorization: `Bearer ${token}` },
+                });
+              }
             }
           } catch {
             // Cart cleanup failure is non-critical
@@ -182,12 +180,12 @@ export default function CheckoutPendingPage() {
           }, 1500);
         } else if (!silent) {
           setPaymentStatus("pending");
-          setError("Payment not found yet. Please complete the transfer.");
+          setError("Chưa nhận được thanh toán. Vui lòng hoàn thành giao dịch chuyển khoản.");
         }
       } catch {
         if (!silent) {
           setPaymentStatus("failed");
-          setError("Unable to verify payment. Please try again.");
+          setError("Không thể kiểm tra thanh toán. Vui lòng thử lại.");
         }
       } finally {
         checkingRef.current = false;
@@ -221,8 +219,8 @@ export default function CheckoutPendingPage() {
     return (
       <main className="flex min-h-screen items-center justify-center bg-gradient-to-b from-amber-50 via-white to-white">
         <div className="flex flex-col items-center gap-3">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-amber-200 border-t-amber-600" />
-          <p className="text-sm text-slate-500">Preparing payment...</p>
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-amber-200 border-t-emerald-600" />
+          <p className="text-sm text-slate-500">Đang chuẩn bị thanh toán...</p>
         </div>
       </main>
     );
@@ -243,7 +241,7 @@ export default function CheckoutPendingPage() {
             href="/cart"
             className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
           >
-            Back to Cart
+            Quay lại Giỏ hàng
           </Link>
         </div>
       </main>
@@ -256,7 +254,7 @@ export default function CheckoutPendingPage() {
         {/* Header */}
         <div className="mb-8 text-center">
           <h1 className="text-2xl font-bold tracking-tight text-slate-900 md:text-3xl">
-            Complete Your Payment
+            Hoàn tất thanh toán
           </h1>
           <p className="mt-1 text-sm text-slate-500">
             Quét mã QR bằng ứng dụng ngân hàng của bạn để hoàn thành đơn hàng
@@ -284,11 +282,10 @@ export default function CheckoutPendingPage() {
                   </div>
                   <div>
                     <p className="text-lg font-semibold text-slate-900">
-                      Payment Time Expired
+                      Hết thời gian thanh toán
                     </p>
                     <p className="mt-1 text-sm text-slate-500">
-                      The QR code has expired. You can generate a new one or go
-                      back to cart.
+                      Mã chuyển khoản QR đã hết hạn. Bạn có thể tạo mã mới hoặc quay lại giỏ hàng.
                     </p>
                   </div>
                   <div className="flex gap-3">
@@ -303,7 +300,7 @@ export default function CheckoutPendingPage() {
                       }}
                       className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
                     >
-                      View Options
+                      Xem các tùy chọn
                     </button>
                   </div>
                 </div>
@@ -331,9 +328,9 @@ export default function CheckoutPendingPage() {
                     className="w-full rounded-xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {paymentStatus === "checking"
-                      ? "\u0110ang kiểm tra..."
+                      ? "Đang kiểm tra..."
                       : paymentStatus === "success"
-                        ? "Thanh toán đũ̆c xác nhẫn!"
+                        ? "Thanh toán đã được xác nhận!"
                         : "Tôi đã thanh toán"}
                   </button>
                 </div>
@@ -360,12 +357,20 @@ export default function CheckoutPendingPage() {
                 href="/cart"
                 className="text-sm text-slate-500 transition hover:text-slate-700 hover:underline"
               >
-                ← Back to Cart
+                ← Quay lại Giỏ hàng
               </Link>
             </div>
           </div>
         </div>
       </div>
     </main>
+  );
+}
+
+export default function CheckoutPendingPage() {
+  return (
+    <Suspense fallback={<div className="container py-8 text-center text-slate-500">Đang tải thông tin thanh toán...</div>}>
+      <CheckoutPendingPageContent />
+    </Suspense>
   );
 }

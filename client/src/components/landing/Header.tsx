@@ -46,7 +46,7 @@ const navItems = [
 
 export default function Header() {
   const router = useRouter();
-  const { cartCount } = useHomeUiStore();
+  const { cartCount, syncCartCount } = useHomeUiStore();
   const { token, user, logout } = useAuthStore();
 
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -78,6 +78,11 @@ export default function Header() {
   }, []);
 
   useEffect(() => { void fetchData(); }, [fetchData]);
+
+  /* ── Sync cart count from API ── */
+  useEffect(() => {
+    void syncCartCount(token);
+  }, [token, syncCartCount]);
 
   /* ── Scroll listener ── */
   useEffect(() => {
@@ -172,15 +177,15 @@ export default function Header() {
           top: 0,
           zIndex: 50,
           transition: "all 0.35s cubic-bezier(.4,0,.2,1)",
-          backdropFilter: scrolled ? "blur(20px) saturate(1.8)" : "blur(12px)",
+          backdropFilter: scrolled ? "blur(24px)" : "blur(16px)",
           background: scrolled
-            ? "rgba(255,255,255,0.88)"
-            : "rgba(255,255,255,0.72)",
+            ? "rgba(10, 31, 25, 0.94)"
+            : "rgba(10, 31, 25, 0.86)",
           borderBottom: scrolled
-            ? "1px solid rgba(16,185,129,0.12)"
-            : "1px solid rgba(16,185,129,0.06)",
+            ? "1px solid rgba(52, 211, 153, 0.15)"
+            : "1px solid rgba(52, 211, 153, 0.08)",
           boxShadow: scrolled
-            ? "0 4px 30px rgba(5,46,22,0.06)"
+            ? "0 10px 30px rgba(0, 0, 0, 0.15)"
             : "none",
         }}
       >
@@ -205,7 +210,6 @@ export default function Header() {
             {mobileOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
 
-          {/* ── Logo ── */}
           <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
             <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <Image

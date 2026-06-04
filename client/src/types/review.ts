@@ -29,6 +29,13 @@ export interface Review {
   replies: ReviewReply[];
   createdAt: string;
   updatedAt: string;
+  product?: {
+    id: string;
+    name: string;
+    imageCover: string;
+    slug: string;
+    availability?: string;
+  } | null;
 }
 
 export interface RatingSummary {

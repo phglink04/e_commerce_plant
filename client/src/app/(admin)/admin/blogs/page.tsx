@@ -20,9 +20,9 @@ const statusColors: Record<string, string> = {
 };
 
 const statusLabels: Record<string, string> = {
-  published: "Published",
-  draft: "Draft",
-  archived: "Archived",
+  published: "Xuất bản",
+  draft: "Bản nháp",
+  archived: "Lưu trữ",
 };
 
 export default function AdminBlogsPage() {
@@ -66,7 +66,7 @@ export default function AdminBlogsPage() {
       console.error("Failed to fetch blogs:", err);
       setToast({
         type: "error",
-        message: "Failed to load blogs",
+        message: "Không thể tải bài viết",
       });
     } finally {
       setLoading(false);
@@ -101,14 +101,14 @@ export default function AdminBlogsPage() {
     try {
       setDeleting(true);
       await blogService.deleteBlog(deleteTarget._id);
-      setToast({ type: "success", message: "Blog deleted successfully" });
+      setToast({ type: "success", message: "Bài viết đã xóa thành công" });
       setDeleteTarget(null);
       fetchBlogs();
     } catch (err) {
       setToast({
         type: "error",
         message:
-          err instanceof Error ? err.message : "Failed to delete blog",
+          err instanceof Error ? err.message : "Không thể xóa bài viết",
       });
     } finally {
       setDeleting(false);
@@ -120,8 +120,8 @@ export default function AdminBlogsPage() {
     setToast({
       type: "success",
       message: editingBlog
-        ? "Blog updated successfully"
-        : "Blog created successfully",
+        ? "Bài viết đã được cập nhật thành công"
+        : "Bài viết đã được tạo thành công",
     });
     fetchBlogs();
   };
@@ -135,10 +135,10 @@ export default function AdminBlogsPage() {
         <div>
           <h2 className="text-2xl font-bold tracking-tight text-slate-900">
             <FileText className="mr-2 inline-block" size={24} />
-            Blog Posts
+            Quản lý Bài viết
           </h2>
           <p className="mt-0.5 text-sm text-slate-500">
-            {pagination?.totalResults?.toLocaleString() || 0} total blog posts
+            Tổng cộng {pagination?.totalResults?.toLocaleString() || 0} bài viết
           </p>
         </div>
         <button
@@ -146,7 +146,7 @@ export default function AdminBlogsPage() {
           className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-emerald-200 transition hover:from-emerald-700 hover:to-emerald-600"
         >
           <Plus size={16} />
-          Add Blog Post
+          Thêm bài viết
         </button>
       </header>
 
@@ -172,10 +172,10 @@ export default function AdminBlogsPage() {
           }}
           className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
         >
-          <option value="">All Statuses</option>
-          <option value="published">Published</option>
-          <option value="draft">Draft</option>
-          <option value="archived">Archived</option>
+          <option value="">Tất cả trạng thái</option>
+          <option value="published">Xuất bản</option>
+          <option value="draft">Bản nháp</option>
+          <option value="archived">Lưu trữ</option>
         </select>
       </div>
 
@@ -185,15 +185,14 @@ export default function AdminBlogsPage() {
           <table className="w-full">
             <thead className="border-b border-slate-200 bg-slate-50">
               <tr className="text-sm font-semibold text-slate-700">
-                <th className="px-6 py-3 text-left">Title</th>
-                <th className="px-6 py-3 text-left">Category</th>
-                <th className="px-6 py-3 text-left">Author</th>
-                <th className="px-6 py-3 text-center">Status</th>
-                <th className="px-6 py-3 text-center">Featured</th>
+                <th className="px-6 py-3 text-left">Bài viết</th>
+                <th className="px-6 py-3 text-left">Danh mục</th>
+                <th className="px-6 py-3 text-center">Trạng thái</th>
+                <th className="px-6 py-3 text-center">Nổi bật</th>
                 <th className="px-6 py-3 text-center">
                   <Eye size={14} className="mx-auto" />
                 </th>
-                <th className="px-6 py-3 text-right">Actions</th>
+                <th className="px-6 py-3 text-right">Thao tác</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200">
@@ -215,16 +214,13 @@ export default function AdminBlogsPage() {
                           {blog.title}
                         </p>
                         <p className="truncate text-xs text-slate-400">
-                          {blog.slug}
+                          {blog.author ? `✍️ ${blog.author}` : blog.slug}
                         </p>
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-3 text-sm text-slate-600">
                     {blog.category}
-                  </td>
-                  <td className="px-6 py-3 text-sm text-slate-600">
-                    {blog.author || "—"}
                   </td>
                   <td className="px-6 py-3 text-center">
                     <span
@@ -254,14 +250,14 @@ export default function AdminBlogsPage() {
                         className="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-600 transition hover:bg-blue-100"
                       >
                         <Pencil size={14} />
-                        Edit
+                        Sửa
                       </button>
                       <button
                         onClick={() => setDeleteTarget(blog)}
                         className="inline-flex items-center gap-1 rounded-lg bg-red-50 px-3 py-1.5 text-sm font-medium text-red-600 transition hover:bg-red-100"
                       >
                         <Trash2 size={14} />
-                        Delete
+                        Xóa
                       </button>
                     </div>
                   </td>
@@ -274,18 +270,18 @@ export default function AdminBlogsPage() {
         <div className="flex h-48 items-center justify-center rounded-xl border border-slate-200 bg-slate-50">
           <div className="flex flex-col items-center gap-3">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600" />
-            <p className="text-slate-400">Loading blogs...</p>
+            <p className="text-slate-400">Đang tải bài viết...</p>
           </div>
         </div>
       ) : (
         <div className="flex h-48 flex-col items-center justify-center rounded-xl border border-slate-200 bg-slate-50">
           <FileText size={32} className="mb-2 text-slate-300" />
-          <p className="text-slate-400">No blog posts found</p>
+          <p className="text-slate-400">Chưa có bài viết nào</p>
           <button
             onClick={handleCreate}
             className="mt-3 text-sm font-medium text-emerald-600 hover:text-emerald-700"
           >
-            Create your first blog post →
+            Tạo bài viết đầu tiên →
           </button>
         </div>
       )}
@@ -303,9 +299,10 @@ export default function AdminBlogsPage() {
       {/* Create/Edit Form Modal */}
       {showForm && (
         <AdminModal
-          title={editingBlog ? "Edit Blog Post" : "Create New Blog Post"}
+          title={editingBlog ? "Chỉnh sửa bài viết" : "Tạo bài viết mới"}
           open={true}
           onClose={handleCloseForm}
+          size="lg"
         >
           <AdminBlogForm
             blog={editingBlog}

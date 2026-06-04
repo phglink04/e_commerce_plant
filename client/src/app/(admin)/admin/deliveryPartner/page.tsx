@@ -45,7 +45,7 @@ export default function AdminDeliveryPartnerPage() {
         message:
           error instanceof Error
             ? error.message
-            : "Unable to load delivery partners.",
+            : "Không thể tải đối tác giao hàng.",
       });
     } finally {
       setLoading(false);
@@ -65,7 +65,7 @@ export default function AdminDeliveryPartnerPage() {
     if (!name.trim() || !email.trim() || password.trim().length < 6) {
       setToast({
         type: "error",
-        message: "Please enter valid name, email and password (min 6 chars).",
+        message: "Vui lòng nhập tên, email và mật khẩu hợp lệ (tối thiểu 6 ký tự).",
       });
       return;
     }
@@ -86,7 +86,7 @@ export default function AdminDeliveryPartnerPage() {
       setEmail("");
       setPassword("");
       setPhone("");
-      setToast({ type: "success", message: "Delivery partner created." });
+      setToast({ type: "success", message: "Đối tác đã được tạo." });
       setModalOpen(false);
       await loadPartners();
     } catch (error) {
@@ -95,7 +95,7 @@ export default function AdminDeliveryPartnerPage() {
         message:
           error instanceof Error
             ? error.message
-            : "Unable to create delivery partner.",
+            : "Không thể tạo đối tác giao hàng.",
       });
     } finally {
       setSubmitting(false);
@@ -114,7 +114,7 @@ export default function AdminDeliveryPartnerPage() {
       );
       setToast({
         type: "success",
-        message: partner.isActive ? "Partner disabled." : "Partner enabled.",
+        message: partner.isActive ? "Đối tác đã vô hiệu hóa." : "Đối tác đã kích hoạt.",
       });
     } catch (error) {
       setToast({
@@ -122,7 +122,7 @@ export default function AdminDeliveryPartnerPage() {
         message:
           error instanceof Error
             ? error.message
-            : "Unable to update partner status.",
+            : "Không thể cập nhật trạng thái đối tác.",
       });
     }
   };
@@ -131,7 +131,7 @@ export default function AdminDeliveryPartnerPage() {
     if (!token) return;
 
     const confirmed = window.confirm(
-      `Delete delivery partner ${partner.email}?`,
+      `Xóa đối tác giao hàng ${partner.email}?`,
     );
     if (!confirmed) {
       return;
@@ -142,12 +142,12 @@ export default function AdminDeliveryPartnerPage() {
       setPartners((previous) =>
         previous.filter((item) => item.id !== partner.id),
       );
-      setToast({ type: "success", message: "Partner deleted." });
+      setToast({ type: "success", message: "Đối tác đã bị xóa." });
     } catch (error) {
       setToast({
         type: "error",
         message:
-          error instanceof Error ? error.message : "Unable to delete partner.",
+          error instanceof Error ? error.message : "Không thể xóa đối tác.",
       });
     }
   };
@@ -157,10 +157,10 @@ export default function AdminDeliveryPartnerPage() {
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
-            Delivery Partners
+            Đối tác giao hàng
           </h2>
           <p className="text-sm text-slate-500">
-            Manage delivery partner accounts and activation status
+            Quản lý tài khoản và trạng thái kích hoạt của đối tác giao hàng
           </p>
         </div>
         <button
@@ -168,25 +168,25 @@ export default function AdminDeliveryPartnerPage() {
           onClick={() => setModalOpen(true)}
           className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
         >
-          Add Partner
+          Thêm đối tác
         </button>
       </header>
 
-      {loading ? <p className="text-sm text-slate-500">Loading...</p> : null}
+      {loading ? <p className="text-sm text-slate-500">Dưa tải...</p> : null}
 
       <DataTable
         columns={[
-          { key: "name", title: "Name", render: (row) => row.name },
+          { key: "name", title: "Tên", render: (row) => row.name },
           { key: "email", title: "Email", render: (row) => row.email },
-          { key: "phone", title: "Phone", render: (row) => row.phone || "-" },
+          { key: "phone", title: "Số điện thoại", render: (row) => row.phone || "-" },
           {
             key: "status",
-            title: "Status",
-            render: (row) => (row.isActive ? "Active" : "Disabled"),
+            title: "Trạng thái",
+            render: (row) => (row.isActive ? "Hoạt động" : "Vô hiệu hóa"),
           },
           {
             key: "actions",
-            title: "Actions",
+            title: "Thao tác",
             render: (row) => (
               <div className="flex gap-2">
                 <button
@@ -194,14 +194,14 @@ export default function AdminDeliveryPartnerPage() {
                   onClick={() => void handleToggleStatus(row)}
                   className="rounded-lg border border-amber-200 px-2 py-1 text-xs text-amber-700 hover:bg-amber-50"
                 >
-                  {row.isActive ? "Disable" : "Enable"}
+                  {row.isActive ? "Vô hiệu hóa" : "Kích hoạt"}
                 </button>
                 <button
                   type="button"
                   onClick={() => void handleDeletePartner(row)}
                   className="rounded-lg border border-rose-200 px-2 py-1 text-xs text-rose-700 hover:bg-rose-50"
                 >
-                  Delete
+                  Xóa
                 </button>
               </div>
             ),
@@ -209,12 +209,12 @@ export default function AdminDeliveryPartnerPage() {
         ]}
         rows={partners}
         rowKey={(row) => row.id}
-        emptyText="No delivery partners"
+        emptyText="Không có đối tác giao hàng"
       />
 
       <AdminModal
         open={modalOpen}
-        title="Add Delivery Partner"
+        title="Thêm đối tác giao hàng"
         onClose={() => setModalOpen(false)}
       >
         <form

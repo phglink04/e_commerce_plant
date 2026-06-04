@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { reviewService } from "@/services/review.service";
+import { Camera, Loader2 } from "lucide-react";
 
 interface Props {
   productId: string;
@@ -15,16 +16,31 @@ export default function ReviewForm({ productId, orderId, onSubmitted, onCancel }
   const [hoveredRating, setHoveredRating] = useState(0);
   const [content, setContent] = useState("");
   const [imageUrls, setImageUrls] = useState<string[]>([]);
-  const [newUrl, setNewUrl] = useState("");
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
-  const handleAddImage = () => {
-    const url = newUrl.trim();
-    if (!url) return;
-    if (imageUrls.length >= 5) { setError("Tối đa 5 hình ảnh"); return; }
-    setImageUrls([...imageUrls, url]);
-    setNewUrl("");
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (imageUrls.length >= 3) {
+      setError("Tối đa 3 hình ảnh");
+      return;
+    }
+
+    setUploadingImage(true);
+    setError("");
+    try {
+      const res = await reviewService.uploadImage(file);
+      setImageUrls([...imageUrls, res.publicUrl]);
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || "Tải ảnh lên thất bại");
+    } finally {
+      setUploadingImage(false);
+      e.target.value = "";
+    }
   };
 
   const handleRemoveImage = (index: number) => {
@@ -93,30 +109,97 @@ export default function ReviewForm({ productId, orderId, onSubmitted, onCancel }
       </div>
 
       <div className="review-form__field">
-        <label className="review-form__label">Hình ảnh (không bắt buộc, tối đa 5)</label>
-        <div className="review-form__image-input">
-          <input
-            type="text"
-            value={newUrl}
-            onChange={(e) => setNewUrl(e.target.value)}
-            placeholder="Dán đường dẫn hình ảnh..."
-            className="review-form__url-input"
-            onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleAddImage())}
-          />
-          <button type="button" className="review-form__add-img-btn" onClick={handleAddImage} disabled={imageUrls.length >= 5}>
-            Thêm
-          </button>
+        <label className="review-form__label">Hình ảnh (không bắt buộc, tối đa 3)</label>
+        <div style={{ display: "flex", gap: "12px", alignItems: "center", marginTop: "8px", flexWrap: "wrap" }}>
+          {/* Uploaded Images Previews */}
+          {imageUrls.map((url, i) => (
+            <div
+              key={i}
+              style={{
+                position: "relative",
+                width: "80px",
+                height: "80px",
+                borderRadius: "8px",
+                overflow: "hidden",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                background: "rgba(255, 255, 255, 0.02)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center"
+              }}
+            >
+              <img
+                src={url}
+                alt={`Preview ${i + 1}`}
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
+              <button
+                type="button"
+                onClick={() => handleRemoveImage(i)}
+                style={{
+                  position: "absolute",
+                  top: "4px",
+                  right: "4px",
+                  background: "rgba(0, 0, 0, 0.6)",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "50%",
+                  width: "20px",
+                  height: "20px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "12px",
+                  cursor: "pointer",
+                }}
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+
+          {/* Upload Trigger Card */}
+          {imageUrls.length < 3 && (
+            <label
+              style={{
+                width: "80px",
+                height: "80px",
+                borderRadius: "8px",
+                border: "2px dashed rgba(255, 255, 255, 0.15)",
+                background: "rgba(255, 255, 255, 0.02)",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: uploadingImage ? "not-allowed" : "pointer",
+                gap: "6px",
+                color: "#94a3b8",
+                userSelect: "none"
+              }}
+            >
+              {uploadingImage ? (
+                <>
+                  <Loader2 size={20} className="pf-spin" style={{ color: "#10b981" }} />
+                  <span style={{ fontSize: "11px", fontWeight: "500" }}>Đang tải...</span>
+                </>
+              ) : (
+                <>
+                  <Camera size={20} />
+                  <span style={{ fontSize: "11px", fontWeight: "600" }}>
+                    {imageUrls.length}/3
+                  </span>
+                </>
+              )}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                style={{ display: "none" }}
+                disabled={uploadingImage}
+              />
+            </label>
+          )}
         </div>
-        {imageUrls.length > 0 && (
-          <div className="review-form__image-list">
-            {imageUrls.map((url, i) => (
-              <div key={i} className="review-form__image-item">
-                <img src={url} alt={`Preview ${i + 1}`} className="review-form__image-preview" />
-                <button type="button" className="review-form__image-remove" onClick={() => handleRemoveImage(i)}>✕</button>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
 
       {error && <p className="review-form__error">{error}</p>}

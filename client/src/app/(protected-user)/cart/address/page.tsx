@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import api from "@/lib/api";
 import { useAuthStore } from "@/store/auth-store";
@@ -98,7 +98,7 @@ const parseSelectedIds = (value: string | null | undefined): string[] => {
     .filter((id) => id.length > 0);
 };
 
-export default function AddressPage() {
+function AddressPageContent() {
   const PAYMENT_POLL_INTERVAL_MS = 7000;
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -753,5 +753,13 @@ export default function AddressPage() {
         </aside>
       </section>
     </main>
+  );
+}
+
+export default function AddressPage() {
+  return (
+    <Suspense fallback={<div className="container py-8 text-center text-slate-500">Đang tải thông tin thanh toán...</div>}>
+      <AddressPageContent />
+    </Suspense>
   );
 }

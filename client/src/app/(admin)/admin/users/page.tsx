@@ -15,6 +15,7 @@ import {
   getUserById,
   getUsers,
   updateUser,
+  getOrders,
   type AdminUser,
 } from "@/lib/admin-api";
 import { useAuthStore } from "@/store/auth-store";
@@ -22,16 +23,16 @@ import { useAuthStore } from "@/store/auth-store";
 type RoleFilter = "all" | "user" | "deliverypartner" | "admin";
 
 const roleTabs = [
-  { value: "all" as RoleFilter, label: "All Users" },
-  { value: "user" as RoleFilter, label: "Customers" },
+  { value: "all" as RoleFilter, label: "Tất cả người dùng" },
+  { value: "user" as RoleFilter, label: "Khách hàng" },
   { value: "deliverypartner" as RoleFilter, label: "Đối tác giao hàng" },
   { value: "admin" as RoleFilter, label: "Quản trị viên" },
 ];
 
 const roleLabels: Record<string, string> = {
-  user: "Customer",
-  deliverypartner: "Delivery",
-  admin: "Admin",
+  user: "Khách hàng",
+  deliverypartner: "Giao hàng",
+  admin: "Quản trị viên",
 };
 
 export default function AdminUsersPage() {
@@ -52,6 +53,19 @@ export default function AdminUsersPage() {
   const [toast, setToast] = useState<{
     type: "success" | "error";
     message: string;
+  } | null>(null);
+
+  const [statsLoading, setStatsLoading] = useState(false);
+  const [userStats, setUserStats] = useState<{
+    totalOrders: number;
+    totalSpent: number;
+    statusBreakdown: Record<string, number>;
+  } | null>(null);
+  const [deliveryStats, setDeliveryStats] = useState<{
+    totalAssigned: number;
+    delivered: number;
+    returned: number;
+    successRate: number;
   } | null>(null);
 
   useEffect(() => {
@@ -83,7 +97,7 @@ export default function AdminUsersPage() {
     } catch (error) {
       setToast({
         type: "error",
-        message: error instanceof Error ? error.message : "Unable to load users.",
+        message: error instanceof Error ? error.message : "Không thể tải người dùng.",
       });
     } finally {
       setLoading(false);
@@ -110,12 +124,12 @@ export default function AdminUsersPage() {
       }
       setToast({
         type: "success",
-        message: user.isActive ? "User disabled." : "User enabled.",
+        message: user.isActive ? "Người dùng đã vô hiệu hóa." : "Người dùng đã bật.",
       });
     } catch (error) {
       setToast({
         type: "error",
-        message: error instanceof Error ? error.message : "Unable to update user.",
+        message: error instanceof Error ? error.message : "Không thể cập nhật người dùng.",
       });
     }
   };
@@ -126,7 +140,7 @@ export default function AdminUsersPage() {
       setDeleting(true);
       await deleteUser(deleteTarget.id, token);
       setUsers((prev) => prev.filter((u) => u.id !== deleteTarget.id));
-      setToast({ type: "success", message: "User deleted." });
+      setToast({ type: "success", message: "Người dùng đã bị xóa." });
       setDeleteTarget(null);
       if (selectedUser?.id === deleteTarget.id) setDrawerOpen(false);
     } catch (error) {
@@ -143,14 +157,47 @@ export default function AdminUsersPage() {
     if (!token) return;
     try {
       const detail = await getUserById(userId, token);
-      if (!detail) throw new Error("Ñgười dùng không tồn tại");
+      if (!detail) throw new Error("Người dùng không tồn tại");
       setSelectedUser(detail);
       setDrawerOpen(true);
+
+      setUserStats(null);
+      setDeliveryStats(null);
+      setStatsLoading(true);
+
+      const ordersResponse = await getOrders(
+        detail.role === "deliverypartner"
+          ? { deliveryPartnerId: userId, limit: 1000 }
+          : { userId: userId, limit: 1000 },
+        token,
+      );
+
+      const orders = ordersResponse.items || [];
+
+      if (detail.role === "deliverypartner") {
+        const totalAssigned = orders.length;
+        const delivered = orders.filter((o) => o.orderStatus === "delivered").length;
+        const returned = orders.filter((o) => o.orderStatus === "returned").length;
+        const successRate = totalAssigned > 0 ? Math.round((delivered / totalAssigned) * 100) : 0;
+        setDeliveryStats({ totalAssigned, delivered, returned, successRate });
+      } else if (detail.role === "user") {
+        const totalOrders = orders.length;
+        const totalSpent = orders
+          .filter((o) => o.orderStatus === "delivered")
+          .reduce((sum, o) => sum + Number(o.total || 0), 0);
+        const statusBreakdown: Record<string, number> = {};
+        orders.forEach((o) => {
+          statusBreakdown[o.orderStatus] = (statusBreakdown[o.orderStatus] || 0) + 1;
+        });
+        setUserStats({ totalOrders, totalSpent, statusBreakdown });
+      }
     } catch (error) {
       setToast({
         type: "error",
-        message: error instanceof Error ? error.message : "Unable to load user detail.",
+        message: error instanceof Error ? error.message : "Không thể tải chi tiết người dùng.",
       });
+    } finally {
+      setStatsLoading(false);
     }
   };
 
@@ -159,9 +206,9 @@ export default function AdminUsersPage() {
       {/* Header */}
       <header className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-slate-900">Users</h2>
+          <h2 className="text-2xl font-bold tracking-tight text-slate-900">Người dùng</h2>
           <p className="mt-0.5 text-sm text-slate-500">
-            {totalResults.toLocaleString()} total users
+            {totalResults.toLocaleString()} tổng người dùng
           </p>
         </div>
       </header>
@@ -170,17 +217,26 @@ export default function AdminUsersPage() {
       <StatusTabs tabs={roleTabs} value={roleFilter} onChange={setRoleFilter} />
 
       {/* Search */}
-      <div className="relative max-w-sm">
-        <Search
-          size={15}
-          className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-        />
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Tìm kiếm theo tên hoặc email…"
-          className="w-full rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
-        />
+      {/* Search */}
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="relative flex-1 min-w-[200px] max-w-sm">
+          <Search
+            size={15}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+          />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Tìm kiếm theo tên hoặc email…"
+            className="w-full rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+          />
+        </div>
+        {loading && (
+          <span className="inline-flex items-center gap-1.5 text-xs text-slate-400">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
+            Đang tải…
+          </span>
+        )}
       </div>
 
       {/* Loading skeleton */}
@@ -198,7 +254,7 @@ export default function AdminUsersPage() {
           columns={[
             {
               key: "user",
-              title: "User",
+              title: "Người dùng",
               render: (row) => (
                 <div className="flex items-center gap-3">
                   <UserAvatar name={row.name} isActive={row.isActive} />
@@ -213,14 +269,14 @@ export default function AdminUsersPage() {
             },
             {
               key: "role",
-              title: "Role",
+              title: "Vai trò",
               render: (row) => (
                 <StatusBadge status={row.role} />
               ),
             },
             {
               key: "status",
-              title: "Status",
+              title: "Trạng thái",
               render: (row) => (
                 <StatusBadge
                   status={row.isActive ? "active" : "inactive"}
@@ -230,7 +286,7 @@ export default function AdminUsersPage() {
             },
             {
               key: "phone",
-              title: "Phone",
+              title: "Điện thoại",
               render: (row) => (
                 <span className="text-xs text-slate-500">
                   {row.phone || "—"}
@@ -239,7 +295,7 @@ export default function AdminUsersPage() {
             },
             {
               key: "joined",
-              title: "Joined",
+              title: "Tham gia",
               render: (row) => (
                 <span className="text-xs text-slate-400">
                   {row.createdAt
@@ -250,7 +306,7 @@ export default function AdminUsersPage() {
             },
             {
               key: "active",
-              title: "Active",
+              title: "Hoạt động",
               render: (row) => (
                 <ToggleSwitch
                   checked={row.isActive}
@@ -261,7 +317,7 @@ export default function AdminUsersPage() {
             },
             {
               key: "actions",
-              title: "Actions",
+              title: "Thao tác",
               render: (row) => (
                 <div className="flex items-center gap-1.5">
                   <button
@@ -269,14 +325,14 @@ export default function AdminUsersPage() {
                     onClick={() => void handleViewDetail(row.id)}
                     className="rounded-lg border border-slate-200 px-2.5 py-1 text-xs font-medium text-slate-600 transition hover:bg-slate-50"
                   >
-                    View
+                    Xem
                   </button>
                   <button
                     type="button"
                     onClick={() => setDeleteTarget(row)}
                     className="rounded-lg border border-rose-100 px-2.5 py-1 text-xs font-medium text-rose-600 transition hover:bg-rose-50"
                   >
-                    Delete
+                    Xóa
                   </button>
                 </div>
               ),
@@ -368,6 +424,80 @@ export default function AdminUsersPage() {
                 </div>
               ))}
             </div>
+
+            {/* Statistics */}
+            {statsLoading && (
+              <div className="flex items-center justify-center py-6 text-sm text-slate-400">
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-emerald-500 border-t-transparent mr-2" />
+                Đang tải thống kê...
+              </div>
+            )}
+
+            {!statsLoading && selectedUser.role === "user" && userStats && (
+              <div className="space-y-3">
+                <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                  Thống kê mua hàng
+                </p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="rounded-xl border border-slate-100 bg-slate-50/50 p-3 text-center">
+                    <p className="text-xs text-slate-400">Đơn đã đặt</p>
+                    <p className="mt-1 text-xl font-bold text-slate-800">{userStats.totalOrders}</p>
+                  </div>
+                  <div className="rounded-xl border border-slate-100 bg-slate-50/50 p-3 text-center">
+                    <p className="text-xs text-slate-400">Tổng chi tiêu</p>
+                    <p className="mt-1 text-base font-bold text-emerald-600">{userStats.totalSpent.toLocaleString()} ₫</p>
+                  </div>
+                </div>
+                {/* Breakdown */}
+                {Object.keys(userStats.statusBreakdown).length > 0 && (
+                  <div className="rounded-xl border border-slate-100 p-3.5 space-y-2 bg-white">
+                    <p className="text-xs font-bold text-slate-400">Chi tiết trạng thái đơn</p>
+                    <div className="space-y-1.5 max-h-[150px] overflow-y-auto pr-1">
+                      {Object.entries(userStats.statusBreakdown).map(([status, count]) => (
+                        <div key={status} className="flex justify-between items-center text-xs">
+                          <span className="text-slate-500">
+                            {status === "pending" ? "Chờ xác nhận" :
+                             status === "confirmed" ? "Đã xác nhận" :
+                             status === "processing" ? "Đang chuẩn bị" :
+                             status === "shipped" ? "Đang giao" :
+                             status === "delivered" ? "Đã nhận" :
+                             status === "cancelled" ? "Đã hủy" :
+                             status === "returned" ? "Hoàn trả" : status}
+                          </span>
+                          <span className="font-semibold text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded-md">{count} đơn</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {!statsLoading && selectedUser.role === "deliverypartner" && deliveryStats && (
+              <div className="space-y-3">
+                <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                  Thống kê giao hàng
+                </p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="rounded-xl border border-slate-100 bg-slate-50/50 p-3 text-center">
+                    <p className="text-xs text-slate-400">Đơn được giao</p>
+                    <p className="mt-1 text-xl font-bold text-slate-800">{deliveryStats.totalAssigned}</p>
+                  </div>
+                  <div className="rounded-xl border border-slate-100 bg-slate-50/50 p-3 text-center">
+                    <p className="text-xs text-slate-400">Tỉ lệ thành công</p>
+                    <p className="mt-1 text-xl font-bold text-emerald-600">{deliveryStats.successRate}%</p>
+                  </div>
+                  <div className="rounded-xl border border-slate-100 bg-slate-50/50 p-3 text-center col-span-2">
+                    <p className="text-xs text-slate-400 font-medium text-emerald-700">Thành công</p>
+                    <p className="mt-1 text-lg font-bold text-emerald-600">{deliveryStats.delivered}</p>
+                  </div>
+                  <div className="rounded-xl border border-slate-100 bg-slate-50/50 p-3 text-center col-span-2">
+                    <p className="text-xs text-slate-400 font-medium text-red-600">Trả lại / Thất bại</p>
+                    <p className="mt-1 text-lg font-bold text-red-500">{deliveryStats.returned}</p>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Toggle active */}
             <div className="flex items-center justify-between rounded-xl border border-slate-100 px-4 py-3">

@@ -237,7 +237,7 @@ class MyReviewService extends BaseApiService {
 
   async updateReview(
     id: string,
-    payload: { rating?: number; content?: string },
+    payload: { rating?: number; content?: string; images?: string[] },
   ) {
     const response = await this.patch<{ review: Review }>(
       API_ENDPOINTS.reviews.update(id),
@@ -276,7 +276,7 @@ export function useMyReviews() {
   );
 
   const updateReview = useCallback(
-    async (id: string, payload: { rating?: number; content?: string }) => {
+    async (id: string, payload: { rating?: number; content?: string; images?: string[] }) => {
       setSubmitting(true);
       try {
         const updated = await myReviewService.updateReview(id, payload);

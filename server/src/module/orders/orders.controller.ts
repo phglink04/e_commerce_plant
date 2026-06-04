@@ -32,13 +32,21 @@ export class OrdersController {
   @Get()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles("admin", "owner", "deliverypartner")
-  getAllOrders(@Query() query: Record<string, string | undefined>) {
+  getAllOrders(
+    @CurrentUser() user: JwtPayload,
+    @Query() query: Record<string, string | undefined>,
+  ) {
+    const deliveryPartnerId =
+      user.role === "deliverypartner" ? user.sub : query.deliveryPartnerId;
+
     return this.ordersService.getAll({
       page: query.page ? Number(query.page) : undefined,
       limit: query.limit ? Number(query.limit) : undefined,
       search: query.search,
       orderStatus: query.orderStatus ?? query.status,
       paymentStatus: query.paymentStatus,
+      deliveryPartnerId,
+      userId: query.userId,
     });
   }
 
@@ -71,6 +79,9 @@ export class OrdersController {
     const order = await this.ordersService.updateOrderStatus(orderId, {
       orderStatus: dto.orderStatus,
       paymentStatus: dto.paymentStatus,
+      deliveryPartnerId: dto.deliveryPartnerId,
+      deliveryPartnerName: dto.deliveryPartnerName,
+      returnReason: dto.returnReason,
     });
     if (!order) {
       throw new NotFoundException("Order not found");

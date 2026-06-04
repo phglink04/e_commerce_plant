@@ -96,30 +96,41 @@ export class OrdersService implements OnModuleInit {
   // ─── CRUD ──────────────────────────────────────────────────
 
   async create(userId: string, dto: CreateOrderDto) {
-    // Validate stock availability for all items
-    const stockValidationErrors: { plantId: string; available: number; requested: number }[] = [];
+    // Validate stock and discontinued availability for all items
+    const stockValidationErrors: { plantId: string; message: string }[] = [];
     
     for (const item of dto.items) {
       const plant = await this.plantsService.getById(item.plantId);
-      const availableStock = plant?.data?.plant?.stock ?? 0;
-      
-      if (item.quantity > availableStock) {
+      const plantObj = plant?.data?.plant;
+      if (!plantObj) {
         stockValidationErrors.push({
           plantId: item.plantId,
-          available: availableStock,
-          requested: item.quantity,
+          message: "Sản phẩm không tồn tại",
+        });
+        continue;
+      }
+
+      if (plantObj.availability === "Discontinued") {
+        stockValidationErrors.push({
+          plantId: item.plantId,
+          message: `Sản phẩm "${plantObj.name}" đã ngừng kinh doanh và không thể đặt mua`,
+        });
+      } else if (item.quantity > plantObj.stock) {
+        stockValidationErrors.push({
+          plantId: item.plantId,
+          message: `Kho hàng chỉ còn ${plantObj.stock} sản phẩm, bạn yêu cầu ${item.quantity}`,
         });
       }
     }
     
-    // Return error if any item has insufficient stock
+    // Return error if any item has insufficient stock or is discontinued
     if (stockValidationErrors.length > 0) {
       return {
-        message: "Không đủ hàng để tạo đơn hàng",
+        message: "Không đủ hàng hoặc sản phẩm không khả dụng để tạo đơn hàng",
         data: null,
         errors: stockValidationErrors.map(err => ({
           plantId: err.plantId,
-          message: `Kho hàng chỉ còn ${err.available} sản phẩm, bạn yêu cầu ${err.requested}`,
+          message: err.message,
         })),
       };
     }
@@ -177,12 +188,16 @@ export class OrdersService implements OnModuleInit {
     search?: string;
     orderStatus?: string;
     paymentStatus?: string;
+    deliveryPartnerId?: string;
+    userId?: string;
   }) {
     const page = Math.max(1, Number(query?.page ?? 1) || 1);
     const limit = Math.max(1, Number(query?.limit ?? 10) || 10);
     const normalizedSearch = (query?.search ?? "").trim();
     const normalizedOrderStatus = (query?.orderStatus ?? "").trim();
     const normalizedPaymentStatus = (query?.paymentStatus ?? "").trim();
+    const normalizedDeliveryPartnerId = (query?.deliveryPartnerId ?? "").trim();
+    const normalizedUserId = (query?.userId ?? "").trim();
 
     const filter: Record<string, unknown> = {};
 
@@ -192,6 +207,14 @@ export class OrdersService implements OnModuleInit {
 
     if (normalizedPaymentStatus) {
       filter.paymentStatus = normalizedPaymentStatus;
+    }
+
+    if (normalizedDeliveryPartnerId) {
+      filter.deliveryPartnerId = normalizedDeliveryPartnerId;
+    }
+
+    if (normalizedUserId) {
+      filter.userId = normalizedUserId;
     }
 
     if (normalizedSearch) {
@@ -252,11 +275,30 @@ export class OrdersService implements OnModuleInit {
 
   async updateOrderStatus(
     orderId: string,
-    update: { orderStatus?: OrderStatus; paymentStatus?: PaymentStatus },
+    update: {
+      orderStatus?: OrderStatus;
+      paymentStatus?: PaymentStatus;
+      deliveryPartnerId?: string;
+      deliveryPartnerName?: string;
+      returnReason?: string;
+    },
   ) {
     const setFields: Record<string, unknown> = {};
-    if (update.orderStatus) setFields.orderStatus = update.orderStatus;
-    if (update.paymentStatus) setFields.paymentStatus = update.paymentStatus;
+    if (update.orderStatus) {
+      setFields.orderStatus = update.orderStatus;
+    }
+    if (update.paymentStatus) {
+      setFields.paymentStatus = update.paymentStatus;
+    }
+    if (update.deliveryPartnerId !== undefined) {
+      setFields.deliveryPartnerId = update.deliveryPartnerId;
+    }
+    if (update.deliveryPartnerName !== undefined) {
+      setFields.deliveryPartnerName = update.deliveryPartnerName;
+    }
+    if (update.returnReason !== undefined) {
+      setFields.returnReason = update.returnReason;
+    }
 
     // Auto-mark as paid when delivered
     if (update.orderStatus === "delivered") {
@@ -305,27 +347,7 @@ export class OrdersService implements OnModuleInit {
     return updated ? this.toOrderResponse(updated) : null;
   }
 
-  private toOrderResponse(order: {
-    _id: unknown;
-    userId: string;
-    orderStatus?: OrderStatus;
-    paymentStatus?: PaymentStatus;
-    total: number;
-    items: Array<{
-      plantId: string;
-      name: string;
-      quantity: number;
-      price: number;
-    }>;
-    shippingAddress: string;
-    addressId?: unknown;
-    shippingFee?: number;
-    discount?: { code: string; amount: number } | null;
-    paymentMethod?: string | null;
-    transactionCode?: string | null;
-    createdAt?: Date | string | null;
-    updatedAt?: Date | string | null;
-  }) {
+  private toOrderResponse(order: any) {
     return {
       id: String(order._id),
       userId: order.userId,
@@ -339,6 +361,9 @@ export class OrdersService implements OnModuleInit {
       discount: order.discount ?? null,
       paymentMethod: order.paymentMethod ?? null,
       transactionCode: order.transactionCode ?? null,
+      deliveryPartnerId: order.deliveryPartnerId ?? null,
+      deliveryPartnerName: order.deliveryPartnerName ?? null,
+      returnReason: order.returnReason ?? null,
       createdAt: toIsoString(order.createdAt),
       updatedAt: toIsoString(order.updatedAt),
     };

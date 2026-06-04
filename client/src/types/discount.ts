@@ -5,10 +5,11 @@ export interface Discount {
   percentage: number;
   minOrderValue: number;
   maxDiscount: number | null;
-  usageLimit: number;
+  usageLimit: number | null;
+  usageLimitPerUser: number | null;
   usedCount: number;
-  startDate: string;
-  endDate: string;
+  startDate: string | null;
+  endDate: string | null;
   isActive: boolean;
   isVisible: boolean;
   createdAt: string;
@@ -20,9 +21,10 @@ export interface CreateDiscountPayload {
   percentage: number;
   minOrderValue: number;
   maxDiscount?: number;
-  usageLimit: number;
-  startDate: string;
-  endDate: string;
+  usageLimit?: number | null;
+  usageLimitPerUser?: number | null;
+  startDate?: string | null;
+  endDate?: string | null;
   isActive?: boolean;
   isVisible?: boolean;
 }

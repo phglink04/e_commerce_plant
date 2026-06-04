@@ -1,12 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import RoleGuard from "@/components/auth/role-guard";
 import type { AppRole } from "@/lib/role-routing";
 import { useAuthStore } from "@/store/auth-store";
-import { LayoutDashboard, Package, Users, Settings, LogOut, Truck, ChevronRight } from "lucide-react";
-import { TopBar } from "@/components/admin/Layout/TopBar";
+import { LayoutDashboard, Package, Users, Settings, LogOut, Truck, ChevronRight, Menu, X, User } from "lucide-react";
 
 type MenuItem = {
   href: string;
@@ -34,7 +34,13 @@ export default function RoleWorkspaceLayout({
   const pathname = usePathname();
   const { user, logout } = useAuthStore();
 
-  if (pathname === loginPath) {
+  const [isOpen, setIsOpen] = useState(true);
+
+  const isLoginPage = pathname
+    ? pathname.replace(/\/$/, "").toLowerCase() === loginPath.replace(/\/$/, "").toLowerCase()
+    : false;
+
+  if (isLoginPage) {
     return <>{children}</>;
   }
 
@@ -68,41 +74,133 @@ export default function RoleWorkspaceLayout({
                 ))}
               </nav>
 
-              <div className="mt-auto rounded-2xl bg-slate-800 p-4">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold">
-                    {user?.name?.charAt(0) ?? "A"}
-                  </div>
-                  <div className="overflow-hidden">
-                    <p className="truncate text-sm font-medium">{user?.name ?? "Admin"}</p>
-                    <p className="truncate text-xs text-slate-400">{user?.email ?? ""}</p>
+              <div className="mt-auto space-y-3">
+                <div className="rounded-2xl bg-slate-800 p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold">
+                      {user?.name?.charAt(0) ?? "A"}
+                    </div>
+                    <div className="overflow-hidden">
+                      <p className="truncate text-sm font-medium">{user?.name ?? "Admin"}</p>
+                      <p className="truncate text-xs text-slate-400">{user?.email ?? ""}</p>
+                    </div>
                   </div>
                 </div>
+
+                <button
+                  onClick={logout}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-rose-400 hover:bg-rose-950/30 hover:text-rose-300 font-medium transition duration-200"
+                >
+                  <LogOut size={18} />
+                  <span className="text-sm">Đăng xuất</span>
+                </button>
               </div>
             </aside>
 
             <section className="min-w-0">
-              <TopBar />
               <div className="p-6">{children}</div>
             </section>
           </div>
         ) : (
-          <section className="mx-auto max-w-6xl p-4 md:p-6">
-            <header className="mb-6 flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-              <div>
-                <h1 className="text-2xl font-bold text-slate-900">{heading}</h1>
-                <p className="text-sm text-slate-500">Delivery Operations Dashboard</p>
+          <div className="flex h-screen bg-slate-50">
+            {/* Sidebar Toggle Button for Mobile */}
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="fixed top-4 left-4 z-50 rounded-lg bg-white p-2 shadow-md md:hidden border border-slate-200"
+              title="Menu"
+            >
+              {isOpen ? <X size={20} className="text-slate-700" /> : <Menu size={20} className="text-slate-700" />}
+            </button>
+
+            {/* Sidebar */}
+            <aside
+              className={`${
+                isOpen ? "w-64" : "w-0"
+              } bg-white border-r border-slate-200 flex flex-col overflow-hidden transition-all duration-300 md:w-64 md:relative z-40 shrink-0`}
+            >
+              {/* Branding Header */}
+              <div className="p-6 border-b border-slate-200 flex items-center gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-600 text-white">
+                  <Truck size={18} />
+                </div>
+                <span className="text-lg font-bold tracking-tight text-emerald-600">🌱 Logistics</span>
               </div>
-              <button
-                onClick={logout}
-                className="flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800"
-              >
-                <LogOut className="h-4 w-4" />
-                Logout
-              </button>
-            </header>
-            <div>{children}</div>
-          </section>
+
+              {/* Navigation Menus */}
+              <nav className="flex-1 overflow-y-auto px-4 py-6 space-y-2">
+                {menus.map((menu) => {
+                  let icon = menu.icon || <Package size={18} />;
+                  if (menu.href.includes("profile")) {
+                    icon = <User size={18} />;
+                  } else if (menu.href.includes("settings")) {
+                    icon = <Settings size={18} />;
+                  } else if (menu.href.includes("orders")) {
+                    icon = <Truck size={18} />;
+                  }
+                  
+                  const isActive = pathname === menu.href;
+                  return (
+                    <Link
+                      key={menu.href}
+                      href={menu.href}
+                      className={`flex items-center gap-3 px-4 py-3 rounded-lg transition duration-200 ${
+                        isActive
+                          ? "bg-emerald-50 text-emerald-700 font-semibold"
+                          : "text-slate-700 hover:bg-slate-100"
+                      }`}
+                    >
+                      {icon}
+                      <span className="text-sm font-medium">{menu.label}</span>
+                    </Link>
+                  );
+                })}
+              </nav>
+
+              {/* Footer with User info and Logout */}
+              <div className="border-t border-slate-200 p-4 space-y-3">
+                <div className="flex items-center gap-3 rounded-xl bg-slate-50 p-3 border border-slate-100">
+                  <div className="h-9 w-9 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold shrink-0">
+                    {user?.name?.charAt(0) ?? "D"}
+                  </div>
+                  <div className="overflow-hidden">
+                    <p className="truncate text-xs font-semibold text-slate-700">{user?.name ?? "Bưu tá"}</p>
+                    <p className="truncate text-[10px] text-slate-400">{user?.email ?? ""}</p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={logout}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-rose-600 hover:bg-rose-50 hover:text-rose-700 font-semibold transition duration-200"
+                >
+                  <LogOut size={18} />
+                  <span className="text-sm">Đăng xuất</span>
+                </button>
+              </div>
+            </aside>
+
+            {/* Main Content Area */}
+            <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+              {/* Header / Top Bar */}
+              <header className="h-16 border-b border-slate-200 bg-white flex items-center justify-between px-6 shrink-0">
+                <div className="flex items-center gap-2">
+                  <h1 className="text-lg font-bold text-slate-800 hidden md:block">
+                    {heading === "Delivery Workspace" ? "Trung Tâm Logistics" : heading}
+                  </h1>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 border border-emerald-100">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-ping" />
+                    Trực tuyến
+                  </span>
+                </div>
+              </header>
+
+              {/* Page Content */}
+              <main className="flex-1 overflow-y-auto px-6 py-6 min-w-0">
+                {children}
+              </main>
+            </div>
+          </div>
         )}
       </main>
     </RoleGuard>

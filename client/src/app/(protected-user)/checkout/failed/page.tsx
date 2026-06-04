@@ -2,9 +2,10 @@
 
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { Suspense } from "react";
 import { AlertTriangle, RotateCcw, ShoppingCart, CreditCard } from "lucide-react";
 
-export default function CheckoutFailedPage() {
+function CheckoutFailedPageContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId");
 
@@ -26,15 +27,14 @@ export default function CheckoutFailedPage() {
             Thanh toán thất bại
           </h1>
           <p className="mt-2 max-w-sm text-sm text-slate-600">
-            We couldn&apos;t verify your payment within the time limit. Your
-            order has not been cancelled — you can retry the payment.
+            Chúng tôi không thể xác nhận thanh toán của bạn trong thời gian quy định. Đơn hàng của bạn vẫn chưa bị hủy — bạn có thể thử thanh toán lại.
           </p>
         </div>
 
         {/* Info card */}
         {orderId && (
           <div className="mb-6 rounded-xl border border-slate-200 bg-white px-4 py-3 text-center">
-            <p className="text-xs text-slate-500">Order ID</p>
+            <p className="text-xs text-slate-500">Mã đơn hàng</p>
             <p className="text-sm font-bold tracking-wider text-slate-800">
               #{orderId.slice(-8).toUpperCase()}
             </p>
@@ -43,11 +43,11 @@ export default function CheckoutFailedPage() {
 
         {/* What happened */}
         <div className="mb-8 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          <p className="font-semibold">What happened?</p>
+          <p className="font-semibold">Có chuyện gì đã xảy ra?</p>
           <ul className="mt-1.5 list-inside list-disc space-y-0.5 text-amber-700">
-            <li>The payment verification timed out</li>
-            <li>The bank transfer may still be processing</li>
-            <li>The transfer note may not match</li>
+            <li>Hệ thống xác nhận thanh toán hết thời gian chờ</li>
+            <li>Giao dịch chuyển khoản ngân hàng vẫn đang được xử lý</li>
+            <li>Nội dung chuyển tiền có thể không khớp</li>
           </ul>
         </div>
 
@@ -81,10 +81,17 @@ export default function CheckoutFailedPage() {
         </div>
 
         <p className="mt-6 text-center text-xs text-slate-400">
-          If you already transferred, the payment may still be verified
-          automatically. Check &quot;My Orders&quot; for the latest status.
+          Nếu bạn đã thực hiện chuyển tiền, hệ thống vẫn có thể tự động xác nhận thanh toán sau đó. Vui lòng kiểm tra mục &quot;Đơn hàng của tôi&quot; để cập nhật trạng thái mới nhất.
         </p>
       </div>
     </main>
+  );
+}
+
+export default function CheckoutFailedPage() {
+  return (
+    <Suspense fallback={<div className="container py-8 text-center text-slate-500">Đang tải thông tin thanh toán...</div>}>
+      <CheckoutFailedPageContent />
+    </Suspense>
   );
 }
