@@ -11,19 +11,21 @@ interface AdminLayoutProps {
 }
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
-  const { token, user } = useAuthStore();
+  const { token, user, hasHydrated } = useAuthStore();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    if (!hasHydrated) return;
+
     if (!token || user?.role !== "admin") {
       router.push("/auth/login");
       return;
     }
     setIsLoading(false);
-  }, [token, user, router]);
+  }, [token, user, router, hasHydrated]);
 
-  if (isLoading || !token || user?.role !== "admin") {
+  if (!hasHydrated || isLoading || !token || user?.role !== "admin") {
     return null;
   }
 

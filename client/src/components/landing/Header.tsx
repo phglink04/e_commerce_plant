@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { useHomeUiStore } from "@/store/home-ui-store";
 import { useAuthStore } from "@/store/auth-store";
-import { normalizeImageSrc } from "@/utils/utils";
+import { normalizeImageSrc, removeVietnameseTones } from "@/utils/utils";
 import api from "@/lib/api";
 
 /* ── Types ── */
@@ -117,10 +117,14 @@ export default function Header() {
 
   /* ── Search suggestions ── */
   const suggestions = useMemo(() => {
-    const kw = query.trim().toLowerCase();
+    const kw = removeVietnameseTones(query.trim().toLowerCase());
     if (!kw) return [];
     return products
-      .filter((p) => p.name.toLowerCase().includes(kw) || (p.category ?? "").toLowerCase().includes(kw))
+      .filter((p) => {
+        const normName = removeVietnameseTones(p.name.toLowerCase());
+        const normCat = removeVietnameseTones((p.category ?? "").toLowerCase());
+        return normName.includes(kw) || normCat.includes(kw);
+      })
       .slice(0, 8);
   }, [query, products]);
 

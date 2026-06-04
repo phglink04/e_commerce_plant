@@ -22,7 +22,14 @@ api.interceptors.request.use((config) => {
 
   const token = getToken();
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+    if (config.headers && typeof config.headers.set === "function") {
+      config.headers.set("Authorization", `Bearer ${token}`);
+    } else {
+      config.headers = {
+        ...config.headers,
+        Authorization: `Bearer ${token}`,
+      } as any;
+    }
   }
 
   if (config.data instanceof FormData) {

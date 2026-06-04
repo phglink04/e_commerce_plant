@@ -126,10 +126,13 @@ class ReviewService extends BaseApiService {
   async uploadImage(file: File): Promise<{ publicUrl: string }> {
     const formData = new FormData();
     formData.append("image", file);
-    const response = await this.uploadFile<{ publicUrl: string }>(
+    const response = await this.uploadFile<any>(
       API_ENDPOINTS.reviews.uploadImage,
       formData,
     );
+    if (response && (response as any).publicUrl) {
+      return response as any;
+    }
     return response.data;
   }
 }

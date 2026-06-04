@@ -111,7 +111,7 @@ export default function SectionConfigEditor({
           />
         );
       default:
-        return <div className="text-slate-500">No editor for this section</div>;
+        return <div className="text-slate-500">Không có trình chỉnh sửa cấu hình cho mục này</div>;
     }
   };
 
@@ -233,7 +233,7 @@ function HeroConfigEditor({
     <div className="space-y-4">
       <div>
         <label className="block text-sm font-medium text-slate-700 mb-1">
-          Tiêu đề (Title)
+          Tiêu đề
         </label>
         <input
           type="text"
@@ -246,7 +246,7 @@ function HeroConfigEditor({
 
       <div>
         <label className="block text-sm font-medium text-slate-700 mb-1">
-          Phụ đề (Subtitle)
+          Phụ đề
         </label>
         <textarea
           value={(config.subtitle as string) || ""}
@@ -374,7 +374,7 @@ function GridConfigEditor({
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">
-            Số hàng (Rows)
+            Số hàng
           </label>
           <input
             type="number"
@@ -391,7 +391,7 @@ function GridConfigEditor({
 
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">
-            Số cột (Columns)
+            Số cột
           </label>
           <input
             type="number"
@@ -462,7 +462,7 @@ function ReviewConfigEditor({
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">
-            Số lượng 1 lần tải (Per Page)
+            Số lượng hiển thị mỗi lần tải
           </label>
           <input
             type="number"
@@ -474,12 +474,12 @@ function ReviewConfigEditor({
             }
             className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm"
           />
-          <p className="text-xs text-slate-400 mt-1">1 – 10 đánh giá</p>
+          <p className="text-xs text-slate-400 mt-1">Từ 1 – 10 đánh giá</p>
         </div>
 
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">
-            Tổng tối đa (Max Total)
+            Tổng số đánh giá tối đa
           </label>
           <input
             type="number"
@@ -544,7 +544,7 @@ function SaleConfigEditor({
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">
-            Số hàng (Rows)
+            Số hàng
           </label>
           <input
             type="number"
@@ -561,7 +561,7 @@ function SaleConfigEditor({
 
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">
-            Số cột (Columns)
+            Số cột
           </label>
           <input
             type="number"
@@ -659,7 +659,7 @@ function SaleConfigEditor({
           className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm"
         />
         <p className="text-xs text-slate-400 mt-1">
-          Hiển thị &quot;Up To {discountPercent || "??"}% OFF&quot; trên banner. Để 0 = tự tính từ sản phẩm.
+          Hiển thị &quot;Giảm tới {discountPercent || "??"}%&quot; trên banner. Để 0 = tự động tính từ sản phẩm.
         </p>
       </div>
     </div>

@@ -90,12 +90,8 @@ function ShopPageContent() {
   useEffect(() => {
     const catParam = searchParams.get("category");
     const searchParam = searchParams.get("search");
-    if (catParam) {
-      setSelectedCategories([catParam]);
-    }
-    if (searchParam) {
-      setSearchTerm(searchParam);
-    }
+    setSelectedCategories(catParam ? [catParam] : []);
+    setSearchTerm(searchParam ? searchParam : "");
     setUrlSynced(true);
   }, [searchParams]);
 

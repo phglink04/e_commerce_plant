@@ -23,11 +23,15 @@ export default function RoleGuard({
   loginPath = "/auth/login",
 }: RoleGuardProps) {
   const router = useRouter();
-  const { token, user } = useAuthStore();
+  const { token, user, hasHydrated } = useAuthStore();
 
   const role = useMemo(() => normalizeRole(user?.role), [user?.role]);
 
   useEffect(() => {
+    if (!hasHydrated) {
+      return;
+    }
+
     if (!token) {
       router.replace(loginPath);
       return;
@@ -52,9 +56,9 @@ export default function RoleGuard({
     if (!isAllowed) {
       router.replace(getRoleHomePath(role));
     }
-  }, [allowedRoles, loginPath, role, router, token]);
+  }, [allowedRoles, loginPath, role, router, token, hasHydrated]);
 
-  if (!token || !role) {
+  if (!hasHydrated || !token || !role) {
     return <main className="container pw-admin-shell">Checking access...</main>;
   }
 

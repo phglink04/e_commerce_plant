@@ -60,14 +60,14 @@ export default function AdminHomeSettingsPage() {
         });
         setToast({
           type: "success",
-          message: "✓ Logo uploaded successfully! Click 'Save Changes' to save.",
+          message: "✓ Tải lên logo thành công! Nhấn 'Lưu thay đổi' để lưu lại.",
         });
       }
     } catch (err: any) {
       console.error(err);
       setToast({
         type: "error",
-        message: err.response?.data?.message || "Failed to upload logo image.",
+        message: err.response?.data?.message || "Không thể tải lên ảnh logo.",
       });
     } finally {
       setIsUploadingLogo(false);
@@ -92,7 +92,7 @@ export default function AdminHomeSettingsPage() {
         setSettings(DEFAULT_HOME_TEMPLATE);
         setToast({
           type: "error",
-          message: "Failed to load settings, using default template",
+          message: "Không thể tải cấu hình, đang sử dụng cấu hình mặc định",
         });
       } finally {
         setIsLoading(false);
@@ -176,7 +176,7 @@ export default function AdminHomeSettingsPage() {
 
       setToast({
         type: "success",
-        message: "✓ Homepage settings saved successfully!",
+        message: "✓ Thiết lập trang chủ đã được lưu thành công!",
       });
 
       // Revalidate homepage
@@ -193,7 +193,7 @@ export default function AdminHomeSettingsPage() {
       console.error(error);
       setToast({
         type: "error",
-        message: "Failed to save settings",
+        message: "Không thể lưu thiết lập trang chủ",
       });
     } finally {
       setIsSaving(false);
@@ -205,7 +205,7 @@ export default function AdminHomeSettingsPage() {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4" />
-          <p className="text-slate-600">Loading homepage settings...</p>
+          <p className="text-slate-600">Đang tải thiết lập trang chủ...</p>
         </div>
       </div>
     );
@@ -214,7 +214,7 @@ export default function AdminHomeSettingsPage() {
   if (!settings) {
     return (
       <div className="p-6 text-center text-red-600">
-        <p>Failed to load settings</p>
+        <p>Không thể tải cấu hình thiết lập</p>
       </div>
     );
   }
@@ -225,10 +225,10 @@ export default function AdminHomeSettingsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-slate-900">
-            Home Page Builder
+            Trình dựng Trang chủ
           </h1>
           <p className="mt-1 text-sm text-slate-600">
-            Manage your homepage sections, visibility, and configuration
+            Quản lý các phần hiển thị, sắp xếp thứ tự và cấu hình trang chủ của bạn
           </p>
         </div>
         <button
@@ -237,7 +237,7 @@ export default function AdminHomeSettingsPage() {
           className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 transition-colors"
         >
           <Save size={16} />
-          {isSaving ? "Saving..." : "Save Changes"}
+          {isSaving ? "Đang lưu..." : "Lưu thay đổi"}
         </button>
       </div>
 
@@ -256,7 +256,7 @@ export default function AdminHomeSettingsPage() {
         <div className="lg:col-span-1 space-y-4">
           <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-6">
             <h2 className="font-bold text-lg text-slate-900 mb-4">
-              Section Order
+              Thứ tự hiển thị
             </h2>
 
             <DragDropContext onDragEnd={handleDragEnd}>
@@ -309,7 +309,7 @@ export default function AdminHomeSettingsPage() {
                                 handleToggleVisibility(section.sectionId)
                               }
                               className="flex-shrink-0 p-1.5 hover:bg-slate-200 rounded transition-colors"
-                              title={section.isVisible ? "Hide" : "Show"}
+                              title={section.isVisible ? "Ẩn" : "Hiện"}
                             >
                               {section.isVisible ? (
                                 <Eye size={16} className="text-emerald-600" />
@@ -324,7 +324,7 @@ export default function AdminHomeSettingsPage() {
                                 setEditingSectionId(section.sectionId)
                               }
                               className="flex-shrink-0 p-1.5 hover:bg-slate-200 rounded transition-colors"
-                              title="Edit section config"
+                              title="Chỉnh sửa cấu hình"
                             >
                               <Pencil size={16} className="text-slate-600" />
                             </button>
@@ -338,12 +338,6 @@ export default function AdminHomeSettingsPage() {
               </Droppable>
             </DragDropContext>
 
-            {/* Legend */}
-            <div className="mt-4 pt-4 border-t border-slate-200 text-xs text-slate-500 space-y-1">
-              <p>• Drag to reorder sections</p>
-              <p>• Click eye icon to show/hide</p>
-              <p>• Click pencil to edit config</p>
-            </div>
           </div>
         </div>
 
@@ -351,9 +345,9 @@ export default function AdminHomeSettingsPage() {
         <div className="lg:col-span-2 space-y-4">
           <div className="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden">
             <div className="bg-slate-50 px-6 py-4 border-b border-slate-200">
-              <h2 className="font-bold text-lg text-slate-900">Live Preview</h2>
+              <h2 className="font-bold text-lg text-slate-900">Xem trước giao diện</h2>
               <p className="text-xs text-slate-500 mt-1">
-                See how your homepage will look
+                Xem hiển thị thực tế trang chủ của bạn
               </p>
             </div>
 
@@ -427,7 +421,7 @@ export default function AdminHomeSettingsPage() {
           className="flex items-center justify-between w-full"
         >
           <h3 className="font-bold text-lg text-slate-900">
-            Footer Information
+            Thông tin chân trang (Footer)
           </h3>
           <ChevronDown
             size={20}
@@ -441,7 +435,7 @@ export default function AdminHomeSettingsPage() {
           <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">
-                Address
+                Địa chỉ
               </label>
               <input
                 type="text"
@@ -461,7 +455,7 @@ export default function AdminHomeSettingsPage() {
 
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">
-                Phone
+                Số điện thoại
               </label>
               <input
                 type="text"
@@ -501,7 +495,7 @@ export default function AdminHomeSettingsPage() {
 
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">
-                Facebook Link
+                Đường dẫn Facebook
               </label>
               <input
                 type="url"
