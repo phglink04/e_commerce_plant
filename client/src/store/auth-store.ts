@@ -27,6 +27,7 @@ type AuthState = {
   forgotPassword: (payload: ForgotPasswordPayload) => Promise<boolean>;
   resetPassword: (payload: ResetPasswordPayload) => Promise<boolean>;
   verifyAccount: (payload: VerifyAccountPayload) => Promise<boolean>;
+  sendActivation: (payload: { email: string }) => Promise<boolean>;
   loginWithGoogle: (idToken: string) => Promise<boolean>;
   logout: () => void;
 };
@@ -126,7 +127,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   register: async (payload) => {
     try {
       set({ loading: true, error: "", success: "" });
-      const response = await api.post("/api/users/signup", {
+      await api.post("/api/users/signup", {
         name: payload.name,
         email: payload.email,
         password: payload.password,
@@ -134,26 +135,17 @@ export const useAuthStore = create<AuthState>((set) => ({
         captchaToken: payload.captchaToken,
       });
 
-      const verificationCode = response.data?.data?.verificationCode as
-        | string
-        | undefined;
-
       if (typeof window !== "undefined") {
         localStorage.setItem("pending_verification_email", payload.email);
-        if (verificationCode) {
-          localStorage.setItem("pending_verification_code", verificationCode);
-        }
       }
 
       set({
         loading: false,
-        success: verificationCode
-          ? `Registration successful. Verification code: ${verificationCode}`
-          : "Registration successful. Please verify your account.",
+        success: "Đăng ký tài khoản thành công! Vui lòng kiểm tra email để nhận mã kích hoạt.",
       });
       return true;
     } catch (err) {
-      set({ loading: false, error: parseError(err, "Registration failed") });
+      set({ loading: false, error: parseError(err, "Đăng ký tài khoản thất bại.") });
       return false;
     }
   },
@@ -189,10 +181,22 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       set({ loading: true, error: "", success: "" });
       await api.post("/api/auth/verify-account", payload);
-      set({ loading: false, success: "Account verification successful" });
+      set({ loading: false, success: "Xác thực tài khoản thành công!" });
       return true;
     } catch (err) {
-      set({ loading: false, error: parseError(err, "Verify account failed") });
+      set({ loading: false, error: parseError(err, "Xác thực tài khoản thất bại.") });
+      return false;
+    }
+  },
+
+  sendActivation: async (payload) => {
+    try {
+      set({ loading: true, error: "", success: "" });
+      await api.post("/api/auth/send-activation", payload);
+      set({ loading: false, success: "Mã xác thực mới đã được gửi đến email của bạn." });
+      return true;
+    } catch (err) {
+      set({ loading: false, error: parseError(err, "Gửi lại mã xác thực thất bại.") });
       return false;
     }
   },

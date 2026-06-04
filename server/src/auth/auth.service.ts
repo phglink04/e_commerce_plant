@@ -106,7 +106,6 @@ export class AuthService {
         : "Registration successful, but we could not send verification email. Please use resend activation code.",
       data: {
         user: this.usersService.toPublicUser(user),
-        ...(this.shouldExposeDebugTokens() ? { verificationCode } : {}),
         ...(mailSent ? {} : { mailSent: false }),
       },
     };
@@ -188,9 +187,7 @@ export class AuthService {
 
     return {
       message: "Activation code sent successfully",
-      data: {
-        ...(this.shouldExposeDebugTokens() ? { verificationCode } : {}),
-      },
+      data: {},
     };
   }
 
