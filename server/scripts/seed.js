@@ -171,7 +171,7 @@ const REVIEW_CONTENTS = [
   "Giá hợp lý, cây đẹp hơn mong đợi.",
 ];
 
-// ── Blogs (10) ───────────────────────────────────────────────────────────────
+// ── Blogs (6) ───────────────────────────────────────────────────────────────
 const BLOGS = [
   {
     title: "7 Loại Cây Cảnh Dễ Chăm Sóc Cho Người Bận Rộn",
@@ -198,6 +198,58 @@ const BLOGS = [
     status: "published",
     isFeatured: true,
     viewCount: 3120,
+  },
+  {
+    title: "Mẹo Tưới Nước Cho Sen Đá Không Bị Úng Nước",
+    slug: "meo-tuoi-nuoc-cho-sen-da-khong-bi-ung-nuoc",
+    excerpt: "Sen đá rất dễ thối rễ nếu tưới nước sai cách. Xem ngay hướng dẫn chi tiết cách tưới nước chuẩn giúp sen đá luôn mập mạp và rực rỡ màu sắc.",
+    content: "<h2>Tưới Nước Cho Sen Đá Đúng Cách</h2><p>Sen đá tích trữ nước trong lá nên không cần nhiều ẩm. Dưới đây là quy tắc tưới nước cho dòng mọng nước:</p><h3>1. Quy Tắc 'Đất Khô Hoàn Toàn Mới Tưới'</h3><p>Hãy dùng tăm hoặc que gỗ cắm sâu xuống đất. Nếu que rút lên hoàn toàn khô ráo không bám đất ẩm thì mới tưới nước tiếp.</p><h3>2. Cách Tưới: Tưới Đẫm Dưới Gốc</h3><p>Hãy tưới từ từ vào đất xung quanh gốc cho đến khi nước chảy ra từ lỗ thoát nước ở đáy chậu. Tránh tưới trực tiếp lên lá vì nước đọng lâu ngày sẽ gây thối bẹ lá.</p><h3>3. Thời Điểm Tưới Thích Hợp</h3><p>Nên tưới vào sáng sớm hoặc chiều mát khi nhiệt độ môi trường thấp. Tuyệt đối không tưới vào buổi trưa nắng gắt.</p>",
+    category: "Mẹo Cây Cảnh",
+    tags: ["succulents", "watering", "how-to", "tips"],
+    author: "Lê Văn C",
+    coverImage: "https://images.unsplash.com/photo-1459411552884-841db9b3cc2a?w=600",
+    status: "published",
+    isFeatured: false,
+    viewCount: 1890,
+  },
+  {
+    title: "5 Loại Cây Phong Thủy Hợp Mệnh Kim Chiêu Tài Lộc",
+    slug: "5-loai-cay-phong-thuy-hop-menh-kim-chieu-tai-loc",
+    excerpt: "Chọn đúng cây phong thủy phù hợp với bản mệnh sẽ mang lại nhiều may mắn và suôn sẻ. Tìm hiểu 5 loại cây mang lại tài lộc cực tốt cho người mệnh Kim.",
+    content: "<h2>Cây Phong Thủy Cho Người Mệnh Kim</h2><p>Người mệnh Kim phù hợp với các cây có màu sắc thuộc hành Kim (trắng, xám) hoặc hành Thổ (vàng, nâu đất). Tham khảo ngay 5 dòng cây tiêu biểu:</p><h3>1. Cây Bạch Mã Hoàng Tử</h3><p>Thân trắng ngà thanh tao giúp công việc trôi chảy, gặp nhiều quý nhân phù trợ.</p><h3>2. Cây Lưỡi Hổ</h3><p>Lá cứng cáp viền vàng, tượng trưng cho sức mạnh bảo vệ gia chủ tránh khỏi điềm xấu và hút tài khí dồi dào.</p><h3>3. Cây Kim Tiền</h3><p>Lá xanh bóng mượt mọc đối xứng như xâu tiền cổ, mang lại phú quý tài lộc cho gia đình sếp mệnh Kim.</p><h3>4. Cây Hạnh Phúc</h3><p>Lá xanh sẫm sum suê mang tới may mắn, năng lượng ấm cúng và an vui cho không gian sống.</p><h3>5. Cây Ngọc Ngân</h3><p>Lá đốm trắng bạc sang trọng nổi bật đại diện cho tình yêu bền lâu và may mắn thịnh vượng.</p>",
+    category: "Phong Thủy",
+    tags: ["fengshui", "luck", "metal-element", "office"],
+    author: "Phạm Minh D",
+    coverImage: "https://images.unsplash.com/photo-1509423350716-97f9360b4e09?w=600",
+    status: "published",
+    isFeatured: false,
+    viewCount: 4230,
+  },
+  {
+    title: "Hướng Dẫn Tự Trộn Giá Thể Đất Trồng Sen Đá Tại Nhà",
+    slug: "huong-dan-tu-tron-gia-the-dat-trong-sen-da-tai-nha",
+    excerpt: "Giá thể thoáng khí và thoát nước cực nhanh là chìa khóa để trồng sen đá thành công. Hướng dẫn cách trộn đất tơi xốp, giàu dinh dưỡng đơn giản nhất.",
+    content: "<h2>Công Thức Trộn Đất Trồng Sen Đá</h2><p>Đất trồng thông thường quá bí khí sẽ làm sen đá úng chết rất nhanh. Bạn cần tự trộn giá thể theo tỷ lệ chuẩn thoáng thoát:</p><h3>Tỷ Lệ Phổ Biến</h3><p>- 40% Đá Trân Châu (Perlite) hoặc đá bọt (Pumice) để tạo khoảng trống thoáng khí.<br/>- 30% Xơ dừa đã xử lý chát (hoặc tro trấu hun) giữ ẩm nhẹ.<br/>- 20% Đá Akadama hoặc sỏi nhẹ rải lót rễ.<br/>- 10% Phân bò hoai mục hoặc phân trùn quế cung cấp dinh dưỡng lành tính.</p><h3>Cách Thực Hiện</h3><p>Trộn đều tất cả nguyên liệu trên lại với nhau. Khi bóp thử nắm đất thấy tơi xốp, buông tay ra đất tự rã mà không vón cục là đã thành công.</p>",
+    category: "Mẹo Cây Cảnh",
+    tags: ["soil", "succulents", "DIY", "gardening"],
+    author: "Hoàng Thị E",
+    coverImage: "https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=600",
+    status: "published",
+    isFeatured: false,
+    viewCount: 1540,
+  },
+  {
+    title: "Lợi Ích Sức Khỏe Tuyệt Vời Khi Trồng Cây Cảnh Trong Nhà",
+    slug: "loi-ich-suc-khoe-tuyet-voi-khi-trong-cay-canh-trong-nha",
+    excerpt: "Trồng cây cảnh không chỉ giúp trang trí ngôi nhà của bạn đẹp hơn mà còn mang lại vô vàn lợi ích sức khỏe và cải thiện tinh thần bất ngờ.",
+    content: "<h2>Giá Trị Sức Khỏe Của Không Gian Xanh</h2><p>Các nghiên cứu khoa học chỉ ra rằng cây xanh trong phòng mang lại những tác dụng rất tích cực:</p><h3>1. Thanh Lọc Bụi Mịn Và Khí Độc</h3><p>Nhiều loại cây như Cau Tiểu Trâm, Lan Ý có khả năng loại bỏ các chất độc hại bay hơi (VOCs) từ sơn tường, chất tẩy rửa và thiết bị điện tử.</p><h3>2. Giảm Căng Thẳng & Tăng Tập Trung</h3><p>Màu xanh lá cây làm dịu thần kinh thị giác, giúp hạ huyết áp và giải tỏa stress. Đặt một chậu cây nhỏ góc làm việc giúp tăng 15% hiệu suất làm việc.</p><h3>3. Tăng Cường Độ Ẩm Tự Nhiên</h3><p>Cây cảnh thoát hơi nước qua lá giúp điều hòa độ ẩm phòng khô do sử dụng điều hòa liên tục, hạn chế khô da và các bệnh về đường hô hấp.</p>",
+    category: "Chăm Sóc Cây",
+    tags: ["health", "lifestyle", "benefits", "indoor"],
+    author: "Nguyễn Văn A",
+    coverImage: "https://images.unsplash.com/photo-1614594975525-e45190c55d0b?w=600",
+    status: "published",
+    isFeatured: false,
+    viewCount: 5120,
   },
 ];
 

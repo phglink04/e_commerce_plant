@@ -185,14 +185,14 @@ export default function AdminBlogsPage() {
           <table className="w-full">
             <thead className="border-b border-slate-200 bg-slate-50">
               <tr className="text-sm font-semibold text-slate-700">
-                <th className="px-6 py-3 text-left">Bài viết</th>
-                <th className="px-6 py-3 text-left">Danh mục</th>
-                <th className="px-6 py-3 text-center">Trạng thái</th>
-                <th className="px-6 py-3 text-center">Nổi bật</th>
-                <th className="px-6 py-3 text-center">
+                <th className="px-6 py-3 text-left whitespace-nowrap">Bài viết</th>
+                <th className="px-6 py-3 text-left whitespace-nowrap">Danh mục</th>
+                <th className="px-6 py-3 text-center whitespace-nowrap">Trạng thái</th>
+                <th className="px-6 py-3 text-center whitespace-nowrap">Nổi bật</th>
+                <th className="px-6 py-3 text-center whitespace-nowrap">
                   <Eye size={14} className="mx-auto" />
                 </th>
-                <th className="px-6 py-3 text-right">Thao tác</th>
+                <th className="px-6 py-3 text-right whitespace-nowrap">Thao tác</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200">
@@ -209,20 +209,20 @@ export default function AdminBlogsPage() {
                           />
                         </div>
                       )}
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-medium text-slate-900">
+                      <div className="min-w-0 max-w-[320px]">
+                        <p className="text-sm font-semibold text-slate-900 whitespace-normal break-words line-clamp-2">
                           {blog.title}
                         </p>
-                        <p className="truncate text-xs text-slate-400">
-                          {blog.author ? `✍️ ${blog.author}` : blog.slug}
+                        <p className="truncate text-xs text-slate-400 mt-0.5">
+                          {blog.slug}
                         </p>
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-3 text-sm text-slate-600">
+                  <td className="px-6 py-3 text-sm text-slate-600 whitespace-nowrap">
                     {blog.category}
                   </td>
-                  <td className="px-6 py-3 text-center">
+                  <td className="px-6 py-3 text-center whitespace-nowrap">
                     <span
                       className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
                         statusColors[blog.status] || statusColors.draft
@@ -231,7 +231,7 @@ export default function AdminBlogsPage() {
                       {statusLabels[blog.status] || blog.status}
                     </span>
                   </td>
-                  <td className="px-6 py-3 text-center">
+                  <td className="px-6 py-3 text-center whitespace-nowrap">
                     <span
                       className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold text-white ${
                         blog.isFeatured ? "bg-amber-500" : "bg-slate-300"
@@ -240,10 +240,10 @@ export default function AdminBlogsPage() {
                       {blog.isFeatured ? "✓" : "−"}
                     </span>
                   </td>
-                  <td className="px-6 py-3 text-center text-sm text-slate-500">
+                  <td className="px-6 py-3 text-center text-sm text-slate-500 whitespace-nowrap">
                     {(blog.viewCount ?? 0).toLocaleString()}
                   </td>
-                  <td className="px-6 py-3 text-right">
+                  <td className="px-6 py-3 text-right whitespace-nowrap">
                     <div className="flex justify-end gap-2">
                       <button
                         onClick={() => handleEdit(blog)}
