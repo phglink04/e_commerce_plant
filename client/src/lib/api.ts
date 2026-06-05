@@ -54,13 +54,21 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Token hết hạn hoặc không hợp lệ
+      // Token hết hạn hoặc không hợp lệ — đồng bộ logout toàn bộ
       if (typeof window !== "undefined") {
         localStorage.removeItem("auth_token");
         localStorage.removeItem("auth_user");
         localStorage.removeItem("auth_role");
-        document.cookie = "auth_token=; path=/; max-age=0; samesite=lax";
-        document.cookie = "auth_role=; path=/; max-age=0; samesite=lax";
+        const isProduction = process.env.NODE_ENV === "production";
+        const secureFlag = isProduction ? "; Secure" : "";
+        document.cookie = `auth_token=; path=/; max-age=0; samesite=lax${secureFlag}`;
+        document.cookie = `auth_role=; path=/; max-age=0; samesite=lax${secureFlag}`;
+        // Chỉ redirect về login nếu đang ở trang cần auth (không redirect từ trang public)
+        const protectedPaths = ["/cart", "/profile", "/checkout", "/my-orders", "/order-success", "/settings"];
+        const isOnProtectedPage = protectedPaths.some((p) => window.location.pathname.startsWith(p));
+        if (isOnProtectedPage) {
+          window.location.href = "/auth/login";
+        }
       }
     }
     return Promise.reject(error);
