@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth-store";
@@ -43,6 +43,7 @@ export default function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [googleReady, setGoogleReady] = useState(false);
+  const googleButtonRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (success || error) {
@@ -69,6 +70,17 @@ export default function RegisterForm() {
                   callback: (response: GoogleCredentialResponse) => void;
                 }) => void;
                 prompt: () => void;
+                renderButton: (
+                  parent: HTMLElement,
+                  options: {
+                    theme?: string;
+                    size?: string;
+                    width?: number | string;
+                    text?: string;
+                    shape?: string;
+                    logo_alignment?: string;
+                  }
+                ) => void;
               };
             };
           };
@@ -125,6 +137,22 @@ export default function RegisterForm() {
       script.onload = null;
     };
   }, [clearMessages, googleClientId, loginWithGoogle, router, setError]);
+
+  useEffect(() => {
+    if (googleReady && googleButtonRef.current) {
+      const google = (window as any).google;
+      if (google?.accounts?.id) {
+        google.accounts.id.renderButton(googleButtonRef.current, {
+          theme: "outline",
+          size: "large",
+          width: 384,
+          text: "signup_with",
+          shape: "rectangular",
+          logo_alignment: "center",
+        });
+      }
+    }
+  }, [googleReady]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -431,6 +459,13 @@ export default function RegisterForm() {
             </div>
 
             {/* Google register */}
+            <div className="w-full flex justify-center min-h-[48px]">
+              <div 
+                ref={googleButtonRef} 
+                className="w-full [&&_iframe]:w-full [&&_iframe]:max-w-full" 
+              />
+            </div>
+            {/*
             <button
               className="w-full bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold py-3.5 px-4 rounded-xl transition-all duration-200 flex items-center justify-center gap-2.5 text-sm shadow-sm hover:shadow-md disabled:opacity-60"
               type="button"
@@ -445,6 +480,7 @@ export default function RegisterForm() {
               </svg>
               Đăng ký với Google
             </button>
+            */}
           </>
         )}
 
