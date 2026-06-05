@@ -99,6 +99,7 @@ function DiscountCard({
             ? "border-slate-200 opacity-80"
             : "border-slate-200"
       }`}
+      style={{ minHeight: "320px" }}
     >
       {/* Top row: Code + Status */}
       <div className="flex items-start justify-between gap-3">
@@ -202,8 +203,8 @@ function DiscountCard({
         </p>
       </div>
 
-      {/* Time period */}
-      <div className="flex items-start gap-2 rounded-xl bg-slate-50 px-3 py-2.5 text-xs text-slate-500">
+      {/* Time period — chiều cao cố định để các card thẳng hàng */}
+      <div className="mt-auto flex min-h-[52px] items-start gap-2 rounded-xl bg-slate-50 px-3 py-2.5 text-xs text-slate-500">
         <Clock size={13} className="mt-0.5 shrink-0 text-slate-400" />
         {d.startDate || d.endDate ? (
           <div className="flex flex-col gap-0.5">
