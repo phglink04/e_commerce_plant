@@ -89,20 +89,9 @@ export default function ReviewStatsWidget({
                       </strong>
                     </span>
                   </div>
-                  <span
-                    style={{
-                      fontSize: "0.7rem",
-                      fontWeight: 700,
-                      padding: "0.15rem 0.45rem",
-                      borderRadius: "20px",
-                      background: rev.isApproved
-                        ? "rgba(16, 185, 129, 0.1)"
-                        : "rgba(245, 158, 11, 0.1)",
-                      color: rev.isApproved ? "#10b981" : "#f59e0b",
-                    }}
-                  >
-                    {rev.isApproved ? "Đã duyệt" : "Chờ duyệt"}
-                  </span>
+                  <div className="flex gap-0.5">
+                    {/* Empty block or rating stars moved here if wanted, but keep it empty since stars are below */}
+                  </div>
                 </div>
                 <div className="flex gap-0.5" style={{ marginBottom: "0.25rem" }}>
                   {[...Array(5)].map((_, i) => (
