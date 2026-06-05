@@ -285,6 +285,7 @@ export default function AdminOrdersPage() {
             {
               key: "id",
               title: "Mã đơn hàng",
+              className: "whitespace-nowrap min-w-[120px]",
               render: (row) => (
                 <div className="flex flex-col gap-1">
                   <span className="font-mono text-xs text-slate-500">
@@ -306,6 +307,7 @@ export default function AdminOrdersPage() {
             {
               key: "date",
               title: "Ngày",
+              className: "whitespace-nowrap",
               render: (row) => (
                 <span className="text-xs text-slate-500">
                   {new Date(row.createdAt).toLocaleDateString("vi-VN")}
@@ -315,6 +317,7 @@ export default function AdminOrdersPage() {
             {
               key: "items",
               title: "Sản phẩm",
+              className: "whitespace-nowrap",
               render: (row) => (
                 <span className="text-xs text-slate-600">
                   {row.items.length} sản phẩm
@@ -324,8 +327,9 @@ export default function AdminOrdersPage() {
             {
               key: "total",
               title: "Tổng tiền",
+              className: "whitespace-nowrap font-medium text-slate-800",
               render: (row) => (
-                <span className="text-sm font-semibold text-slate-800">
+                <span className="text-sm font-semibold">
                   {Number(row.total).toLocaleString()} ₫
                 </span>
               ),
@@ -333,6 +337,7 @@ export default function AdminOrdersPage() {
             {
               key: "orderStatus",
               title: "Trạng thái đơn",
+              className: "whitespace-nowrap",
               render: (row) => (
                 <StatusBadge
                   status={orderStatusLabel(row.orderStatus)}
@@ -343,6 +348,7 @@ export default function AdminOrdersPage() {
             {
               key: "paymentStatus",
               title: "Thanh toán",
+              className: "whitespace-nowrap",
               render: (row) => (
                 <StatusBadge
                   status={paymentStatusLabel(row.paymentStatus)}
@@ -353,6 +359,7 @@ export default function AdminOrdersPage() {
             {
               key: "update",
               title: "Cập nhật",
+              className: "whitespace-nowrap min-w-[200px]",
               render: (row) => {
                 const isTerminal = STATUS_LEVEL[row.orderStatus] === 4;
                 return (
@@ -420,6 +427,7 @@ export default function AdminOrdersPage() {
             {
               key: "actions",
               title: "",
+              className: "whitespace-nowrap text-right",
               render: (row) => (
                 <button
                   type="button"
