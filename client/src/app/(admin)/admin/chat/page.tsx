@@ -42,6 +42,8 @@ const renderMessageContent = (content: string) => {
   });
 };
 
+type FilterTab = "all" | "pending" | "active" | "closed";
+
 export default function AdminChatPage() {
   const { user } = useAuthStore();
   const [chats, setChats] = useState<ChatbotSession[]>([]);
