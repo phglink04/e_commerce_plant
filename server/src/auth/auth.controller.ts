@@ -49,11 +49,16 @@ export class AuthController {
   @Post("auth/login")
   @UseGuards(LocalAuthGuard)
   async authLogin(@Req() req: Request, @Body() dto: LoginDto) {
-    const isProduction = process.env.NODE_ENV === "production";
-    await this.turnstileService.verifyTokenIfRequired(
-      dto.captchaToken,
-      isProduction,
-    );
+    // Admin và delivery partner không cần xác minh Turnstile captcha
+    const isAdminOrDelivery =
+      dto.targetRole === "admin" || dto.targetRole === "deliverypartner";
+    if (!isAdminOrDelivery) {
+      const isProduction = process.env.NODE_ENV === "production";
+      await this.turnstileService.verifyTokenIfRequired(
+        dto.captchaToken,
+        isProduction,
+      );
+    }
 
     const user = req.user as StoredUser;
     if (dto.targetRole) {
@@ -72,11 +77,16 @@ export class AuthController {
   @Post("users/login")
   @UseGuards(LocalAuthGuard)
   async login(@Req() req: Request, @Body() dto: LoginDto) {
-    const isProduction = process.env.NODE_ENV === "production";
-    await this.turnstileService.verifyTokenIfRequired(
-      dto.captchaToken,
-      isProduction,
-    );
+    // Admin và delivery partner không cần xác minh Turnstile captcha
+    const isAdminOrDelivery =
+      dto.targetRole === "admin" || dto.targetRole === "deliverypartner";
+    if (!isAdminOrDelivery) {
+      const isProduction = process.env.NODE_ENV === "production";
+      await this.turnstileService.verifyTokenIfRequired(
+        dto.captchaToken,
+        isProduction,
+      );
+    }
 
     const user = req.user as StoredUser;
     if (dto.targetRole) {
