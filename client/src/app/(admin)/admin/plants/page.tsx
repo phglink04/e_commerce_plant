@@ -15,8 +15,6 @@ import { Product } from "@/types/product";
 export default function AdminPlantsPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [featuredFilter, setFeaturedFilter] = useState<boolean | undefined>(undefined);
-  const [flashSaleFilter, setFlashSaleFilter] = useState<boolean | undefined>(undefined);
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
@@ -31,9 +29,9 @@ export default function AdminPlantsPage() {
     search,
     limit: 12,
     admin: true,
-    availability: statusFilter === "all" ? undefined : statusFilter,
-    isFeatured: featuredFilter,
-    isFlashSale: flashSaleFilter,
+    availability: (statusFilter === "all" || statusFilter === "Featured" || statusFilter === "FlashSale") ? undefined : statusFilter,
+    isFeatured: statusFilter === "Featured" ? true : undefined,
+    isFlashSale: statusFilter === "FlashSale" ? true : undefined,
   });
 
   // Open create form
@@ -113,6 +111,8 @@ export default function AdminPlantsPage() {
           { value: "In Stock", label: "Còn hàng", count: statusFilter === "In Stock" ? pagination?.totalResults : undefined },
           { value: "Out Of Stock", label: "Hết hàng", count: statusFilter === "Out Of Stock" ? pagination?.totalResults : undefined },
           { value: "Discontinued", label: "Ngừng kinh doanh", count: statusFilter === "Discontinued" ? pagination?.totalResults : undefined },
+          { value: "Featured", label: "Nổi bật", count: statusFilter === "Featured" ? pagination?.totalResults : undefined },
+          { value: "FlashSale", label: "Khuyến mãi", count: statusFilter === "FlashSale" ? pagination?.totalResults : undefined },
         ]}
         value={statusFilter}
         onChange={(val) => {
@@ -129,35 +129,6 @@ export default function AdminPlantsPage() {
             placeholder="Tìm kiếm sản phẩm…"
             debounceDelay={500}
           />
-        </div>
-        <div className="flex gap-2.5">
-          <select
-            value={featuredFilter === undefined ? "all" : featuredFilter ? "true" : "false"}
-            onChange={(e) => {
-              const val = e.target.value;
-              setFeaturedFilter(val === "all" ? undefined : val === "true");
-              goToPage(1);
-            }}
-            className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 outline-none transition focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
-          >
-            <option value="all">Mọi độ nổi bật</option>
-            <option value="true">Sản phẩm Nổi bật</option>
-            <option value="false">Sản phẩm Thường</option>
-          </select>
-
-          <select
-            value={flashSaleFilter === undefined ? "all" : flashSaleFilter ? "true" : "false"}
-            onChange={(e) => {
-              const val = e.target.value;
-              setFlashSaleFilter(val === "all" ? undefined : val === "true");
-              goToPage(1);
-            }}
-            className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 outline-none transition focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
-          >
-            <option value="all">Mọi loại KM</option>
-            <option value="true">Sản phẩm Flash Sale</option>
-            <option value="false">Sản phẩm Thường</option>
-          </select>
         </div>
         {loading && (
           <span className="inline-flex items-center gap-1.5 text-xs text-slate-400">
