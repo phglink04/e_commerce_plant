@@ -44,6 +44,17 @@ export default function Turnstile({
   const widgetId = useRef<string | null>(null);
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
+  // Dùng ref để giữ callbacks ổn định, tránh trigger useEffect
+  // mỗi lần parent re-render tạo ra inline arrow function mới
+  const onTokenRef = useRef(onToken);
+  const onExpireRef = useRef(onExpire);
+  const onErrorRef = useRef(onError);
+
+  // Cập nhật refs mỗi render nhưng KHÔNG đưa vào deps của useEffect bên dưới
+  onTokenRef.current = onToken;
+  onExpireRef.current = onExpire;
+  onErrorRef.current = onError;
+
   useEffect(() => {
     if (!siteKey) {
       console.warn(
@@ -51,24 +62,6 @@ export default function Turnstile({
       );
       return;
     }
-
-    // Load Turnstile script if not already loaded
-    const loadTurnstile = async () => {
-      if (window.turnstile) {
-        initializeTurnstile();
-        return;
-      }
-
-      const script = document.createElement("script");
-      script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
-      script.async = true;
-      script.defer = true;
-      script.onload = initializeTurnstile;
-      script.onerror = () => {
-        onError?.(new Error("Failed to load Turnstile script"));
-      };
-      document.head.appendChild(script);
-    };
 
     const initializeTurnstile = () => {
       const container = document.getElementById(containerId.current);
@@ -80,34 +73,57 @@ export default function Turnstile({
           theme,
           size,
           callback: (token: string) => {
-            onToken(token);
+            onTokenRef.current(token);
           },
           "expired-callback": () => {
-            onExpire?.();
+            onExpireRef.current?.();
           },
           "error-callback": () => {
-            onError?.(new Error("Turnstile verification failed"));
+            onErrorRef.current?.(new Error("Turnstile verification failed"));
           },
         });
       } catch (error) {
-        onError?.(
+        onErrorRef.current?.(
           error instanceof Error ? error : new Error("Turnstile error"),
         );
       }
     };
 
-    loadTurnstile();
+    // Load Turnstile script nếu chưa có
+    if (window.turnstile) {
+      initializeTurnstile();
+    } else {
+      const existing = document.querySelector<HTMLScriptElement>(
+        'script[src="https://challenges.cloudflare.com/turnstile/v0/api.js"]',
+      );
+      if (existing) {
+        existing.addEventListener("load", initializeTurnstile, { once: true });
+      } else {
+        const script = document.createElement("script");
+        script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
+        script.async = true;
+        script.defer = true;
+        script.onload = initializeTurnstile;
+        script.onerror = () => {
+          onErrorRef.current?.(new Error("Failed to load Turnstile script"));
+        };
+        document.head.appendChild(script);
+      }
+    }
 
     return () => {
       if (widgetId.current && window.turnstile) {
         try {
           window.turnstile.remove(widgetId.current);
+          widgetId.current = null;
         } catch {
           // Widget already removed
         }
       }
     };
-  }, [siteKey, theme, size, onToken, onExpire, onError]);
+  // Chỉ chạy lại khi siteKey/theme/size thay đổi — KHÔNG bao gồm callbacks
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [siteKey, theme, size]);
 
   return (
     <div
