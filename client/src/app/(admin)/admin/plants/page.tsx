@@ -172,7 +172,9 @@ export default function AdminPlantsPage() {
                           <div className="flex h-full w-full items-center justify-center text-slate-300 text-xs">N/A</div>
                         )}
                       </div>
-                      <span className="text-sm font-semibold text-slate-800 line-clamp-1">{product.name}</span>
+                      <span className="text-sm font-semibold text-slate-800 line-clamp-2 whitespace-normal break-words max-w-[220px]">
+                        {product.name}
+                      </span>
                     </div>
                   </td>
                   {/* Sold */}
