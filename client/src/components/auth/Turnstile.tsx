@@ -14,7 +14,7 @@ declare global {
   interface Window {
     turnstile?: {
       render: (
-        elementId: string,
+        container: HTMLElement | string,
         options: {
           sitekey: string;
           theme?: "light" | "dark";
@@ -31,8 +31,6 @@ declare global {
   }
 }
 
-let turnstileId = 0;
-
 export default function Turnstile({
   onToken,
   onExpire,
@@ -40,7 +38,8 @@ export default function Turnstile({
   theme = "light",
   size = "normal",
 }: TurnstileProps) {
-  const containerId = useRef(`turnstile-${turnstileId++}`);
+  // Dùng ref trực tiếp vào DOM element — không cần ID string
+  const containerRef = useRef<HTMLDivElement>(null);
   const widgetId = useRef<string | null>(null);
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
@@ -50,25 +49,26 @@ export default function Turnstile({
   const onExpireRef = useRef(onExpire);
   const onErrorRef = useRef(onError);
 
-  // Cập nhật refs mỗi render nhưng KHÔNG đưa vào deps của useEffect bên dưới
   onTokenRef.current = onToken;
   onExpireRef.current = onExpire;
   onErrorRef.current = onError;
 
   useEffect(() => {
     if (!siteKey) {
-      console.warn(
-        "Missing NEXT_PUBLIC_TURNSTILE_SITE_KEY environment variable",
-      );
+      console.warn("Missing NEXT_PUBLIC_TURNSTILE_SITE_KEY environment variable");
       return;
     }
 
     const initializeTurnstile = () => {
-      const container = document.getElementById(containerId.current);
+      // Dùng ref trực tiếp — không bao giờ bị "container not found"
+      const container = containerRef.current;
       if (!container || !window.turnstile) return;
 
+      // Tránh render widget nhiều lần trên cùng một container
+      if (widgetId.current) return;
+
       try {
-        widgetId.current = window.turnstile.render(containerId.current, {
+        widgetId.current = window.turnstile.render(container, {
           sitekey: siteKey,
           theme,
           size,
@@ -84,12 +84,11 @@ export default function Turnstile({
         });
       } catch (error) {
         onErrorRef.current?.(
-          error instanceof Error ? error : new Error("Turnstile error"),
+          error instanceof Error ? error : new Error("Turnstile render error"),
         );
       }
     };
 
-    // Load Turnstile script nếu chưa có
     if (window.turnstile) {
       initializeTurnstile();
     } else {
@@ -97,6 +96,7 @@ export default function Turnstile({
         'script[src="https://challenges.cloudflare.com/turnstile/v0/api.js"]',
       );
       if (existing) {
+        // Script đang load — chờ sự kiện load
         existing.addEventListener("load", initializeTurnstile, { once: true });
       } else {
         const script = document.createElement("script");
@@ -115,19 +115,19 @@ export default function Turnstile({
       if (widgetId.current && window.turnstile) {
         try {
           window.turnstile.remove(widgetId.current);
-          widgetId.current = null;
         } catch {
           // Widget already removed
         }
+        widgetId.current = null;
       }
     };
-  // Chỉ chạy lại khi siteKey/theme/size thay đổi — KHÔNG bao gồm callbacks
+  // Chỉ chạy lại khi siteKey/theme/size thay đổi
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [siteKey, theme, size]);
 
   return (
     <div
-      id={containerId.current}
+      ref={containerRef}
       style={{
         display: "flex",
         justifyContent: "center",
