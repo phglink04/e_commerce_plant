@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { Plus, Trash2, Pencil } from "lucide-react";
 import { useProducts } from "@/hooks";
 import { SearchBar, Pagination } from "@/components/ui";
@@ -12,7 +13,8 @@ import StatusTabs from "@/components/admin/ui/status-tabs";
 import { productService } from "@/services";
 import { Product } from "@/types/product";
 
-export default function AdminPlantsPage() {
+function PlantsPageContent() {
+  const searchParams = useSearchParams();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [showForm, setShowForm] = useState(false);
@@ -24,14 +26,23 @@ export default function AdminPlantsPage() {
     message: string;
   } | null>(null);
 
-  // Fetch products with search
+  // Sync tab from URL if present
+  useEffect(() => {
+    const tabParam = searchParams.get("tab");
+    if (tabParam) {
+      setStatusFilter(tabParam);
+    }
+  }, [searchParams]);
+
+  // Fetch products with search and filters
   const { products, loading, pagination, goToPage, refetch } = useProducts({
     search,
     limit: 12,
     admin: true,
-    availability: (statusFilter === "all" || statusFilter === "Featured" || statusFilter === "FlashSale") ? undefined : statusFilter,
+    availability: (statusFilter === "all" || statusFilter === "Featured" || statusFilter === "FlashSale" || statusFilter === "LowStock") ? undefined : statusFilter,
     isFeatured: statusFilter === "Featured" ? true : undefined,
     isFlashSale: statusFilter === "FlashSale" ? true : undefined,
+    lowStock: statusFilter === "LowStock" ? true : undefined,
   });
 
   // Open create form
@@ -109,6 +120,7 @@ export default function AdminPlantsPage() {
         tabs={[
           { value: "all", label: "Tất cả", count: statusFilter === "all" ? pagination?.totalResults : undefined },
           { value: "In Stock", label: "Còn hàng", count: statusFilter === "In Stock" ? pagination?.totalResults : undefined },
+          { value: "LowStock", label: "Sắp hết hàng", count: statusFilter === "LowStock" ? pagination?.totalResults : undefined },
           { value: "Out Of Stock", label: "Hết hàng", count: statusFilter === "Out Of Stock" ? pagination?.totalResults : undefined },
           { value: "Discontinued", label: "Ngừng kinh doanh", count: statusFilter === "Discontinued" ? pagination?.totalResults : undefined },
           { value: "Featured", label: "Nổi bật", count: statusFilter === "Featured" ? pagination?.totalResults : undefined },
@@ -339,5 +351,20 @@ export default function AdminPlantsPage() {
         />
       )}
     </section>
+  );
+}
+
+export default function AdminPlantsPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex h-48 items-center justify-center rounded-xl border border-slate-200 bg-slate-50">
+        <div className="text-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-emerald-600 mx-auto"></div>
+          <p className="mt-2 text-sm text-slate-500">Đang tải trang sản phẩm...</p>
+        </div>
+      </div>
+    }>
+      <PlantsPageContent />
+    </Suspense>
   );
 }

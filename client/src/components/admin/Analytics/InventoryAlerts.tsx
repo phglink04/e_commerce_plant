@@ -25,7 +25,7 @@ export default function InventoryAlerts({
           </p>
         </div>
         <Link
-          href="/admin/plants"
+          href="/admin/plants?tab=LowStock"
           className="admin-dashboard__view-all-btn"
           style={{ fontSize: "0.75rem" }}
         >
@@ -108,7 +108,7 @@ export default function InventoryAlerts({
                     Tồn kho: {plant.stock}
                   </span>
                   <Link
-                    href={`/admin/plants?search=${encodeURIComponent(plant.name)}`}
+                    href={`/admin/plants?tab=LowStock&search=${encodeURIComponent(plant.name)}`}
                     style={{
                       display: "inline-flex",
                       alignItems: "center",

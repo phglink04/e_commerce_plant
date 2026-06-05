@@ -9,7 +9,7 @@ import type { AppRole } from "@/lib/role-routing";
 import { useAuthStore } from "@/store/auth-store";
 import { useHomeUiStore } from "@/store/home-ui-store";
 import { normalizeImageSrc } from "@/utils/utils";
-import { LayoutDashboard, Package, Users, Settings, LogOut, Truck, ChevronRight, Menu, X, User } from "lucide-react";
+import { LayoutDashboard, Package, Users, Settings, LogOut, Truck, ChevronRight, ChevronLeft, Menu, X, User } from "lucide-react";
 
 type MenuItem = {
   href: string;
@@ -39,10 +39,21 @@ export default function RoleWorkspaceLayout({
   const { logo, fetchLogo } = useHomeUiStore();
 
   const [isOpen, setIsOpen] = useState(true);
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   useEffect(() => {
     void fetchLogo();
+    const saved = localStorage.getItem("admin-sidebar-collapsed");
+    if (saved === "true") {
+      setIsCollapsed(true);
+    }
   }, [fetchLogo]);
+
+  const toggleCollapse = () => {
+    const nextVal = !isCollapsed;
+    setIsCollapsed(nextVal);
+    localStorage.setItem("admin-sidebar-collapsed", String(nextVal));
+  };
 
   const isLoginPage = pathname
     ? pathname.replace(/\/$/, "").toLowerCase() === loginPath.replace(/\/$/, "").toLowerCase()
@@ -56,17 +67,32 @@ export default function RoleWorkspaceLayout({
     <RoleGuard allowedRoles={allowedRoles} loginPath={loginPath}>
       <main className="min-h-screen bg-slate-50">
         {kind === "admin" ? (
-          <div className="grid min-h-screen grid-cols-1 lg:grid-cols-[280px_minmax(0,1fr)]">
-            <aside className="hidden border-r border-slate-200 bg-slate-900 p-6 text-white lg:flex lg:flex-col">
-              <div className="mb-10 flex items-center gap-3">
-                <Image
-                  src={normalizeImageSrc(logo)}
-                  alt="Logo"
-                  width={32}
-                  height={32}
-                  className="rounded-lg object-contain bg-white p-1"
-                />
-                <span className="text-lg font-bold tracking-tight">PlantWorld</span>
+          <div className={`grid min-h-screen grid-cols-1 transition-all duration-300 ${
+            isCollapsed 
+              ? "lg:grid-cols-[80px_minmax(0,1fr)]" 
+              : "lg:grid-cols-[280px_minmax(0,1fr)]"
+          }`}>
+            <aside className={`hidden border-r border-slate-200 bg-slate-900 text-white lg:flex lg:flex-col transition-all duration-300 ${
+              isCollapsed ? "p-3 w-20" : "p-6 w-[280px]"
+            }`}>
+              <div className={`mb-10 flex items-center justify-between gap-3 ${isCollapsed ? "flex-col gap-4" : ""}`}>
+                <div className="flex items-center gap-3 min-w-0">
+                  <Image
+                    src={normalizeImageSrc(logo)}
+                    alt="Logo"
+                    width={32}
+                    height={32}
+                    className="rounded-lg object-contain bg-white p-1 shrink-0"
+                  />
+                  {!isCollapsed && <span className="text-lg font-bold tracking-tight truncate">PlantWorld</span>}
+                </div>
+                <button
+                  onClick={toggleCollapse}
+                  className="hidden lg:flex items-center justify-center p-1.5 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition shrink-0"
+                  title={isCollapsed ? "Mở rộng" : "Thu gọn"}
+                >
+                  {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+                </button>
               </div>
 
               <nav aria-label="Admin navigation" className="flex-1 space-y-1">
@@ -74,37 +100,45 @@ export default function RoleWorkspaceLayout({
                   <Link
                     key={menu.href}
                     href={menu.href}
-                    className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-colors ${
+                    className={`flex items-center rounded-xl transition-all ${
+                      isCollapsed ? "justify-center p-3" : "gap-3 px-4 py-3"
+                    } text-sm font-medium ${
                       pathname === menu.href
                         ? "bg-emerald-600 text-white"
                         : "text-slate-400 hover:bg-slate-800 hover:text-white"
                     }`}
+                    title={isCollapsed ? menu.label : undefined}
                   >
                     {menu.icon}
-                    {menu.label}
+                    {!isCollapsed && <span className="truncate">{menu.label}</span>}
                   </Link>
                 ))}
               </nav>
 
               <div className="mt-auto space-y-3">
-                <div className="rounded-2xl bg-slate-800 p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold">
+                <div className={`rounded-2xl bg-slate-800 transition-all ${isCollapsed ? "p-2" : "p-4"}`}>
+                  <div className={`flex items-center gap-3 ${isCollapsed ? "justify-center" : ""}`}>
+                    <div className="h-10 w-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold shrink-0">
                       {user?.name?.charAt(0) ?? "A"}
                     </div>
-                    <div className="overflow-hidden">
-                      <p className="truncate text-sm font-medium">{user?.name ?? "Admin"}</p>
-                      <p className="truncate text-xs text-slate-400">{user?.email ?? ""}</p>
-                    </div>
+                    {!isCollapsed && (
+                      <div className="overflow-hidden">
+                        <p className="truncate text-sm font-medium">{user?.name ?? "Admin"}</p>
+                        <p className="truncate text-xs text-slate-400">{user?.email ?? ""}</p>
+                      </div>
+                    )}
                   </div>
                 </div>
 
                 <button
                   onClick={logout}
-                  className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-rose-400 hover:bg-rose-950/30 hover:text-rose-300 font-medium transition duration-200"
+                  className={`w-full flex items-center rounded-xl text-rose-400 hover:bg-rose-950/30 hover:text-rose-300 font-medium transition duration-200 ${
+                    isCollapsed ? "justify-center py-3 px-0" : "gap-3 px-4 py-2.5"
+                  }`}
+                  title={isCollapsed ? "Đăng xuất" : undefined}
                 >
-                  <LogOut size={18} />
-                  <span className="text-sm">Đăng xuất</span>
+                  <LogOut size={18} className="shrink-0" />
+                  {!isCollapsed && <span className="text-sm">Đăng xuất</span>}
                 </button>
               </div>
             </aside>

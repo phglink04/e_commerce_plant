@@ -31,6 +31,7 @@ export interface PaginationParams {
   includeDiscontinued?: boolean;
   isFeatured?: boolean;
   isFlashSale?: boolean;
+  lowStock?: boolean;
 }
 
 export interface PaginatedResponse<T> {

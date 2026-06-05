@@ -35,6 +35,7 @@ class ProductService extends BaseApiService {
         includeDiscontinued: params.includeDiscontinued ? "true" : undefined,
         isFeatured: params.isFeatured ? "true" : params.isFeatured === false ? "false" : undefined,
         isFlashSale: params.isFlashSale ? "true" : params.isFlashSale === false ? "false" : undefined,
+        lowStock: params.lowStock ? "true" : undefined,
       },
     });
 

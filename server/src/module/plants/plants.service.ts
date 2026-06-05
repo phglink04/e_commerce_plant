@@ -117,6 +117,10 @@ export class PlantsService {
       filter.isFlashSale = false;
     }
 
+    if (query.lowStock === "true") {
+      filter.stock = { $gt: 0, $lte: 5 };
+    }
+
     const totalResults = await this.plantModel.countDocuments(filter);
     const items = await this.plantModel
       .find(filter)

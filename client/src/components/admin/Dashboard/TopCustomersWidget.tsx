@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { TopCustomer } from "@/types/admin";
+import { Users } from "lucide-react";
 import React from "react";
 
 export interface TopCustomersWidgetProps {
@@ -20,57 +21,67 @@ export default function TopCustomersWidget({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.4 }}
-      className="admin-dashboard__widget-card"
+      className="flex flex-col h-full rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition hover:shadow-md"
     >
-      <div className="admin-dashboard__widget-header">
+      <div className="flex items-center justify-between border-b border-slate-50 pb-4 mb-4">
         <div>
-          <h3 className="admin-dashboard__widget-title">Top 5 khách hàng chi tiêu cao</h3>
-          <p className="admin-dashboard__widget-subtitle">Nhóm đối tác khách hàng mua sắm nhiều nhất</p>
+          <h3 className="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+            <Users size={16} className="text-emerald-500" />
+            Top 5 khách hàng chi tiêu cao
+          </h3>
+          <p className="text-xs text-slate-400 mt-0.5">Nhóm đối tác khách hàng mua sắm nhiều nhất</p>
         </div>
       </div>
-      <div className="admin-dashboard__widget-body">
+
+      <div className="flex-1">
         {loading ? (
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}>
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="admin-dashboard__skeleton-row" style={{ padding: "0.25rem 0" }}>
-                <div className="admin-dashboard__skeleton admin-dashboard__skeleton--avatar" style={{ width: "36px", height: "36px" }} />
-                <div style={{ flex: 1 }}>
-                  <div className="admin-dashboard__skeleton admin-dashboard__skeleton--line" />
+          <div className="flex flex-col gap-4 py-2">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="flex items-center gap-3 animate-pulse">
+                <div className="h-10 w-10 rounded-full bg-slate-100 shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-3 w-2/3 rounded bg-slate-100" />
+                  <div className="h-2 w-1/3 rounded bg-slate-100" />
                 </div>
               </div>
             ))}
           </div>
         ) : customers.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "2rem 0", color: "#94a3b8", fontSize: "0.85rem" }}>
+          <div className="flex h-48 items-center justify-center text-sm text-slate-400">
             Chưa có dữ liệu khách hàng
           </div>
         ) : (
-          <div className="admin-dashboard__widget-list">
-            {customers.map((cust, idx) => {
+          <div className="flex flex-col gap-3.5">
+            {customers.slice(0, 5).map((cust, idx) => {
               const initial = cust.name ? (cust.name.split(" ").pop()?.charAt(0) || "U") : "U";
               return (
-                <div key={cust._id || idx} className="admin-dashboard__customer-item">
-                  <div className="admin-dashboard__customer-info">
+                <div key={cust._id || idx} className="flex items-center justify-between gap-3 pb-3 border-b border-dashed border-slate-100 last:border-b-0 last:pb-0">
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
                     {cust.avatar ? (
                       <img
                         src={cust.avatar}
                         alt={cust.name}
-                        className="admin-dashboard__customer-avatar-circle"
-                        style={{ width: "36px", height: "36px", borderRadius: "50%", objectFit: "cover" }}
+                        className="h-10 w-10 rounded-full object-cover border border-slate-100 shrink-0"
                       />
                     ) : (
-                      <div className="admin-dashboard__customer-avatar-circle">
+                      <div className="h-10 w-10 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold text-sm border border-emerald-100 shrink-0">
                         {initial}
                       </div>
                     )}
-                    <div className="admin-dashboard__customer-meta">
-                      <span className="admin-dashboard__customer-name-bold">{cust.name}</span>
-                      <span className="admin-dashboard__customer-email-sub">{cust.email}</span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-semibold text-slate-800 truncate" title={cust.name}>
+                        {cust.name}
+                      </p>
+                      <p className="text-xs text-slate-400 truncate mt-0.5" title={cust.email}>
+                        {cust.email}
+                      </p>
                     </div>
                   </div>
-                  <div className="admin-dashboard__customer-spend">
-                    <span className="admin-dashboard__customer-amount">{formatCurrency(cust.totalSpent)}</span>
-                    <span className="admin-dashboard__customer-orders-count">{cust.orderCount} đơn hàng</span>
+                  <div className="text-right shrink-0">
+                    <p className="text-sm font-bold text-emerald-600 tabular-nums">
+                      {formatCurrency(cust.totalSpent)}
+                    </p>
+                    <p className="text-xs text-slate-400 mt-0.5">{cust.orderCount} đơn hàng</p>
                   </div>
                 </div>
               );

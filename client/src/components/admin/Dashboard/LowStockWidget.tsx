@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { AlertTriangle, Package, CheckCircle } from "lucide-react";
+import { AlertTriangle, Package, CheckCircle, ArrowRight } from "lucide-react";
 import { LowStockProduct } from "@/types/admin";
 import Link from "next/link";
 import React from "react";
@@ -20,66 +20,74 @@ export default function LowStockWidget({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.5 }}
-      className="admin-dashboard__widget-card"
+      className="flex flex-col h-full rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition hover:shadow-md"
     >
-      <div className="admin-dashboard__widget-header">
+      <div className="flex items-center justify-between border-b border-slate-50 pb-4 mb-4">
         <div>
-          <h3 className="admin-dashboard__widget-title">
+          <h3 className="text-sm font-bold text-slate-900 flex items-center gap-1.5">
             <AlertTriangle size={16} className="text-rose-500 animate-pulse" />
             Cảnh báo tồn kho
           </h3>
-          <p className="admin-dashboard__widget-subtitle">Danh sách sản phẩm sắp hết hàng cần nhập bổ sung</p>
+          <p className="text-xs text-slate-400 mt-0.5">Mức tồn kho sắp hết cần nhập bổ sung</p>
         </div>
-        <Link href="/admin/plants" className="admin-dashboard__view-all-btn" style={{ fontSize: "0.72rem" }}>
+        <Link
+          href="/admin/plants?tab=LowStock"
+          className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 hover:text-emerald-700 transition"
+        >
           Nhập hàng
+          <ArrowRight size={14} />
         </Link>
       </div>
-      <div className="admin-dashboard__widget-body">
+
+      <div className="flex-1">
         {loading ? (
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}>
+          <div className="flex flex-col gap-4 py-2">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="admin-dashboard__skeleton-row" style={{ padding: "0.25rem 0" }}>
-                <div className="admin-dashboard__skeleton admin-dashboard__skeleton--avatar" style={{ width: "36px", height: "36px" }} />
-                <div style={{ flex: 1 }}>
-                  <div className="admin-dashboard__skeleton admin-dashboard__skeleton--line" />
+              <div key={i} className="flex items-center gap-3 animate-pulse">
+                <div className="h-10 w-10 rounded-lg bg-slate-100 shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-3 w-2/3 rounded bg-slate-100" />
+                  <div className="h-2 w-1/3 rounded bg-slate-100" />
                 </div>
               </div>
             ))}
           </div>
         ) : products.length === 0 ? (
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "2.5rem 0", textAlign: "center" }}>
-            <CheckCircle size={32} className="text-emerald-500" style={{ marginBottom: "0.5rem" }} />
-            <p style={{ fontSize: "0.85rem", fontWeight: 600, color: "#475569" }}>Tất cả sản phẩm đều đủ hàng 🎉</p>
-            <p style={{ fontSize: "0.72rem", color: "#94a3b8" }}>Không có mặt hàng nào có mức tồn kho dưới 5.</p>
+          <div className="flex flex-col items-center justify-center h-48 text-center p-4">
+            <CheckCircle size={32} className="text-emerald-500 mb-2" />
+            <p className="text-sm font-semibold text-slate-800">Tất cả sản phẩm đều đủ hàng 🎉</p>
+            <p className="text-xs text-slate-400 mt-0.5">Không có mặt hàng nào tồn kho dưới 5.</p>
           </div>
         ) : (
-          <div className="admin-dashboard__widget-list" style={{ gap: "0.7rem" }}>
-            {products.map((plant) => (
-              <div key={plant._id} className="admin-dashboard__alert-item">
-                <div className="admin-dashboard__alert-info">
+          <div className="flex flex-col gap-3">
+            {products.slice(0, 5).map((plant) => (
+              <div key={plant._id} className="flex items-center justify-between gap-3 p-2.5 rounded-xl border border-rose-100 bg-rose-50/30 transition hover:bg-rose-50/50">
+                <div className="flex items-center gap-2.5 min-w-0 flex-1">
                   {plant.imageCover ? (
                     <img
                       src={plant.imageCover}
                       alt={plant.name}
-                      className="admin-dashboard__prod-img"
-                      style={{ width: "34px", height: "34px", borderRadius: "6px" }}
+                      className="h-9 w-9 rounded-lg object-cover border border-rose-200 shrink-0"
                     />
                   ) : (
-                    <div
-                      className="admin-dashboard__prod-img"
-                      style={{ width: "34px", height: "34px", borderRadius: "6px", background: "#fee2e2", display: "flex", alignItems: "center", justifyContent: "center" }}
-                    >
+                    <div className="h-9 w-9 rounded-lg bg-rose-100 flex items-center justify-center border border-rose-200 shrink-0">
                       <Package size={14} className="text-rose-400" />
                     </div>
                   )}
-                  <div className="admin-dashboard__alert-meta">
-                    <span className="admin-dashboard__alert-name" style={{ maxWidth: "125px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold text-rose-950 truncate" title={plant.name}>
                       {plant.name}
-                    </span>
-                    <span className="admin-dashboard__alert-stock">Danh mục: {plant.category}</span>
+                    </p>
+                    <p className="text-xs text-rose-700 truncate mt-0.5">
+                      Danh mục: {plant.category}
+                    </p>
                   </div>
                 </div>
-                <span className="admin-dashboard__alert-badge">Tồn: {plant.stock}</span>
+                <div className="shrink-0">
+                  <span className="inline-flex items-center rounded-full bg-rose-100 px-2 py-0.5 text-xs font-bold text-rose-700">
+                    Tồn: {plant.stock}
+                  </span>
+                </div>
               </div>
             ))}
           </div>
