@@ -9,7 +9,38 @@ import ConfirmDialog from "@/components/admin/ui/confirm-dialog";
 import AdminToast from "@/components/admin/ui/admin-toast";
 import "@/app/chat.css";
 
-type FilterTab = "all" | "pending" | "active" | "closed";
+const renderMessageContent = (content: string) => {
+  if (!content) return "";
+  const words = content.split(/(\s+)/);
+  return words.map((word, index) => {
+    const isUrl = /^(https?:\/\/[^\s]+|www\.[^\s]+)$/i.test(word);
+    if (isUrl) {
+      let cleanUrl = word;
+      let trailingPunctuation = "";
+      const trailingMatch = word.match(/([.,!?;:]+)$/);
+      if (trailingMatch) {
+        cleanUrl = word.substring(0, word.length - trailingMatch[0].length);
+        trailingPunctuation = trailingMatch[0];
+      }
+      const href = cleanUrl.toLowerCase().startsWith("http") ? cleanUrl : `https://${cleanUrl}`;
+      return (
+        <span key={index}>
+          <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ textDecoration: "underline", fontWeight: 500, wordBreak: "break-all" }}
+            className="hover:opacity-80 transition-opacity"
+          >
+            {cleanUrl}
+          </a>
+          {trailingPunctuation}
+        </span>
+      );
+    }
+    return word;
+  });
+};
 
 export default function AdminChatPage() {
   const { user } = useAuthStore();
@@ -609,7 +640,7 @@ export default function AdminChatPage() {
                               : "chat-msg__bubble chat-msg__bubble--bot"
                           }
                         >
-                          {msg.content}
+                          {renderMessageContent(msg.content)}
                         </div>
                         <span className="chat-msg__time">
                           {formatFullTime(msg.timestamp)}

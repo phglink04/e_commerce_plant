@@ -5,6 +5,39 @@ import { useChatbotStore } from "@/store/chatbot-store";
 import { useAuthStore } from "@/store/auth-store";
 import "@/app/chat.css";
 
+const renderMessageContent = (content: string) => {
+  if (!content) return "";
+  const words = content.split(/(\s+)/);
+  return words.map((word, index) => {
+    const isUrl = /^(https?:\/\/[^\s]+|www\.[^\s]+)$/i.test(word);
+    if (isUrl) {
+      let cleanUrl = word;
+      let trailingPunctuation = "";
+      const trailingMatch = word.match(/([.,!?;:]+)$/);
+      if (trailingMatch) {
+        cleanUrl = word.substring(0, word.length - trailingMatch[0].length);
+        trailingPunctuation = trailingMatch[0];
+      }
+      const href = cleanUrl.toLowerCase().startsWith("http") ? cleanUrl : `https://${cleanUrl}`;
+      return (
+        <span key={index}>
+          <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ textDecoration: "underline", fontWeight: 500, wordBreak: "break-all" }}
+            className="hover:opacity-80 transition-opacity"
+          >
+            {cleanUrl}
+          </a>
+          {trailingPunctuation}
+        </span>
+      );
+    }
+    return word;
+  });
+};
+
 /**
  * ChatbotWidget — Premium floating chat with AI + Admin real-time support
  */
@@ -272,7 +305,7 @@ export default function ChatbotWidget() {
                             </span>
                           )}
                           <div className={getBubbleClass(msg.role)}>
-                            {msg.content}
+                            {renderMessageContent(msg.content)}
                           </div>
                           <span className="chat-msg__time">
                             {formatTime(msg.timestamp)}
