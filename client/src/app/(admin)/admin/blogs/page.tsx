@@ -189,9 +189,6 @@ export default function AdminBlogsPage() {
                 <th className="px-6 py-3 text-left whitespace-nowrap">Danh mục</th>
                 <th className="px-6 py-3 text-center whitespace-nowrap">Trạng thái</th>
                 <th className="px-6 py-3 text-center whitespace-nowrap">Nổi bật</th>
-                <th className="px-6 py-3 text-center whitespace-nowrap">
-                  <Eye size={14} className="mx-auto" />
-                </th>
                 <th className="px-6 py-3 text-right whitespace-nowrap">Thao tác</th>
               </tr>
             </thead>
@@ -212,9 +209,6 @@ export default function AdminBlogsPage() {
                       <div className="min-w-0 max-w-[320px]">
                         <p className="text-sm font-semibold text-slate-900 whitespace-normal break-words line-clamp-2">
                           {blog.title}
-                        </p>
-                        <p className="truncate text-xs text-slate-400 mt-0.5">
-                          {blog.slug}
                         </p>
                       </div>
                     </div>
@@ -240,24 +234,21 @@ export default function AdminBlogsPage() {
                       {blog.isFeatured ? "✓" : "−"}
                     </span>
                   </td>
-                  <td className="px-6 py-3 text-center text-sm text-slate-500 whitespace-nowrap">
-                    {(blog.viewCount ?? 0).toLocaleString()}
-                  </td>
                   <td className="px-6 py-3 text-right whitespace-nowrap">
                     <div className="flex justify-end gap-2">
                       <button
                         onClick={() => handleEdit(blog)}
-                        className="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-600 transition hover:bg-blue-100"
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600 transition hover:bg-blue-100"
+                        title="Sửa"
                       >
                         <Pencil size={14} />
-                        Sửa
                       </button>
                       <button
                         onClick={() => setDeleteTarget(blog)}
-                        className="inline-flex items-center gap-1 rounded-lg bg-red-50 px-3 py-1.5 text-sm font-medium text-red-600 transition hover:bg-red-100"
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-red-50 text-red-600 transition hover:bg-red-100"
+                        title="Xóa"
                       >
                         <Trash2 size={14} />
-                        Xóa
                       </button>
                     </div>
                   </td>
