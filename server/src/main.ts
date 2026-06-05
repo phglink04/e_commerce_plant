@@ -14,11 +14,13 @@ async function bootstrap() {
 
   app.useLogger(logger);
 
+  const corsOriginsVal = configService.get<string>("ALLOWED_ORIGINS", "");
+  const corsOrigins = corsOriginsVal
+    ? corsOriginsVal.split(",").map((item) => item.trim())
+    : [configService.get<string>("FRONTEND_URL", "http://localhost:3000")];
+
   app.enableCors({
-    origin: [
-      configService.get<string>("FRONTEND_URL", "http://localhost:3000"),
-      "http://localhost:3001",
-    ],
+    origin: corsOrigins,
     credentials: true,
   });
 

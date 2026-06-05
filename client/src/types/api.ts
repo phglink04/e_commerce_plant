@@ -29,6 +29,8 @@ export interface PaginationParams {
   availability?: string;
   admin?: boolean;
   includeDiscontinued?: boolean;
+  isFeatured?: boolean;
+  isFlashSale?: boolean;
 }
 
 export interface PaginatedResponse<T> {

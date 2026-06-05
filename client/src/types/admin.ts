@@ -8,6 +8,7 @@ export interface DashboardStats {
   };
   orders: {
     total: number;
+    today?: number;
     pending: number;
     processing: number;
     delivered: number;
@@ -20,6 +21,7 @@ export interface DashboardStats {
   };
   users: {
     total: number;
+    today?: number;
     newThisMonth: number;
     active: number;
   };
@@ -109,5 +111,14 @@ export interface RecentCustomer {
   email: string;
   avatar?: string;
   createdAt: string;
+}
+
+export interface TopCustomer {
+  _id: string;
+  totalSpent: number;
+  orderCount: number;
+  name: string;
+  email: string;
+  avatar?: string;
 }
 

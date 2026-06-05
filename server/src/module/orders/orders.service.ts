@@ -140,18 +140,21 @@ export class OrdersService implements OnModuleInit {
       0,
     );
 
-    const shippingFee = dto.shippingFee ?? 0;
+    // Free shipping for orders >= 500k VND
+    const shippingFee = subtotal >= 500000 ? 0 : (dto.shippingFee ?? 0);
 
     let discountInfo: { code: string; amount: number } | undefined;
     let total = subtotal + shippingFee;
 
     // Apply discount if a code is provided
     if (dto.discountCode && dto.discountAmount && dto.discountAmount > 0) {
+      // Capped at subtotal, so discount only subtracts from items, not shipping
+      const allowedDiscount = Math.min(dto.discountAmount, subtotal);
       discountInfo = {
         code: dto.discountCode.trim().toUpperCase(),
-        amount: dto.discountAmount,
+        amount: allowedDiscount,
       };
-      total = subtotal + shippingFee - dto.discountAmount;
+      total = (subtotal - allowedDiscount) + shippingFee;
       if (total < 0) total = 0;
 
       // Increment usage count for the coupon

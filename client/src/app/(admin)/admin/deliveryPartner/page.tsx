@@ -5,6 +5,7 @@ import AdminModal from "@/components/admin/ui/admin-modal";
 import AdminToast from "@/components/admin/ui/admin-toast";
 import DataTable from "@/components/admin/ui/data-table";
 import FormInput from "@/components/admin/ui/form-input";
+import ConfirmDialog from "@/components/admin/ui/confirm-dialog";
 import {
   createDeliveryPartner,
   deleteUser,
@@ -20,6 +21,8 @@ export default function AdminDeliveryPartnerPage() {
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<AdminUser | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const [toast, setToast] = useState<{
     type: "success" | "error";
     message: string;
@@ -127,28 +130,25 @@ export default function AdminDeliveryPartnerPage() {
     }
   };
 
-  const handleDeletePartner = async (partner: AdminUser) => {
-    if (!token) return;
-
-    const confirmed = window.confirm(
-      `Xóa đối tác giao hàng ${partner.email}?`,
-    );
-    if (!confirmed) {
-      return;
-    }
+  const handleDeletePartner = async () => {
+    if (!token || !deleteTarget) return;
 
     try {
-      await deleteUser(partner.id, token);
+      setDeleting(true);
+      await deleteUser(deleteTarget.id, token);
       setPartners((previous) =>
-        previous.filter((item) => item.id !== partner.id),
+        previous.filter((item) => item.id !== deleteTarget.id),
       );
       setToast({ type: "success", message: "Đối tác đã bị xóa." });
+      setDeleteTarget(null);
     } catch (error) {
       setToast({
         type: "error",
         message:
           error instanceof Error ? error.message : "Không thể xóa đối tác.",
       });
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -198,7 +198,7 @@ export default function AdminDeliveryPartnerPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => void handleDeletePartner(row)}
+                  onClick={() => setDeleteTarget(row)}
                   className="rounded-lg border border-rose-200 px-2 py-1 text-xs text-rose-700 hover:bg-rose-50"
                 >
                   Xóa
@@ -269,6 +269,20 @@ export default function AdminDeliveryPartnerPage() {
           </div>
         </form>
       </AdminModal>
+
+      {deleteTarget && (
+        <ConfirmDialog
+          title="Xóa đối tác giao hàng"
+          description={`Bạn có chắc chắn muốn xóa đối tác giao hàng "${deleteTarget.name}" (${deleteTarget.email})? Hành động này không thể hoàn tác.`}
+          confirmLabel="Xóa"
+          cancelLabel="Hủy"
+          open={!!deleteTarget}
+          loading={deleting}
+          onConfirm={handleDeletePartner}
+          onCancel={() => setDeleteTarget(null)}
+          variant="danger"
+        />
+      )}
 
       {toast ? (
         <AdminToast

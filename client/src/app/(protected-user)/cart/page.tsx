@@ -303,7 +303,7 @@ export default function CartPage() {
     [selectedItems],
   );
 
-  const shippingFee = selectedItems.length > 0 ? SHIPPING_FEE : 0;
+  const shippingFee = (selectedItems.length > 0 && subtotal < 500000) ? SHIPPING_FEE : 0;
   const total = subtotal + shippingFee;
 
   // Discount handlers
@@ -313,7 +313,7 @@ export default function CartPage() {
     try {
       const result = await discountService.applyDiscount({
         code,
-        cartTotal: total,
+        cartTotal: subtotal,
       });
       setAppliedDiscount({
         code: result.code,
@@ -609,7 +609,7 @@ export default function CartPage() {
     // Attach discount info if a coupon is applied
     if (appliedDiscount) {
       orderPayload.discountCode = appliedDiscount.code;
-      orderPayload.discountAmount = appliedDiscount.discountAmount;
+      orderPayload.discountAmount = Math.min(appliedDiscount.discountAmount, subtotal);
     }
 
     const orderRes = await api.post(
@@ -693,10 +693,11 @@ export default function CartPage() {
 
     const selectedPlantIds = selectedItems.map((item) => item.plantId);
 
-    // Calculate the actual payable amount (after discount)
-    const actualPayable = appliedDiscount
-      ? Math.max(0, total - appliedDiscount.discountAmount)
-      : total;
+    // Calculate the actual payable amount (after discount capped at subtotal)
+    const allowedDiscount = appliedDiscount
+      ? Math.min(appliedDiscount.discountAmount, subtotal)
+      : 0;
+    const actualPayable = (subtotal - allowedDiscount) + shippingFee;
 
     try {
       const orderId = await createOrder();

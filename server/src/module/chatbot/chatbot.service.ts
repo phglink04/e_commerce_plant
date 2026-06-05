@@ -71,7 +71,8 @@ QUAN TRỌNG:
 - Tuyệt đối không dùng định dạng Markdown (không dùng dấu sao *, dấu thăng #, ngoặc vuông [], hay code block \`\`\`).
 - Chỉ trả lời bằng văn bản thuần (plain text), xuống dòng hợp lý bằng phím Enter để dễ đọc.
 - Sử dụng các biểu tượng emoji phù hợp (🌿, 🌸, 💰, 🚚, 💳, 💡, 😊,...) để tin nhắn sinh động hơn.
-- Khi cung cấp thông tin sản phẩm có kèm link ở phần ngữ cảnh, hãy đưa đường link đầy đủ ra để khách bấm vào (ví dụ: http://localhost:3000/plant/slug-id). Không bịa đặt đường link khác.`;
+- Khi cung cấp thông tin sản phẩm có kèm link ở phần ngữ cảnh, hãy đưa đường link đầy đủ ra để khách bấm vào (ví dụ: http://localhost:3000/plant/slug-id). Không bịa đặt đường link khác.
+- Nếu khách hàng hỏi thông tin về một sản phẩm cụ thể (ví dụ: hỏi giá, hỏi mô tả, tình trạng còn hàng hoặc cách chăm sóc của một loại cây nhất định), bạn chỉ được phép trả lời và tập trung vào duy nhất sản phẩm đó mà thôi. Tuyệt đối không đề xuất, giới thiệu hay liệt kê thêm các sản phẩm khác từ danh sách ngữ cảnh trừ khi khách hàng chủ động yêu cầu gợi ý thêm.`;
   }
 
   // ──────────────────── QUẢN LÝ PHIÊN TRÒNG CHUYỆN ─────────────────────
@@ -240,6 +241,18 @@ QUAN TRỌNG:
 
   // ──────────────────── SMART CONTEXT BUILDER ─────────────────────
 
+  private filterExactMatch(plants: Plant[], query: string): Plant[] {
+    const queryLower = query.toLowerCase();
+    const exactMatches = plants.filter((p) => {
+      const nameLower = p.name.toLowerCase();
+      if (queryLower.includes(nameLower)) return true;
+      const words = nameLower.split(/\s+/).filter(w => w.length > 1);
+      if (words.length > 0 && words.every(word => queryLower.includes(word))) return true;
+      return false;
+    });
+    return exactMatches.length > 0 ? [exactMatches[0]] : plants;
+  }
+
   private async buildSmartContext(userMessage: string): Promise<string> {
     try {
       const topics = this.analyzeMessageTopic(userMessage);
@@ -257,21 +270,33 @@ QUAN TRỌNG:
       // Có keyword rõ ràng → Text Search
       if (topics.some(t => ['pricing', 'availability', 'plant-query'].includes(t))) {
         const plants = await this.searchByText(userMessage, 5);
-        if (plants.length > 0) return this.formatPlantsContext(plants, 'Sản phẩm liên quan');
+        if (plants.length > 0) {
+          const filtered = this.filterExactMatch(plants, userMessage);
+          return this.formatPlantsContext(filtered, 'Sản phẩm liên quan');
+        }
       }
 
       // Semantic topics — thử text search trước để tiết kiệm API call embedding
       if (topics.some(t => ['recommendation', 'low-light', 'high-light', 'care', 'toxic', 'water', 'humidity'].includes(t))) {
         const textPlants = await this.searchByText(userMessage, 5);
-        if (textPlants.length > 0) return this.formatPlantsContext(textPlants, 'Sản phẩm phù hợp');
+        if (textPlants.length > 0) {
+          const filtered = this.filterExactMatch(textPlants, userMessage);
+          return this.formatPlantsContext(filtered, 'Sản phẩm phù hợp');
+        }
         // Text search trống → thử semantic (cần embedding API call)
         const plants = await this.searchBySemantic(userMessage, 5);
-        if (plants.length > 0) return this.formatPlantsContext(plants, 'Sản phẩm phù hợp');
+        if (plants.length > 0) {
+          const filtered = this.filterExactMatch(plants, userMessage);
+          return this.formatPlantsContext(filtered, 'Sản phẩm phù hợp');
+        }
       }
 
       // Fallback text search
       const plants = await this.searchByText(userMessage, 5);
-      if (plants.length > 0) return this.formatPlantsContext(plants, 'Sản phẩm có thể liên quan');
+      if (plants.length > 0) {
+        const filtered = this.filterExactMatch(plants, userMessage);
+        return this.formatPlantsContext(filtered, 'Sản phẩm có thể liên quan');
+      }
 
       return '';
     } catch (error) {
@@ -629,11 +654,17 @@ QUAN TRỌNG:
     if (topics.includes('pricing')) {
       const plants = await this.searchByText(userMessage, 4);
       if (plants.length > 0) {
-        let reply = `💰 Dạ gửi ${uName} thông tin giá của các sản phẩm mình quan tâm ạ:\n\n`;
-        plants.forEach((p) => {
+        const filtered = this.filterExactMatch(plants, userMessage);
+        const isSingle = filtered.length === 1;
+        let reply = isSingle 
+          ? `💰 Dạ gửi ${uName} thông tin giá của sản phẩm mình quan tâm ạ:\n\n`
+          : `💰 Dạ gửi ${uName} thông tin giá của các sản phẩm mình quan tâm ạ:\n\n`;
+        filtered.forEach((p) => {
           reply += this.formatPlantDetailFallback(p) + '\n';
         });
-        reply += `Mình có thể bấm trực tiếp vào các đường link trên để xem hình ảnh thực tế và đặt mua cây nha! 🌿`;
+        reply += isSingle
+          ? `Mình có thể bấm trực tiếp vào đường link trên để xem hình ảnh thực tế và đặt mua cây nha! 🌿`
+          : `Mình có thể bấm trực tiếp vào các đường link trên để xem hình ảnh thực tế và đặt mua cây nha! 🌿`;
         return reply;
       }
       return `Dạ hiện tại giá các loại cây tại PlantWorld dao động từ khoảng 50.000đ đến hơn 1.000.000đ tùy thuộc vào loại cây, kích thước chậu và kiểu dáng chậu ạ.\n\n${uName} có thể tham khảo trực tiếp bảng giá cập nhật mới nhất tại trang Cửa hàng của chúng em. Hoặc mình cho em xin tên loại cây cụ thể để em báo giá chính xác cho mình nhé! 🌿`;
@@ -643,14 +674,18 @@ QUAN TRỌNG:
     if (topics.includes('availability')) {
       const plants = await this.searchByText(userMessage, 4);
       if (plants.length > 0) {
+        const filtered = this.filterExactMatch(plants, userMessage);
+        const isSingle = filtered.length === 1;
         let reply = `📦 Dạ em kiểm tra tình trạng hàng cho ${uName} rồi nè:\n\n`;
-        plants.forEach((p) => {
+        filtered.forEach((p) => {
           const status = p.availability === 'In Stock' ? `Còn hàng (còn ${p.stock} cây)` : 
                          p.availability === 'Out Of Stock' ? 'Tạm thời hết hàng' : 
                          p.availability === 'Discontinued' ? 'Đã ngừng kinh doanh' : 'Sắp ra mắt';
           reply += `• ${p.name}: ${status}\n  🔗 Xem tại: ${this.buildProductLink(p)}\n\n`;
         });
-        reply += `Nếu cây mình thích đã hết hàng hoặc ngừng kinh doanh, em có thể gợi ý các loại cây tương tự khác cho mình nha!`;
+        if (!isSingle) {
+          reply += `Nếu cây mình thích đã hết hàng hoặc ngừng kinh doanh, em có thể gợi ý các loại cây tương tự khác cho mình nha!`;
+        }
         return reply;
       }
       return `Dạ hầu hết các mẫu cây cảnh trưng bày trên website của PlantWorld đều đang sẵn hàng tại tiệm ạ. Tuy nhiên, một số loại cây theo mùa có thể hết hàng nhanh.\n\n${uName} đang quan tâm loại cây nào thế ạ? Cho em xin tên để em kiểm tra kho hàng thực tế ngay cho mình nhé! 🌿`;
@@ -678,15 +713,19 @@ QUAN TRỌNG:
     // ── Chăm sóc cây ──
     if (topics.includes('care') || topics.includes('water') || topics.includes('humidity')) {
       const plants = await this.searchByText(userMessage, 2);
+      const filtered = this.filterExactMatch(plants, userMessage);
       let reply = `💡 Hướng dẫn chăm sóc cây cảnh cơ bản từ PlantWorld gửi ${uName} ạ:\n\n` +
         `• Ánh sáng: Phần lớn cây trồng trong nhà ưa ánh sáng tán xạ nhẹ (gần cửa sổ, ban công). Hãy tránh ánh nắng gắt trực tiếp buổi trưa để cây không bị cháy lá nha.\n` +
         `• Tưới nước: Nguyên tắc vàng là "chỉ tưới khi đất khô". Mình dùng tay hoặc que gỗ kiểm tra lớp đất sâu khoảng 2-3cm, nếu thấy khô hẳn thì hãy tưới đẫm nước nhé.\n` +
         `• Đất trồng & Chậu: Đất cần tơi xốp, thoát nước nhanh (pha thêm trấu hun hoặc đá perlite). Chậu cây bắt buộc phải có lỗ thoát nước ở đáy chậu.\n` +
         `• Bón phân: Định kỳ bón phân hữu cơ tan chậm hoặc phân NPK loãng khoảng 2 - 3 tuần/lần để cung cấp dinh dưỡng nuôi cây.\n`;
       
-      if (plants.length > 0) {
-        reply += `\n📌 Hướng dẫn cụ thể cho loại cây mình hỏi:\n\n`;
-        plants.forEach((p) => {
+      if (filtered.length > 0) {
+        const isSingle = filtered.length === 1;
+        reply += isSingle 
+          ? `\n📌 Hướng dẫn cụ thể cho cây mình hỏi:\n\n`
+          : `\n📌 Hướng dẫn cụ thể cho các cây mình hỏi:\n\n`;
+        filtered.forEach((p) => {
           reply += `🌿 Cây ${p.name}:\n`;
           if (p.description) {
             reply += `  - ${p.description.substring(0, 150)}...\n`;
@@ -782,22 +821,14 @@ QUAN TRỌNG:
     if (topics.includes('plant-query')) {
       const plants = await this.searchByText(userMessage, 4);
       if (plants.length > 0) {
-        const bestMatch = plants[0];
-        const nameWords = bestMatch.name?.toLowerCase().split(/\s+/) || [];
-        const msgWords = msg.split(/\s+/);
-        const isExactMatch = plants.length === 1 || nameWords.some(w => msgWords.includes(w) && w.length > 2);
+        const filtered = this.filterExactMatch(plants, userMessage);
+        const isExactMatch = filtered.length === 1;
 
         if (isExactMatch) {
+          const bestMatch = filtered[0];
           let reply = `📋 Dạ em gửi thông tin chi tiết về cây **${bestMatch.name}** mình đang quan tâm ạ:\n\n`;
           reply += this.formatPlantDetailFallback(bestMatch);
-          if (plants.length > 1) {
-            reply += `\n📌 Ngoài ra còn các sản phẩm tương tự có thể mình cũng thích:\n\n`;
-            plants.slice(1, 4).forEach((p) => {
-              const price = p.price?.toLocaleString('vi-VN') || 'Liên hệ';
-              reply += `• ${p.name} — giá chỉ ${price}đ\n  🔗 Xem thêm: ${this.buildProductLink(p)}\n\n`;
-            });
-          }
-          reply += `Mình có cần em hướng dẫn thêm về cách chăm sóc cây ${bestMatch.name} này không ạ?`;
+          reply += `\nMình có cần em hướng dẫn thêm về cách chăm sóc cây ${bestMatch.name} này không ạ?`;
           return reply;
         }
 

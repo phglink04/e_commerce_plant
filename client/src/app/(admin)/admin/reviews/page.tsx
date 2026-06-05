@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { adminReviewService } from "@/services/admin/review.service";
 import type { Review } from "@/types/review";
+import ConfirmDialog from "@/components/admin/ui/confirm-dialog";
 import "@/components/reviews/reviews.css";
 
 export default function AdminReviewsPage() {
@@ -20,6 +21,9 @@ export default function AdminReviewsPage() {
   const [replyTarget, setReplyTarget] = useState<string | null>(null);
   const [replyText, setReplyText] = useState("");
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+
+  // Delete target
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
 
   const fetchReviews = useCallback(async () => {
     setLoading(true);
@@ -44,13 +48,14 @@ export default function AdminReviewsPage() {
     fetchReviews();
   }, [fetchReviews]);
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Bạn có chắc chắn muốn xóa đánh giá này?")) return;
-    setActionLoading(id);
+  const handleDelete = async () => {
+    if (!deleteTargetId) return;
+    setActionLoading(deleteTargetId);
     try {
-      await adminReviewService.deleteReview(id);
-      setReviews((prev) => prev.filter((r) => r.id !== id));
+      await adminReviewService.deleteReview(deleteTargetId);
+      setReviews((prev) => prev.filter((r) => r.id !== deleteTargetId));
       setTotalResults((prev) => prev - 1);
+      setDeleteTargetId(null);
     } catch {} finally { setActionLoading(null); }
   };
 
@@ -158,7 +163,7 @@ export default function AdminReviewsPage() {
                       </button>
                       <button
                         className="admin-reviews__btn admin-reviews__btn--delete"
-                        onClick={() => handleDelete(review.id)}
+                        onClick={() => setDeleteTargetId(review.id)}
                         disabled={actionLoading === review.id}
                       >
                         Xóa
@@ -220,6 +225,19 @@ export default function AdminReviewsPage() {
           </div>
         </div>
       )}
+
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        title="Xóa đánh giá"
+        description="Bạn có chắc chắn muốn xóa đánh giá này? Hành động này không thể hoàn tác."
+        confirmLabel="Xóa"
+        cancelLabel="Hủy"
+        open={!!deleteTargetId}
+        loading={actionLoading === deleteTargetId}
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteTargetId(null)}
+        variant="danger"
+      />
     </div>
   );
 }

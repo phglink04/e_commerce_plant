@@ -105,6 +105,18 @@ export class PlantsService {
       filter.discountPercentage = { $gt: 0 };
     }
 
+    if (query.isFeatured === "true") {
+      filter.isFeatured = true;
+    } else if (query.isFeatured === "false") {
+      filter.isFeatured = false;
+    }
+
+    if (query.isFlashSale === "true") {
+      filter.isFlashSale = true;
+    } else if (query.isFlashSale === "false") {
+      filter.isFlashSale = false;
+    }
+
     const totalResults = await this.plantModel.countDocuments(filter);
     const items = await this.plantModel
       .find(filter)
@@ -234,9 +246,7 @@ export class PlantsService {
     // Auto-sync availability với stock
     let stock = dto.stock ?? 0;
     let availability = dto.availability;
-    if (availability === 'Discontinued') {
-      stock = 0;
-    } else {
+    if (availability !== 'Discontinued') {
       if (stock === 0) {
         availability = 'Out Of Stock';
       } else if (stock > 0 && availability === 'Out Of Stock') {
@@ -276,9 +286,7 @@ export class PlantsService {
     // Auto-sync availability với stock
     let stock = dto.stock ?? 0;
     let availability = dto.availability;
-    if (availability === 'Discontinued') {
-      stock = 0;
-    } else {
+    if (availability !== 'Discontinued') {
       if (stock === 0) {
         availability = 'Out Of Stock';
       } else if (stock > 0 && availability === 'Out Of Stock') {
@@ -326,7 +334,7 @@ export class PlantsService {
   async remove(id: string) {
     const result = await this.plantModel.findByIdAndUpdate(
       id,
-      { availability: "Discontinued", stock: 0 },
+      { availability: "Discontinued" },
       { new: true }
     );
     return Boolean(result);
@@ -345,7 +353,7 @@ export class PlantsService {
 
     const newStock = Math.max(0, plant.stock - quantity);
     const update: Record<string, unknown> = { stock: newStock };
-    if (newStock === 0) {
+    if (newStock === 0 && plant.availability !== "Discontinued") {
       update.availability = "Out Of Stock";
     }
 

@@ -5,6 +5,8 @@ import { chatbotService } from "@/services/chatbot.service";
 import { useAuthStore } from "@/store/auth-store";
 import { connectSocket, getSocket, disconnectSocket } from "@/lib/socket";
 import type { ChatbotSession, ChatbotMessage } from "@/types/chatbot";
+import ConfirmDialog from "@/components/admin/ui/confirm-dialog";
+import AdminToast from "@/components/admin/ui/admin-toast";
 import "@/app/chat.css";
 
 type FilterTab = "all" | "pending" | "active" | "closed";
@@ -20,6 +22,9 @@ export default function AdminChatPage() {
   const [isUserTyping, setIsUserTyping] = useState(false);
   const [mobileShowChat, setMobileShowChat] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  const [deletingChat, setDeletingChat] = useState(false);
+  const [toast, setToast] = useState<{ type: "success" | "error"; message: string } | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -245,28 +250,26 @@ export default function AdminChatPage() {
     }
   };
 
-  const handleDeleteChat = async (chatId: string, e?: React.MouseEvent) => {
-    if (e) e.stopPropagation();
-    if (
-      !window.confirm(
-        "Bạn có chắc chắn muốn xóa vĩnh viễn cuộc trò chuyện này? Thao tác này không thể hoàn tác."
-      )
-    ) {
-      return;
-    }
+  const handleDeleteChat = async () => {
+    if (!deleteTargetId) return;
 
     try {
-      await chatbotService.deleteChat(chatId);
+      setDeletingChat(true);
+      await chatbotService.deleteChat(deleteTargetId);
       if (
         selectedChat &&
-        (selectedChat._id === chatId || selectedChat.id === chatId)
+        (selectedChat._id === deleteTargetId || selectedChat.id === deleteTargetId)
       ) {
         setSelectedChat(null);
       }
+      setToast({ type: "success", message: "Đã xóa cuộc trò chuyện thành công" });
+      setDeleteTargetId(null);
       fetchChats();
     } catch (error) {
       console.error("Error deleting chat:", error);
-      alert("Không thể xóa cuộc trò chuyện");
+      setToast({ type: "error", message: "Không thể xóa cuộc trò chuyện" });
+    } finally {
+      setDeletingChat(false);
     }
   };
 
@@ -459,7 +462,7 @@ export default function AdminChatPage() {
                         <div className="admin-chat__item-meta">
                           {getStatusBadge(chat.status)}
                           <span
-                            onClick={(e) => handleDeleteChat(chatId, e)}
+                            onClick={(e) => { e.stopPropagation(); setDeleteTargetId(chatId); }}
                             className="admin-chat__item-delete-btn"
                             title="Xóa cuộc trò chuyện"
                             role="button"
@@ -535,7 +538,7 @@ export default function AdminChatPage() {
                   )}
                   <button
                     className="admin-chatroom__btn admin-chatroom__btn--delete"
-                    onClick={(e) => handleDeleteChat(selectedChat._id || selectedChat.id, e)}
+                    onClick={() => setDeleteTargetId(selectedChat._id || selectedChat.id)}
                     title="Xóa vĩnh viễn"
                   >
                     🗑️ Xóa
@@ -692,6 +695,26 @@ export default function AdminChatPage() {
           )}
         </div>
       </div>
+
+      <ConfirmDialog
+        title="Xóa cuộc trò chuyện"
+        description="Bạn có chắc chắn muốn xóa vĩnh viễn cuộc trò chuyện này? Thao tác này không thể hoàn tác."
+        confirmLabel="Xóa"
+        cancelLabel="Hủy"
+        open={!!deleteTargetId}
+        loading={deletingChat}
+        onConfirm={handleDeleteChat}
+        onCancel={() => setDeleteTargetId(null)}
+        variant="danger"
+      />
+
+      {toast && (
+        <AdminToast
+          type={toast.type}
+          message={toast.message}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 }

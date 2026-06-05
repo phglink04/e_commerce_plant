@@ -16,8 +16,11 @@ export class DashboardService {
   ) {}
 
   async getDashboardStats() {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const tzOffset = 7 * 60; // ICT offset in minutes
+    const now = new Date();
+    const ictTime = new Date(now.getTime() + tzOffset * 60 * 1000);
+    const ictToday = new Date(ictTime.getFullYear(), ictTime.getMonth(), ictTime.getDate());
+    const today = new Date(ictToday.getTime() - tzOffset * 60 * 1000);
 
     const thisWeekStart = new Date(today);
     thisWeekStart.setDate(today.getDate() - today.getDay());
@@ -78,6 +81,9 @@ export class DashboardService {
     ]);
 
     const totalOrders = await this.orderModel.countDocuments();
+    const todayOrdersCount = await this.orderModel.countDocuments({
+      createdAt: { $gte: today },
+    });
 
     // Product statistics
     const totalProducts = await this.plantModel.countDocuments();
@@ -90,6 +96,9 @@ export class DashboardService {
 
     // User statistics
     const totalUsers = await this.userModel.countDocuments();
+    const todayNewUsersCount = await this.userModel.countDocuments({
+      createdAt: { $gte: today },
+    });
     const newUsersThisMonth = await this.userModel.countDocuments({
       createdAt: { $gte: thisMonthStart },
     });
@@ -108,6 +117,7 @@ export class DashboardService {
       },
       orders: {
         total: totalOrders,
+        today: todayOrdersCount,
         pending: orderStats.find((s: any) => s._id === "pending")?.count || 0,
         processing:
           orderStats.find((s: any) => s._id === "processing")?.count || 0,
@@ -123,6 +133,7 @@ export class DashboardService {
       },
       users: {
         total: totalUsers,
+        today: todayNewUsersCount,
         newThisMonth: newUsersThisMonth,
         active: activeUsers,
       },
@@ -229,6 +240,45 @@ export class DashboardService {
       .select("name slug price stock imageCover category availability")
       .lean()
       .exec();
+  }
+
+  async getTopCustomers(limit: number = 10) {
+    return await this.orderModel.aggregate([
+      {
+        $match: {
+          orderStatus: "delivered",
+          paymentStatus: "paid",
+        },
+      },
+      {
+        $group: {
+          _id: "$userId",
+          totalSpent: { $sum: "$total" },
+          orderCount: { $sum: 1 },
+        },
+      },
+      { $sort: { totalSpent: -1 } },
+      { $limit: limit },
+      {
+        $lookup: {
+          from: "users",
+          localField: "_id",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      { $unwind: "$user" },
+      {
+        $project: {
+          _id: 1,
+          totalSpent: 1,
+          orderCount: 1,
+          name: "$user.name",
+          email: "$user.email",
+          avatar: "$user.avatar",
+        },
+      },
+    ]);
   }
 
   // ─── Analytics Endpoints (with date range filtering) ───────────

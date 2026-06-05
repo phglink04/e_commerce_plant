@@ -64,6 +64,15 @@ export class DashboardController {
     };
   }
 
+  @Get("top-customers")
+  async getTopCustomers(@Query("limit") limit: number = 10) {
+    const data = await this.dashboardService.getTopCustomers(limit);
+    return {
+      data,
+      message: "Top customers fetched successfully",
+    };
+  }
+
   // ─── Analytics Endpoints (with date range filtering) ───────────
 
   @Get("analytics/stats")

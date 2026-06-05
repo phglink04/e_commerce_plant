@@ -9,6 +9,7 @@ import {
   AnalyticsStats,
   ReviewStats,
   RecentCustomer,
+  TopCustomer,
 } from "@/types/admin";
 import { ApiResponse } from "@/types/api";
 
@@ -52,6 +53,14 @@ class DashboardService extends BaseApiService {
   ): Promise<ApiResponse<LowStockProduct[]>> {
     return await this.get<LowStockProduct[]>(
       `/api/admin/dashboard/low-stock?limit=${limit}`,
+    );
+  }
+
+  async getTopCustomers(
+    limit: number = 10,
+  ): Promise<ApiResponse<TopCustomer[]>> {
+    return await this.get<TopCustomer[]>(
+      `/api/admin/dashboard/top-customers?limit=${limit}`,
     );
   }
 

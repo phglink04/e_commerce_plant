@@ -131,7 +131,7 @@ function AddressPageContent() {
     (sum, item) => sum + item.price * item.quantity,
     0,
   );
-  const shippingFee = selectedItems.length > 0 ? SHIPPING_FEE : 0;
+  const shippingFee = (selectedItems.length > 0 && subtotal < 500000) ? SHIPPING_FEE : 0;
   const totalPrice = subtotal + shippingFee;
 
   const getInitialSelection = (): string[] => {
