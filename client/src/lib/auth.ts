@@ -22,6 +22,8 @@ export function setToken(token: string, role?: string | null): void {
 export function clearToken(): void {
   localStorage.removeItem("auth_token");
   localStorage.removeItem("auth_role");
-  document.cookie = "auth_token=; path=/; max-age=0; samesite=lax";
-  document.cookie = "auth_role=; path=/; max-age=0; samesite=lax";
+  const isProduction = process.env.NODE_ENV === "production";
+  const secureFlag = isProduction ? "; Secure" : "";
+  document.cookie = `auth_token=; path=/; max-age=0; samesite=lax${secureFlag}`;
+  document.cookie = `auth_role=; path=/; max-age=0; samesite=lax${secureFlag}`;
 }

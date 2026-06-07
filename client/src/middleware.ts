@@ -10,6 +10,16 @@ import {
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // Tránh cache redirect đối với prefetch request (Next.js prefetch router cache bug trên production)
+  const isPrefetch =
+    request.headers.get("x-middleware-prefetch") === "1" ||
+    request.headers.get("purpose") === "prefetch";
+
+  if (isPrefetch) {
+    return NextResponse.next();
+  }
+
   const token = request.cookies.get("auth_token")?.value ?? null;
   const roleFromCookie = normalizeRole(request.cookies.get("auth_role")?.value);
   const role = roleFromCookie ?? decodeRoleFromJwt(token);
@@ -42,7 +52,9 @@ export function middleware(request: NextRequest) {
   );
 
   if (token && role && isLoginRoute) {
-    return NextResponse.redirect(new URL(userHomePath, request.url));
+    const response = NextResponse.redirect(new URL(userHomePath, request.url));
+    response.headers.set("x-middleware-cache", "no-cache");
+    return response;
   }
 
   if (isProtectedRoute && !token && !isLoginRoute) {
@@ -52,11 +64,15 @@ export function middleware(request: NextRequest) {
     } else if (pathname.startsWith("/deliveryPartner")) {
       redirectLogin = "/deliveryPartner/login";
     }
-    return NextResponse.redirect(new URL(redirectLogin, request.url));
+    const response = NextResponse.redirect(new URL(redirectLogin, request.url));
+    response.headers.set("x-middleware-cache", "no-cache");
+    return response;
   }
 
   if (pathname.startsWith("/admin") && !isLoginRoute && token && !isAdminRole(role)) {
-    return NextResponse.redirect(new URL(userHomePath, request.url));
+    const response = NextResponse.redirect(new URL(userHomePath, request.url));
+    response.headers.set("x-middleware-cache", "no-cache");
+    return response;
   }
 
   if (
@@ -65,14 +81,18 @@ export function middleware(request: NextRequest) {
     token &&
     !isDeliveryPartnerRole(role)
   ) {
-    return NextResponse.redirect(new URL(userHomePath, request.url));
+    const response = NextResponse.redirect(new URL(userHomePath, request.url));
+    response.headers.set("x-middleware-cache", "no-cache");
+    return response;
   }
 
   const isUserOnlyRoute = userOnlyPrefixes.some((prefix) =>
     pathname.startsWith(prefix),
   );
   if (isUserOnlyRoute && token && role && role !== "user") {
-    return NextResponse.redirect(new URL(userHomePath, request.url));
+    const response = NextResponse.redirect(new URL(userHomePath, request.url));
+    response.headers.set("x-middleware-cache", "no-cache");
+    return response;
   }
 
   return NextResponse.next();
