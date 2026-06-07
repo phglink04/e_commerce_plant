@@ -320,6 +320,7 @@ export class AuthService {
       accountType: "GOOGLE",
       googleId,
       avatar,
+      role: "user",
       isVerified: true,
       verificationCode: null,
       verificationCodeExpiresAt: null,

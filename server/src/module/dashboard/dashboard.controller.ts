@@ -80,8 +80,7 @@ export class DashboardController {
     @Query("start") start: string,
     @Query("end") end: string,
   ) {
-    const startDate = new Date(start);
-    const endDate = new Date(end);
+    const { startDate, endDate } = parseLocalDateRange(start, end);
     const data = await this.dashboardService.getAnalyticsStats(startDate, endDate);
     return { data, message: "Analytics stats fetched successfully" };
   }
@@ -91,8 +90,7 @@ export class DashboardController {
     @Query("start") start: string,
     @Query("end") end: string,
   ) {
-    const startDate = new Date(start);
-    const endDate = new Date(end);
+    const { startDate, endDate } = parseLocalDateRange(start, end);
     const data = await this.dashboardService.getAnalyticsOrderStatus(startDate, endDate);
     return { data, message: "Analytics order status fetched successfully" };
   }
@@ -103,8 +101,7 @@ export class DashboardController {
     @Query("end") end: string,
     @Query("limit") limit: number = 10,
   ) {
-    const startDate = new Date(start);
-    const endDate = new Date(end);
+    const { startDate, endDate } = parseLocalDateRange(start, end);
     const data = await this.dashboardService.getAnalyticsTopProducts(startDate, endDate, limit);
     return { data, message: "Analytics top products fetched successfully" };
   }
@@ -114,8 +111,7 @@ export class DashboardController {
     @Query("start") start: string,
     @Query("end") end: string,
   ) {
-    const startDate = new Date(start);
-    const endDate = new Date(end);
+    const { startDate, endDate } = parseLocalDateRange(start, end);
     const data = await this.dashboardService.getReviewStats(startDate, endDate);
     return { data, message: "Review stats fetched successfully" };
   }
@@ -126,9 +122,29 @@ export class DashboardController {
     @Query("end") end: string,
     @Query("limit") limit: number = 5,
   ) {
-    const startDate = new Date(start);
-    const endDate = new Date(end);
+    const { startDate, endDate } = parseLocalDateRange(start, end);
     const data = await this.dashboardService.getRecentCustomers(startDate, endDate, limit);
     return { data, message: "Recent customers fetched successfully" };
   }
+}
+
+function parseLocalDateRange(startStr: string, endStr: string) {
+  const tzOffsetOffsetMs = 7 * 60 * 60 * 1000; // ICT (UTC+7) in milliseconds
+
+  const parseStart = (s: string) => {
+    if (!s) return new Date(0);
+    const [y, m, d] = s.split("-").map(Number);
+    return new Date(Date.UTC(y, m - 1, d) - tzOffsetOffsetMs);
+  };
+
+  const parseEnd = (e: string) => {
+    if (!e) return new Date();
+    const [y, m, d] = e.split("-").map(Number);
+    return new Date(Date.UTC(y, m - 1, d) + 24 * 60 * 60 * 1000 - 1 - tzOffsetOffsetMs);
+  };
+
+  return {
+    startDate: parseStart(startStr),
+    endDate: parseEnd(endStr),
+  };
 }

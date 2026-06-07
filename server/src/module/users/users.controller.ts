@@ -383,6 +383,34 @@ export class UsersController {
     };
   }
 
+  @Patch("update-avatar")
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(UploadInterceptor("avatar"))
+  async updateAvatar(
+    @CurrentUser() user: JwtPayload,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    if (!file) {
+      throw new BadRequestException("Avatar file is required");
+    }
+
+    const me = await this.usersService.findById(user.sub);
+    if (!me) {
+      throw new BadRequestException("User not found");
+    }
+
+    me.avatar = await this.supabaseStorageService.uploadFile(file, "avatars");
+    me.updatedAt = new Date().toISOString();
+    await this.usersService.update(me);
+
+    return {
+      message: "Avatar updated successfully",
+      data: {
+        user: this.usersService.toPublicUser(me),
+      },
+    };
+  }
+
   @Patch(":id")
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles("admin", "owner")
@@ -463,34 +491,6 @@ export class UsersController {
       message: "Delivery partner created",
       data: {
         user: this.usersService.toPublicUser(user),
-      },
-    };
-  }
-
-  @Patch("update-avatar")
-  @UseGuards(JwtAuthGuard)
-  @UseInterceptors(UploadInterceptor("avatar"))
-  async updateAvatar(
-    @CurrentUser() user: JwtPayload,
-    @UploadedFile() file?: Express.Multer.File,
-  ) {
-    if (!file) {
-      throw new BadRequestException("Avatar file is required");
-    }
-
-    const me = await this.usersService.findById(user.sub);
-    if (!me) {
-      throw new BadRequestException("User not found");
-    }
-
-    me.avatar = await this.supabaseStorageService.uploadFile(file, "avatars");
-    me.updatedAt = new Date().toISOString();
-    await this.usersService.update(me);
-
-    return {
-      message: "Avatar updated successfully",
-      data: {
-        user: this.usersService.toPublicUser(me),
       },
     };
   }

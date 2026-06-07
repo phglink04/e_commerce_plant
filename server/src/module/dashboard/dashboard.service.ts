@@ -95,14 +95,17 @@ export class DashboardService {
     });
 
     // User statistics
-    const totalUsers = await this.userModel.countDocuments();
+    const totalUsers = await this.userModel.countDocuments({ role: "user" });
     const todayNewUsersCount = await this.userModel.countDocuments({
+      role: "user",
       createdAt: { $gte: today },
     });
     const newUsersThisMonth = await this.userModel.countDocuments({
+      role: "user",
       createdAt: { $gte: thisMonthStart },
     });
     const activeUsers = await this.userModel.countDocuments({
+      role: "user",
       lastLogin: {
         $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
       },
@@ -260,9 +263,14 @@ export class DashboardService {
       { $sort: { totalSpent: -1 } },
       { $limit: limit },
       {
+        $addFields: {
+          userObjId: { $toObjectId: "$_id" },
+        },
+      },
+      {
         $lookup: {
           from: "users",
-          localField: "_id",
+          localField: "userObjId",
           foreignField: "_id",
           as: "user",
         },
@@ -297,7 +305,10 @@ export class DashboardService {
     ]);
 
     const totalOrders = await this.orderModel.countDocuments(dateFilter);
-    const newCustomers = await this.userModel.countDocuments(dateFilter);
+    const newCustomers = await this.userModel.countDocuments({
+      ...dateFilter,
+      role: "user",
+    });
 
     return {
       revenue: revenueResult[0]?.total || 0,
@@ -413,7 +424,10 @@ export class DashboardService {
 
   async getRecentCustomers(startDate: Date, endDate: Date, limit: number = 5) {
     return await this.userModel
-      .find({ createdAt: { $gte: startDate, $lte: endDate } })
+      .find({
+        createdAt: { $gte: startDate, $lte: endDate },
+        role: "user",
+      })
       .sort({ createdAt: -1 })
       .limit(limit)
       .select("name email createdAt avatar")
