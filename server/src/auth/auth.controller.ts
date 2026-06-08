@@ -149,25 +149,29 @@ export class AuthController {
 
   @Post("auth/2fa/setup")
   @UseGuards(JwtAuthGuard)
-  setup2fa(@CurrentUser() user: JwtPayload) {
-    return this.authService.setup2fa(user.sub);
+  async setup2fa(@CurrentUser() user: JwtPayload) {
+    const result = await this.authService.setup2fa(user.sub);
+    return { data: result };
   }
 
   @Post("auth/2fa/verify")
   @UseGuards(JwtAuthGuard)
-  verify2fa(@CurrentUser() user: JwtPayload, @Body() dto: Verify2faDto) {
-    return this.authService.verify2fa(user.sub, dto.code);
+  async verify2fa(@CurrentUser() user: JwtPayload, @Body() dto: Verify2faDto) {
+    const result = await this.authService.verify2fa(user.sub, dto.code);
+    return { data: result };
   }
 
   @Post("auth/2fa/disable")
   @UseGuards(JwtAuthGuard)
-  disable2fa(@CurrentUser() user: JwtPayload, @Body() dto: Disable2faDto) {
-    return this.authService.disable2fa(user.sub, dto.code);
+  async disable2fa(@CurrentUser() user: JwtPayload, @Body() dto: Disable2faDto) {
+    const result = await this.authService.disable2fa(user.sub, dto.code);
+    return { message: result.message };
   }
 
   @Get("auth/2fa/status")
   @UseGuards(JwtAuthGuard)
-  check2faStatus(@CurrentUser() user: JwtPayload) {
-    return this.authService.check2faStatus(user.sub);
+  async check2faStatus(@CurrentUser() user: JwtPayload) {
+    const result = await this.authService.check2faStatus(user.sub);
+    return { data: result };
   }
 }

@@ -371,6 +371,7 @@ export class AuthService {
     return {
       otpAuthUrl: secret.otpauth_url,
       qrCodeUrl,
+      secret: secret.base32,
     };
   }
 
